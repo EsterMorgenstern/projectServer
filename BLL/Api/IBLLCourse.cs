@@ -8,5 +8,7 @@ namespace BLL.Api
 {
     public interface IBLLCourse
     {
+
+
     }
 }
