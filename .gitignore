@@ -1,0 +1,67 @@
+## .NET ##
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]ist/
+[Dd]ebugBuild/
+[Dd]ebugger/
+[Dd]ebug/
+bin/
+obj/
+
+## User-specific files ##
+.vs/
+.idea/
+.vscode/
+
+## User-specific configuration files ##
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+## Windows Installer files ##
+*.cab
+*.msi
+*.msm
+*.msp
+
+## Windows Installer logs ##
+*.cab
+*.msi
+*.msm
+*.msp
+*.pdb
+
+## JetBrains Rider ##
+.idea/
+
+## User-specific files for Visual Studio for Mac ##
+.vscode/
+
+## NuGet ##
+# .NET Core SDK
+.project.lock.json
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## ASP.NET Scaffolding ##
+ScaffoldingReadMe.txt
+
+## Microsoft Azure Web Apps ##
+# https://github.com/Microsoft/azure-docs/blob/master/articles/app-service-deploy-use-advanced-tools.md
+*.azure/ # Azure App Service files
+
+## Windows Installer files ##
+*.cab
+*.msi
+*.msm
+*.msp
+
+## NPM ##
+node_modules/
+npm-debug.log
+
+# ASP.NET Core / .NET Core runtime configuration files
+# /bin/obj files are common in .NET Core projects
