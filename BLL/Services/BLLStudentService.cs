@@ -36,10 +36,18 @@ namespace BLL.Services
             };
             dal.Students.Create(p);
         }
-
+       
+        /// <summary>
+        /// get לתלמידים
+        /// </summary>
+        /// <returns>List  של התלמידים</returns>
         public List<BLLStudent> Get()
         {
-            throw new NotImplementedException();
+            var pList = dal.Students.Get();
+            List<BLLStudent> list = new();
+            pList.ForEach(p => list.Add(new BLLStudent()
+            { Id = p.Id, FirstName = p.FirstName ?? "", LastName = p.LastName ?? "", Phone = p.Phone, BirthDate = (DateTime)p.BirthDate, City = p.City, School = p.School, HealthFund = p.HealthFund }));
+            return list;
         }
     }
 }
