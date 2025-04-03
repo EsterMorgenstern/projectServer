@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace DAL.Models;
 
-public partial class Student
+public  class Student
 {
     public int Id { get; set; }
 

@@ -16,6 +16,8 @@ namespace BLL
         public IBLLInstructor Instructors {  get; }
         public IBLLCourse Courses {  get; }
 
+       
+
         public BLLManager()
         {
             IDAL dal = new DALManager(); 

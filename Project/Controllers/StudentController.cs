@@ -14,7 +14,7 @@ namespace Server.Controllers
 
         public StudentController(IBLL manager)
         {
-            students = manager.Students;
+            students = (IBLLStudent?)manager.Students;
         }
 
         [HttpGet("GetAll")]
