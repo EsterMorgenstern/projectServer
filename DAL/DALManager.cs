@@ -25,6 +25,7 @@ namespace DAL
         public IDALInstructor Instructors { get; }
 
         public IDALCourse Courses { get; }
+        public IDALStudentCourse StudentCourses { get; }    
 
     }
 }

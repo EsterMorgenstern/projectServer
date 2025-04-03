@@ -11,5 +11,6 @@ namespace DAL.Api
         public IDALStudent Students { get;}
         public IDALInstructor Instructors{ get; }
         public IDALCourse Courses { get; }
+        public IDALStudentCourse StudentCourses { get; }    
     }
 }
