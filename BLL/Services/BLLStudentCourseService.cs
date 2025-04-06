@@ -31,7 +31,7 @@ namespace BLL.Services
             {
                 StudentId = sc.StudentId,
                 CourseId = sc.CourseId,
-                RegistrationDate = sc.RegistrationDate
+                RegistrationDate = sc.RegistrationDate ?? DateTime.MinValue // Handle nullable DateTime
             }).ToList();
         }
         public BLLStudentCourse GetById(int id)
@@ -45,7 +45,7 @@ namespace BLL.Services
             {
                 StudentId = p.StudentId,
                 CourseId = p.CourseId,
-                RegistrationDate = p.RegistrationDate
+                RegistrationDate = p.RegistrationDate ?? DateTime.MinValue // Handle nullable DateTime
             };
         }
         public void Delete(BLLStudentCourse studentCourse)

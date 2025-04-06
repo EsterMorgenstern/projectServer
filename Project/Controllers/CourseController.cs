@@ -12,7 +12,7 @@ namespace server.controllers
 
         public CourseController(IBLL manager)
         {
-            courses = (IBLLCourse?)manager.Courses;
+            courses =manager.Courses;
         }
 
         [HttpGet("GetAll")]

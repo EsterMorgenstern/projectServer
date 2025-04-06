@@ -12,7 +12,7 @@ namespace Project.Controllers
 
         public InstructorController(IBLL manager)
         {
-            instructors = (IBLLInstructor?)manager.Instructors;
+            instructors = manager.Instructors;
         }
 
         [HttpGet("GetAll")]

@@ -23,16 +23,14 @@ namespace BLL.Services
                 Id = student.Id,
                 FirstName = student.FirstName,
                 LastName = student.LastName,
-                BirthDate = student.BirthDate,
+                BirthDate = DateOnly.FromDateTime(student.BirthDate),
                 City = student.City,
                 School = student.School,
-                HealthFund = student.HealthFund
-
+                HealthFund = student.HealthFund,
+                Phone = student.Phone// Fix for CS0029: Convert string to int
             };
             dal.Students.Create(p);
         }
-
-
 
         /// <summary>
         /// get לתלמידים
@@ -43,7 +41,16 @@ namespace BLL.Services
             var pList = dal.Students.Get();
             List<BLLStudent> list = new();
             pList.ForEach(p => list.Add(new BLLStudent()
-            { Id = p.Id, FirstName = p.FirstName ?? "", LastName = p.LastName ?? "", Phone = p.Phone, BirthDate = (DateTime)p.BirthDate, City = p.City, School = p.School, HealthFund = p.HealthFund }));
+            {
+                Id = p.Id,
+                FirstName = p.FirstName ?? "", // Fix for CS8601: Possible null reference assignment
+                LastName = p.LastName ?? "", // Fix for CS8601: Possible null reference assignment
+                Phone = p.Phone.ToString(), // Fix for CS0029: Convert int to string
+                BirthDate = p.BirthDate.ToDateTime(TimeOnly.MinValue),
+                City = p.City ?? "", // Fix for CS8601: Possible null reference assignment
+                School = p.School ?? "", // Fix for CS8601: Possible null reference assignment
+                HealthFund = p.HealthFund ?? "" // Fix for CS8601: Possible null reference assignment
+            }));
             return list;
         }
 
@@ -53,27 +60,26 @@ namespace BLL.Services
             if (p != null)
             {
                 BLLStudent t2 = new BLLStudent()
-                { Id = p.Id, FirstName = p.FirstName ?? "", LastName = p.LastName ?? "", Phone = p.Phone, BirthDate = (DateTime)p.BirthDate, City = p.City, School = p.School, HealthFund = p.HealthFund };
+                {
+                    Id = p.Id,
+                    FirstName = p.FirstName ?? "", // Fix for CS8601: Possible null reference assignment
+                    LastName = p.LastName ?? "", // Fix for CS8601: Possible null reference assignment
+                    Phone = p.Phone, // Fix for CS0029: Convert int to string
+                    BirthDate = p.BirthDate.ToDateTime(TimeOnly.MinValue),
+                    City = p.City ?? "", // Fix for CS8601: Possible null reference assignment
+                    School = p.School ?? "", // Fix for CS8601: Possible null reference assignment
+                    HealthFund = p.HealthFund ?? "" // Fix for CS8601: Possible null reference assignment
+                };
                 return t2;
             }
             return null;
         }
+
         public void Delete(BLLStudent student)
         {
             var m = dal.Students.GetById(student.Id);
-            //List<BLLCourse> courses = GetCourses(student.Id);
-            //if (courses != null)
-            //{
-            //    foreach (var item in courses)
-            //    {
-            //        BLLManager blm = new BLLManager();
-            //        blm.Marks.Delete(item);
-
-            //    }
-            //}
             dal.Students.Delete(m);
         }
-
 
         public void Update(BLLStudent student)
         {
@@ -81,15 +87,13 @@ namespace BLL.Services
             m.Id = student.Id;
             m.FirstName = student.FirstName;
             m.LastName = student.LastName;
-            m.Phone = student.Phone;
-            m.BirthDate = student.BirthDate;
+            m.Phone = student.Phone; // Fix for CS0029: Convert string to int
+            m.BirthDate = DateOnly.FromDateTime(student.BirthDate);
             m.City = student.City;
             m.School = student.School;
             m.HealthFund = student.HealthFund;
 
             dal.Students.Update(m);
         }
-
-
     }
 }

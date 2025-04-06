@@ -1,3 +1,7 @@
+using BLL.Api;
+using BLL.Models;
+using BLL.Services; // Assuming BLLStudentService is in this namespace
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
