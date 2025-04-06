@@ -1,6 +1,7 @@
 ﻿using BLL.Api;
 using BLL.Models;
 using DAL.Api;
+using DAL.Models;
 
 namespace BLL.Services
 {
@@ -12,9 +13,18 @@ namespace BLL.Services
             this.dal = dal;
         }
 
-        public void Create(BLLInstructor student)
+        public void Create(BLLInstructor instructor)
         {
-            throw new NotImplementedException();
+            Instructor p = new Instructor()
+            {
+                Id = instructor.Id,
+                City = instructor.City,
+                Email = instructor.Email,
+                FirstName = instructor.FirstName,
+                LastName = instructor.LastName,
+                Phone = instructor.Phone
+            };  
+            dal.Instructors.Create(p);
         }
 
         public void Delete(BLLInstructor student)

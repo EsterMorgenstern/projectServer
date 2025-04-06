@@ -13,7 +13,8 @@ namespace DAL.Services
 
         public void Create(Instructor instructor)
         {
-            throw new NotImplementedException();
+           dbcontext.Instructors.Add(instructor);
+           dbcontext.SaveChanges();
         }
 
         public void Delete(Instructor instructor)

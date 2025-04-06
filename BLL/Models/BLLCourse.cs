@@ -1,4 +1,6 @@
-﻿namespace BLL.Models
+﻿using BLL.Api;
+
+namespace BLL.Models
 {
     public class BLLCourse
     {

@@ -17,7 +17,7 @@ public partial class Instructor
     [StringLength(20)]
     public string LastName { get; set; } = null!;
 
-    public int? Phone { get; set; }
+    public string? Phone { get; set; }
 
     [StringLength(30)]
     public string Email { get; set; } = null!;
