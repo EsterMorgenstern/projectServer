@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using DAL.Api;
+﻿using DAL.Api;
+using DAL.Models;
 using DAL.Services;
 
 namespace DAL
 {
-    public class DALManager:IDAL
+    public class DALManager : IDAL
     {
         dbcontext data = new dbcontext();
 
@@ -17,7 +12,7 @@ namespace DAL
         {
             Students = new DALStudentService(data);
             Instructors = new DALInstructorService(data);
-            Courses =new DALCourseService(data);     
+            Courses = new DALCourseService(data);
         }
 
         public IDALStudent Students { get; }
@@ -25,7 +20,7 @@ namespace DAL
         public IDALInstructor Instructors { get; }
 
         public IDALCourse Courses { get; }
-        public IDALStudentCourse StudentCourses { get; }    
+        public IDALStudentCourse StudentCourses { get; }
 
     }
 }

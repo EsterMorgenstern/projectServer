@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BLL.Api;
+﻿using BLL.Api;
 using BLL.Models;
-using DAL;
 using DAL.Api;
 using DAL.Models;
 
@@ -38,7 +32,7 @@ namespace BLL.Services
             dal.Students.Create(p);
         }
 
-        
+
 
         /// <summary>
         /// get לתלמידים
@@ -79,7 +73,7 @@ namespace BLL.Services
             //}
             dal.Students.Delete(m);
         }
-        
+
 
         public void Update(BLLStudent student)
         {
@@ -91,11 +85,11 @@ namespace BLL.Services
             m.BirthDate = student.BirthDate;
             m.City = student.City;
             m.School = student.School;
-            m.HealthFund = student.HealthFund;  
+            m.HealthFund = student.HealthFund;
 
             dal.Students.Update(m);
         }
 
-       
+
     }
 }

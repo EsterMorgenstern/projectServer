@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BLL.Models
+﻿namespace BLL.Models
 {
     public class BLLStudentCourse
     {
@@ -12,13 +6,13 @@ namespace BLL.Models
         public int CourseId { get; set; }
         public DateTime RegistrationDate { get; set; }
         public BLLStudentCourse() { }
-       
+
         public BLLStudentCourse(int studentId, int courseId, DateTime registrationDate)
         {
             StudentId = studentId;
             CourseId = courseId;
             RegistrationDate = registrationDate;
-            
-        }   
+
+        }
     }
 }

@@ -1,20 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
-namespace DAL.Models
+namespace DAL.Models;
+
+[PrimaryKey("StudentId", "CourseId")]
+public partial class StudentCourse
 {
-    public class StudentCourse
-    {
-        public int StudentId { get; set; }
-        public int CourseId { get; set; }
-        public DateTime RegistrationDate { get; set; }
+    [Key]
+    public int StudentId { get; set; }
 
-        //public DateTime EndDate { get; set; }
-        //public string Status { get; set; } // "Active", "Completed", "Dropped"
-        //public string Grade { get; set; } // "A", "B", "C", "D", "F"
-        //public string Feedback { get; set; } // Feedback from the instructor
-    }
+    [Key]
+    public int CourseId { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime? RegistrationDate { get; set; }
+
+    [ForeignKey("CourseId")]
+    [InverseProperty("StudentCourses")]
+    public virtual Course Course { get; set; } = null!;
+
+    [ForeignKey("StudentId")]
+    [InverseProperty("StudentCourses")]
+    public virtual Student Student { get; set; } = null!;
 }

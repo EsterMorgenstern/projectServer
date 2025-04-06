@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BLL.Api;
+﻿using BLL.Api;
 using BLL.Models;
 using DAL.Api;
 using DAL.Models;
@@ -23,9 +18,9 @@ namespace BLL.Services
             {
                 CourseId = studentCourses.CourseId,
                 StudentId = studentCourses.StudentId,
-                RegistrationDate = studentCourses.RegistrationDate  
+                RegistrationDate = studentCourses.RegistrationDate
             };
-            dal.StudentCourses.Create(p);   
+            dal.StudentCourses.Create(p);
         }
 
         public List<BLLStudentCourse> Get()
@@ -61,11 +56,11 @@ namespace BLL.Services
                 throw new KeyNotFoundException($"StudentCourse with id {studentCourse.CourseId} not found.");
             }
             //we want to delete all of the students in the course
-           
+
             //
-            
+
             //
-            
+
             dal.StudentCourses.Delete(m);
         }
 

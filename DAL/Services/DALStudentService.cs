@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DAL.Api;
 using DAL.Models;
-using DAL.Api;
 
 
 namespace DAL.Services
@@ -14,7 +9,7 @@ namespace DAL.Services
         dbcontext dbcontext;
         public DALStudentService(dbcontext data)
         {
-               dbcontext = data;
+            dbcontext = data;
         }
 
         public void Create(Student item)
@@ -23,7 +18,7 @@ namespace DAL.Services
             dbcontext.SaveChanges();
         }
 
-       
+
 
         public List<Student> Get()
         {

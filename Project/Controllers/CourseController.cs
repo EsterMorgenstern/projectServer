@@ -1,10 +1,11 @@
 ﻿using BLL.Api;
 using BLL.Models;
-using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Project.Controllers
+namespace server.controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class CourseController
     {
         IBLLCourse courses;

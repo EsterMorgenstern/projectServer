@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Project.Controllers
 {
-    public class InstructorController
+    [Route("api/[controller]")]
+    [ApiController]
+    public class InstructorController : ControllerBase
     {
         IBLLInstructor instructors;
 
@@ -24,16 +26,19 @@ namespace Project.Controllers
         {
             instructors.Create(instructor);
         }
+
         [HttpGet("getById/{id}")]
         public BLLInstructor GetById(int id)
         {
             return instructors.GetById(id);
         }
+
         [HttpPut("Update")]
         public void Update(BLLInstructor instructor)
         {
             instructors.Update(instructor);
         }
+
         [HttpDelete("Delete")]
         public void Delete(BLLInstructor instructor)
         {

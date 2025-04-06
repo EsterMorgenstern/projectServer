@@ -1,18 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DAL.Models
+namespace DAL.Models;
+
+public partial class Course
 {
-    public class Course
-    {
-        public int CourseId { get; set; }
-        public string? CourseName { get; set; }
-        public int InstructorId { get; set; }
-        public int NumOfStudents { get; set; }
-        public int MaxNumOfStudent { get; set; }
-        public DateTime? StartDate { get; set; }
-    }
+    [Key]
+    public int CourseId { get; set; }
+
+    [StringLength(20)]
+    public string CouresName { get; set; } = null!;
+
+    public int InstructorId { get; set; }
+
+    public int? NumOfStudents { get; set; }
+
+    public int? MaxNumOfStudents { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime StartDate { get; set; }
+
+    [ForeignKey("InstructorId")]
+    [InverseProperty("Courses")]
+    public virtual Instructor Instructor { get; set; } = null!;
+
+    [InverseProperty("Course")]
+    public virtual ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
 }

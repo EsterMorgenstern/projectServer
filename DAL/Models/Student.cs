@@ -1,23 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DAL.Models;
 
-public  class Student
+public partial class Student
 {
+    [Key]
     public int Id { get; set; }
 
-    public string? FirstName { get; set; }
+    [StringLength(20)]
+    public string FirstName { get; set; } = null!;
 
-    public string? LastName { get; set; }
-    public string? Phone { get; set; }
-    public DateTime? BirthDate { get; set; }
+    [StringLength(20)]
+    public string LastName { get; set; } = null!;
 
+    public int Phone { get; set; }
+
+    public DateOnly BirthDate { get; set; }
+
+    [StringLength(20)]
     public string? City { get; set; }
 
+    [StringLength(20)]
     public string? School { get; set; }
+
+    [StringLength(50)]
     public string? HealthFund { get; set; }
 
-
+    [InverseProperty("Student")]
+    public virtual ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
 }

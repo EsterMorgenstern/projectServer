@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BLL.Api;
+﻿using BLL.Api;
 using BLL.Models;
 using DAL.Api;
 
 namespace BLL.Services
 {
-    public class BLLInstructorService:IBLLInstructor
+    public class BLLInstructorService : IBLLInstructor
     {
         IDAL dal;
         public BLLInstructorService(IDAL dal)
