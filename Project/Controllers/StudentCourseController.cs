@@ -21,15 +21,16 @@ namespace Project.Controllers
             return studentCourses.Get();
         }
 
-        [HttpPost("Add")]
-        public void Create(BLLStudentCourse studentCourse)
-        {
-            studentCourses.Create(studentCourse);
-        }
+        
         [HttpGet("getById/{id}")]
         public BLLStudentCourse GetById(int id)
         {
             return studentCourses.GetById(id);
+        }
+        [HttpPost("Add")]
+        public void Create(BLLStudentCourse studentCourse)
+        {
+            studentCourses.Create(studentCourse);
         }
         [HttpPut("Update")]
         public void Update(BLLStudentCourse studentCourse)

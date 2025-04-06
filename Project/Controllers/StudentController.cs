@@ -23,15 +23,16 @@ namespace Server.Controllers
             return students.Get();
         }
 
-        [HttpPost("Add")]
-        public void Create(BLLStudent student)
-        {
-            students.Create(student);
-        }
+        
         [HttpGet("getById/{id}")]
         public BLLStudent GetById(int id)
         {
             return students.GetById(id);
+        }
+        [HttpPost("Add")]
+        public void Create(BLLStudent student)
+        {
+            students.Create(student);
         }
         [HttpPut("Update")]
         public void Update(BLLStudent student)

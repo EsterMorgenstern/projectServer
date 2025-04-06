@@ -21,15 +21,16 @@ namespace server.controllers
             return courses.Get();
         }
 
-        [HttpPost("Add")]
-        public void Create(BLLCourse course)
-        {
-            courses.Create(course);
-        }
+        
         [HttpGet("getById/{id}")]
         public BLLCourse GetById(int id)
         {
             return courses.GetById(id);
+        }
+        [HttpPost("Add")]
+        public void Create(BLLCourse course)
+        {
+            courses.Create(course);
         }
         [HttpPut("Update")]
         public void Update(BLLCourse course)

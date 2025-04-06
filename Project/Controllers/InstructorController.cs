@@ -21,18 +21,18 @@ namespace Project.Controllers
             return instructors.Get();
         }
 
-        [HttpPost("Add")]
-        public void Create(BLLInstructor instructor)
-        {
-            instructors.Create(instructor);
-        }
+        
 
         [HttpGet("getById/{id}")]
         public BLLInstructor GetById(int id)
         {
             return instructors.GetById(id);
         }
-
+        [HttpPost("Add")]
+        public void Create(BLLInstructor instructor)
+        {
+            instructors.Create(instructor);
+        }
         [HttpPut("Update")]
         public void Update(BLLInstructor instructor)
         {
