@@ -24,12 +24,12 @@ namespace DAL.Services
 
         public List<Instructor> Get()
         {
-            throw new NotImplementedException();
+          return  dbcontext.Instructors.ToList();
         }
 
         public Instructor GetById(int id)
         {
-            throw new NotImplementedException();
+            return dbcontext.Instructors.SingleOrDefault(x => x.Id == id);
         }
 
         public void Update(Instructor instructor)

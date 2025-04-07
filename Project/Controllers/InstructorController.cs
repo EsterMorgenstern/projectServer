@@ -8,6 +8,7 @@ namespace Project.Controllers
     [ApiController]
     public class InstructorController : ControllerBase
     {
+        private const string V = "getById/{id}";
         IBLLInstructor instructors;
 
         public InstructorController(IBLL manager)
@@ -20,10 +21,8 @@ namespace Project.Controllers
         {
             return instructors.Get();
         }
-
-        
-
-        [HttpGet("getById/{id}")]
+   
+        [HttpGet(V)]
         public BLLInstructor GetById(int id)
         {
             return instructors.GetById(id);

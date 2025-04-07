@@ -21,22 +21,24 @@ namespace Project.Controllers
             return studentCourses.Get();
         }
 
-        
-        [HttpGet("getById/{id}")]
-        public BLLStudentCourse GetById(int id)
+        [HttpGet("getById/{cId}/{sId}")]
+        public BLLStudentCourse GetById(int cId, int sId)
         {
-            return studentCourses.GetById(id);
+            return studentCourses.GetById(cId, sId);
         }
+
         [HttpPost("Add")]
         public void Create(BLLStudentCourse studentCourse)
         {
             studentCourses.Create(studentCourse);
         }
+
         [HttpPut("Update")]
         public void Update(BLLStudentCourse studentCourse)
         {
             studentCourses.Update(studentCourse);
         }
+
         [HttpDelete("Delete")]
         public void Delete(BLLStudentCourse studentCourse)
         {

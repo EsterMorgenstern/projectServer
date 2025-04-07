@@ -56,7 +56,7 @@ namespace BLL.Services
 
         public BLLStudent? GetById(int id)
         {
-            var p = dal.Students.GetById(id);
+            var p = dal.Students.GetById(id); 
             if (p != null)
             {
                 BLLStudent t2 = new BLLStudent()
@@ -64,7 +64,7 @@ namespace BLL.Services
                     Id = p.Id,
                     FirstName = p.FirstName ?? "", // Fix for CS8601: Possible null reference assignment
                     LastName = p.LastName ?? "", // Fix for CS8601: Possible null reference assignment
-                    Phone = p.Phone, // Fix for CS0029: Convert int to string
+                    Phone = p.Phone.ToString(), // Fix for CS0029: Convert int to string
                     BirthDate = p.BirthDate.ToDateTime(TimeOnly.MinValue),
                     City = p.City ?? "", // Fix for CS8601: Possible null reference assignment
                     School = p.School ?? "", // Fix for CS8601: Possible null reference assignment

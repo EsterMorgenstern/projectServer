@@ -21,11 +21,17 @@ namespace BLL.Services
                 RegistrationDate = studentCourses.RegistrationDate
             };
             dal.StudentCourses.Create(p);
+            var course = dal.Courses.GetById(studentCourses.CourseId);
+            if (course != null)
+            {
+                course.NumOfStudents += 1;
+                dal.Courses.Update(course);
+            }
         }
 
         public List<BLLStudentCourse> Get()
         {
-            // Assuming we need to fetch the student courses from the DAL layer
+
             var studentCourses = dal.StudentCourses.Get();
             return studentCourses.Select(sc => new BLLStudentCourse
             {
@@ -34,12 +40,12 @@ namespace BLL.Services
                 RegistrationDate = sc.RegistrationDate ?? DateTime.MinValue // Handle nullable DateTime
             }).ToList();
         }
-        public BLLStudentCourse GetById(int id)
+        public BLLStudentCourse GetById(int cId, int sId)
         {
-            var p = dal.StudentCourses.GetById(id);
+            var p = dal.StudentCourses.GetById(cId, sId);
             if (p == null)
             {
-                throw new KeyNotFoundException($"StudentCourse with id {id} not found.");
+                throw new KeyNotFoundException($"StudentCourse with courseId {cId} & studentId {sId} not found.");
             }
             return new BLLStudentCourse
             {
@@ -50,16 +56,12 @@ namespace BLL.Services
         }
         public void Delete(BLLStudentCourse studentCourse)
         {
-            var m = dal.StudentCourses.GetById(studentCourse.CourseId);
+            var m = dal.StudentCourses.GetById(studentCourse.CourseId, studentCourse.StudentId);
+
             if (m == null)
             {
-                throw new KeyNotFoundException($"StudentCourse with id {studentCourse.CourseId} not found.");
+                throw new KeyNotFoundException($"StudentCourse with courseId {studentCourse.CourseId} & studentId {studentCourse.StudentId} not found.");
             }
-            //we want to delete all of the students in the course
-
-            //
-
-            //
 
             dal.StudentCourses.Delete(m);
         }
@@ -67,7 +69,7 @@ namespace BLL.Services
 
         public void Update(BLLStudentCourse studentCourse)
         {
-            var m = dal.StudentCourses.GetById(studentCourse.CourseId);
+            var m = dal.StudentCourses.GetById(studentCourse.CourseId, studentCourse.StudentId);
             m.StudentId = studentCourse.StudentId;
             m.CourseId = studentCourse.CourseId;
             m.RegistrationDate = studentCourse.RegistrationDate;

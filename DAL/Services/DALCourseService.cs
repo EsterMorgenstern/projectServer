@@ -13,7 +13,8 @@ namespace DAL.Services
         }
         public void Create(Course course)
         {
-            throw new NotImplementedException();
+            dbcontext.Courses.Add(course);
+            dbcontext.SaveChanges();
         }
 
         public void Delete(Course course)
@@ -23,16 +24,17 @@ namespace DAL.Services
 
         public List<Course> Get()
         {
-            throw new NotImplementedException();
+           return dbcontext.Courses.ToList();   
         }
 
         public Course GetById(int id)
         {
-            throw new NotImplementedException();
+            return dbcontext.Courses.SingleOrDefault(x => x.CourseId == id);
         }
         public void Update(Course course)
         {
-            throw new NotImplementedException();
+            dbcontext.Courses.Update(course);
+            dbcontext.SaveChanges();
         }
     }
 }

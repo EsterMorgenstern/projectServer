@@ -23,26 +23,52 @@ namespace BLL.Services
                 FirstName = instructor.FirstName,
                 LastName = instructor.LastName,
                 Phone = instructor.Phone
-            };  
+            };
             dal.Instructors.Create(p);
         }
 
-        public void Delete(BLLInstructor student)
+        public void Delete(BLLInstructor instructor)
         {
             throw new NotImplementedException();
         }
 
         public List<BLLInstructor> Get()
         {
-            throw new NotImplementedException();
+            var pList = dal.Instructors.Get();
+            List<BLLInstructor> list = new();
+            pList.ForEach(p => list.Add(new BLLInstructor()
+            {
+                Id = p.Id,
+                FirstName = p.FirstName,
+                LastName = p.LastName,
+                City = p.City ?? string.Empty, // Fix for CS8601
+                Email = p.Email,
+                Phone = p.Phone ?? string.Empty // Fix for CS8601
+
+            }));
+            return list;
         }
 
-        public BLLInstructor GetById(int id)
+        public BLLInstructor? GetById(int id)
         {
-            throw new NotImplementedException();
+            Instructor p = dal.Instructors.GetById(id);
+            if (p != null)
+            {
+                BLLInstructor t = new BLLInstructor()
+                {
+                    Id = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    City = p.City ?? string.Empty,
+                    Email = p.Email,
+                    Phone = p.Phone ?? string.Empty
+                };
+                return t;
+            }
+            return null;
         }
 
-        public void Update(BLLInstructor student)
+        public void Update(BLLInstructor instructor)
         {
             throw new NotImplementedException();
         }

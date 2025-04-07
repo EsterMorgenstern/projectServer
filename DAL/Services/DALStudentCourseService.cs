@@ -13,27 +13,30 @@ namespace DAL.Services
 
         public void Create(StudentCourse studentCourse)
         {
-            throw new NotImplementedException();
+            dbcontext.StudentCourses.Add(studentCourse);
+            dbcontext.SaveChanges();
         }
 
         public void Delete(StudentCourse studentCourse)
         {
-            throw new NotImplementedException();
+            dbcontext.StudentCourses.Remove(studentCourse);
+            dbcontext.SaveChanges();
         }
 
         public List<StudentCourse> Get()
         {
-            throw new NotImplementedException();
+            return dbcontext.StudentCourses.ToList();
         }
 
-        public StudentCourse GetById(int id)
+        public StudentCourse GetById(int cId, int sId)
         {
-            throw new NotImplementedException();
+            return dbcontext.StudentCourses.SingleOrDefault(x => x.CourseId == cId && x.StudentId == sId);
         }
 
         public void Update(StudentCourse studentCourse)
         {
-            throw new NotImplementedException();
+            dbcontext.StudentCourses.Update(studentCourse);
+            dbcontext.SaveChanges();
         }
     }
 }

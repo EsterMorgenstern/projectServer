@@ -6,7 +6,7 @@ namespace DAL.Api
     {
         List<StudentCourse> Get();
         void Create(StudentCourse studentCourse);
-        StudentCourse GetById(int id);
+        StudentCourse GetById(int cId, int sId);
         void Delete(StudentCourse studentCourse);
         void Update(StudentCourse studentCourse);
     }

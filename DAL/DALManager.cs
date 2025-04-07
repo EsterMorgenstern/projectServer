@@ -13,12 +13,11 @@ namespace DAL
             Students = new DALStudentService(data);
             Instructors = new DALInstructorService(data);
             Courses = new DALCourseService(data);
+            StudentCourses = new DALStudentCourseService(data);
         }
 
         public IDALStudent Students { get; }
-
         public IDALInstructor Instructors { get; }
-
         public IDALCourse Courses { get; }
         public IDALStudentCourse StudentCourses { get; }
 
