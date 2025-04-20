@@ -39,10 +39,10 @@ namespace Server.Controllers
         {
             students.Update(student);
         }
-        [HttpDelete("Delete")]
-        public void Delete(BLLStudent student)
+        [HttpDelete("Delete/{id}")]
+        public void Delete(int id)
         {
-            students.Delete(student);
+            students.Delete(id);
         }
     }
 }

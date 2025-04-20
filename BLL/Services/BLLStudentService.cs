@@ -75,10 +75,9 @@ namespace BLL.Services
             return null;
         }
 
-        public void Delete(BLLStudent student)
+        public void Delete(int id)
         {
-            var m = dal.Students.GetById(student.Id);
-            dal.Students.Delete(m);
+            dal.Students.Delete(id);
         }
 
         public void Update(BLLStudent student)

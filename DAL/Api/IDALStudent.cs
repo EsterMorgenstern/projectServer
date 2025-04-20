@@ -7,7 +7,7 @@ namespace DAL.Api
         List<Student> Get();
         void Create(Student student);
         Student GetById(int id);
-        void Delete(Student student);
+        void Delete(int id);
         void Update(Student student);
     }
 }

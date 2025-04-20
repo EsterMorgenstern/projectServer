@@ -13,18 +13,29 @@ namespace DAL.Services
 
         public void Create(Instructor instructor)
         {
-           dbcontext.Instructors.Add(instructor);
-           dbcontext.SaveChanges();
+            if (string.IsNullOrWhiteSpace(instructor.FirstName) || string.IsNullOrWhiteSpace(instructor.LastName))
+            {
+                throw new ArgumentException("Instructor's first and last name cannot be empty.");
+            }
+            dbcontext.Instructors.Add(instructor);
+            dbcontext.SaveChanges();
         }
 
-        public void Delete(Instructor instructor)
+        public void Delete(int id)
         {
-            throw new NotImplementedException();
+            var instructor = dbcontext.Instructors.SingleOrDefault(x => x.Id == id);
+            if (instructor == null)
+            {
+                throw new KeyNotFoundException($"Instructor with ID {id} not found.");
+            }
+
+            dbcontext.Instructors.Remove(instructor);
+            dbcontext.SaveChanges();
         }
 
         public List<Instructor> Get()
         {
-          return  dbcontext.Instructors.ToList();
+           return dbcontext.Instructors.ToList();
         }
 
         public Instructor GetById(int id)
@@ -34,7 +45,20 @@ namespace DAL.Services
 
         public void Update(Instructor instructor)
         {
-            throw new NotImplementedException();
+            var existingInstructor = dbcontext.Instructors.SingleOrDefault(x => x.Id == instructor.Id);
+            if (existingInstructor == null)
+            {
+                throw new KeyNotFoundException($"Instructor with ID {instructor.Id} not found.");
+            }
+
+            existingInstructor.FirstName = instructor.FirstName;
+            existingInstructor.LastName = instructor.LastName;
+            existingInstructor.Phone = instructor.Phone;
+            existingInstructor.Email = instructor.Email;
+            existingInstructor.City = instructor.City;
+
+            dbcontext.SaveChanges();
         }
+
     }
 }

@@ -27,9 +27,10 @@ namespace BLL.Services
             dal.Instructors.Create(p);
         }
 
-        public void Delete(BLLInstructor instructor)
+        public void Delete(int id)
         {
-            throw new NotImplementedException();
+          dal.Instructors.Delete(id);
+
         }
 
         public List<BLLInstructor> Get()
@@ -41,15 +42,14 @@ namespace BLL.Services
                 Id = p.Id,
                 FirstName = p.FirstName,
                 LastName = p.LastName,
-                City = p.City ?? string.Empty, // Fix for CS8601
+                City = p.City ?? string.Empty,
                 Email = p.Email,
-                Phone = p.Phone ?? string.Empty // Fix for CS8601
-
+                Phone = p.Phone ?? 0 // Use null-coalescing operator to handle nullable Phone
             }));
             return list;
         }
 
-        public BLLInstructor? GetById(int id)
+        public BLLInstructor GetById(int id)
         {
             Instructor p = dal.Instructors.GetById(id);
             if (p != null)
@@ -61,11 +61,11 @@ namespace BLL.Services
                     LastName = p.LastName,
                     City = p.City ?? string.Empty,
                     Email = p.Email,
-                    Phone = p.Phone ?? string.Empty
+                    Phone = p.Phone ?? 0,
                 };
                 return t;
             }
-            return null;
+            return null; 
         }
 
         public void Update(BLLInstructor instructor)

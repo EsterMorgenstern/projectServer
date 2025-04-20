@@ -1,7 +1,5 @@
-using BLL.Api;
 using BLL;
 using BLL.Api;
-using DAL;
 
 var builder = WebApplication.CreateBuilder(args);
 

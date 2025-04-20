@@ -25,13 +25,19 @@ namespace DAL.Services
             return dbcontext.Students.ToList();
         }
 
-        public Student GetById(int id)
+        public Student? GetById(int id)
         {
             return dbcontext.Students.ToList().Find(x => x.Id == id);
         }
 
-        public void Delete(Student student)
+        public void Delete(int id)
         {
+            var student = dbcontext.Students.SingleOrDefault(x => x.Id == id);
+            if (student == null)
+            {
+                throw new KeyNotFoundException($"Instructor with ID {id} not found.");
+            }
+
             dbcontext.Students.Remove(student);
             dbcontext.SaveChanges();
 

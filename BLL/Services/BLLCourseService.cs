@@ -45,7 +45,7 @@ namespace BLL.Services
             }).ToList();
         }
 
-        public BLLCourse? GetById(int id)
+        public BLLCourse GetById(int id)
         {
             Course c = dal.Courses.GetById(id);
             BLLCourse blc = new BLLCourse()

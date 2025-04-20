@@ -30,7 +30,8 @@ namespace DAL.Services
 
         public StudentCourse GetById(int cId, int sId)
         {
-            return dbcontext.StudentCourses.SingleOrDefault(x => x.CourseId == cId && x.StudentId == sId);
+            return dbcontext.StudentCourses.SingleOrDefault(x => x.CourseId == cId && x.StudentId == sId)
+                   ?? throw new InvalidOperationException("StudentCourse not found.");
         }
 
         public void Update(StudentCourse studentCourse)

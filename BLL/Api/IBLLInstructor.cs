@@ -7,7 +7,7 @@ namespace BLL.Api
         List<BLLInstructor> Get();
         void Create(BLLInstructor instructor);
         public BLLInstructor GetById(int id);
-        public void Delete(BLLInstructor instructor);
+        public void Delete(int id);
         public void Update(BLLInstructor instructor);
     }
 }

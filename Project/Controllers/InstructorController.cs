@@ -38,10 +38,10 @@ namespace Project.Controllers
             instructors.Update(instructor);
         }
 
-        [HttpDelete("Delete")]
-        public void Delete(BLLInstructor instructor)
+        [HttpDelete("Delete/{id}")]
+        public void Delete(int id)
         {
-            instructors.Delete(instructor);
+            instructors.Delete(id);
         }
     }
 }
