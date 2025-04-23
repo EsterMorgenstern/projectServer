@@ -1,5 +1,6 @@
 ﻿using BLL.Api;
 using BLL.Models;
+using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -30,7 +31,7 @@ namespace Server.Controllers
             return students.GetById(id);
         }
         [HttpPost("Add")]
-        public void Create(BLLStudent student)
+        public void Create([FromBody] BLLStudent student)
         {
             students.Create(student);
         }

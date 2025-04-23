@@ -22,6 +22,8 @@ namespace DAL.Services
 
         public List<Student> Get()
         {
+            if (dbcontext.Students == null)
+                throw new Exception("No students found.");
             return dbcontext.Students.ToList();
         }
 

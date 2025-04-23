@@ -28,7 +28,7 @@ namespace Project.Controllers
             return instructors.GetById(id);
         }
         [HttpPost("Add")]
-        public void Create(BLLInstructor instructor)
+        public void Create([FromBody]BLLInstructor instructor)
         {
             instructors.Create(instructor);
         }
