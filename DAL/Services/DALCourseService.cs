@@ -19,7 +19,8 @@ namespace DAL.Services
 
         public void Delete(Course course)
         {
-            throw new NotImplementedException();
+            dbcontext.Courses.Remove(course);
+            dbcontext.SaveChanges();
         }
 
         public List<Course> Get()
@@ -31,6 +32,7 @@ namespace DAL.Services
         {
             return dbcontext.Courses.SingleOrDefault(x => x.CourseId == id);
         }
+      
         public void Update(Course course)
         {
             dbcontext.Courses.Update(course);

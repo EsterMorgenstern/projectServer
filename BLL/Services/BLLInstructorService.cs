@@ -30,7 +30,6 @@ namespace BLL.Services
         public void Delete(int id)
         {
           dal.Instructors.Delete(id);
-
         }
 
         public List<BLLInstructor> Get()

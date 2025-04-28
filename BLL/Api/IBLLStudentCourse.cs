@@ -7,6 +7,7 @@ namespace BLL.Api
         List<BLLStudentCourse> Get();
         void Create(BLLStudentCourse studentCourses);
         public BLLStudentCourse GetById(int cId,int sId);
+        public BLLStudentCourse GetByIdCourse(int cId); 
         public void Delete(BLLStudentCourse studentCourses);
         public void Update(BLLStudentCourse studentCourses);
     }

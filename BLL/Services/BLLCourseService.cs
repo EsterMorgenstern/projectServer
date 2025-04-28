@@ -29,7 +29,22 @@ namespace BLL.Services
 
         public void Delete(BLLCourse course)
         {
-            throw new NotImplementedException();
+            dal.Courses.Delete(new Course()
+            {
+                CourseId = course.CourseId,
+                CouresName = course.CourseName,
+                InstructorId = course.InstructorId,
+                MaxNumOfStudents = course.MaxNumOfStudent,
+                NumOfStudents = course.NumOfStudents,
+                StartDate = course.StartDate
+            });
+            foreach (var item in dal.StudentCourses.Get())
+            {
+                if (item.CourseId == course.CourseId)
+                {
+                  dal.StudentCourses.Delete(dal.StudentCourses.GetByIdCourse(item.CourseId)); 
+                }
+            }
         }
 
         public List<BLLCourse> Get()

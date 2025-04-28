@@ -54,6 +54,21 @@ namespace BLL.Services
                 RegistrationDate = p.RegistrationDate ?? DateTime.MinValue // Handle nullable DateTime
             };
         }
+        public BLLStudentCourse GetByIdCourse(int cId)
+        {
+            var p = dal.StudentCourses.GetByIdCourse(cId);
+            if (p == null)
+            {
+                throw new KeyNotFoundException($"StudentCourse with courseId {cId} not found.");
+            }
+            return new BLLStudentCourse
+            {
+                StudentId = p.StudentId,
+                CourseId = p.CourseId,
+                RegistrationDate = p.RegistrationDate ?? DateTime.MinValue // Handle nullable DateTime
+            };  
+        }
+
         public void Delete(BLLStudentCourse studentCourse)
         {
             var m = dal.StudentCourses.GetById(studentCourse.CourseId, studentCourse.StudentId);
