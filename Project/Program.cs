@@ -1,5 +1,5 @@
-using BLL;
 using BLL.Api;
+using BLL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +9,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<IBLL, BLLManager>();
+builder.Services.AddSingleton<IBLL,BLLManager>();
 
 builder.Services.AddCors(c => c.AddPolicy("AllowAll",
     option => option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));

@@ -1,4 +1,5 @@
-﻿using DAL.Api;
+﻿
+using DAL.Api;
 using DAL.Models;
 
 
@@ -6,8 +7,8 @@ namespace DAL.Services
 {
     public class DALCourseService : IDALCourse
     {
-        dbcontext dbcontext;
-        public DALCourseService(dbcontext data)
+        Dbcontext dbcontext;
+        public DALCourseService(Dbcontext data)
         {
             dbcontext = data;
         }
@@ -19,8 +20,12 @@ namespace DAL.Services
 
         public void Delete(Course course)
         {
-            dbcontext.Courses.Remove(course);
-            dbcontext.SaveChanges();
+            var trackedCourse = dbcontext.Courses.Find(course.CourseId);
+            if (trackedCourse != null)
+            {
+                dbcontext.Courses.Remove(trackedCourse);
+                dbcontext.SaveChanges();
+            }
         }
 
         public List<Course> Get()
@@ -30,7 +35,12 @@ namespace DAL.Services
 
         public Course GetById(int id)
         {
-            return dbcontext.Courses.SingleOrDefault(x => x.CourseId == id);
+            var course = dbcontext.Courses.SingleOrDefault(x => x.CourseId == id);
+            if (course == null)
+            {
+                throw new KeyNotFoundException($"Course with ID {id} not found.");
+            }
+            return course;
         }
       
         public void Update(Course course)

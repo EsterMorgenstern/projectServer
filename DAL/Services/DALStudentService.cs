@@ -6,8 +6,8 @@ namespace DAL.Services
 {
     public class DALStudentService : IDALStudent
     {
-        dbcontext dbcontext;
-        public DALStudentService(dbcontext data)
+        Dbcontext dbcontext;
+        public DALStudentService(Dbcontext data)
         {
             dbcontext = data;
         }
@@ -18,18 +18,21 @@ namespace DAL.Services
             dbcontext.SaveChanges();
         }
 
-
-
         public List<Student> Get()
         {
-            if (dbcontext.Students == null)
+            if ( dbcontext.Students == null)
                 throw new Exception("No students found.");
             return dbcontext.Students.ToList();
         }
 
-        public Student? GetById(int id)
+        public Student GetById(int id) 
         {
-            return dbcontext.Students.ToList().Find(x => x.Id == id);
+            var student = dbcontext.Students.ToList().Find(x => x.Id == id);
+            if (student == null)
+            {
+                throw new KeyNotFoundException($"Student with ID {id} not found."); 
+            }
+            return student;
         }
 
         public void Delete(int id)
@@ -42,13 +45,11 @@ namespace DAL.Services
 
             dbcontext.Students.Remove(student);
             dbcontext.SaveChanges();
-
         }
         public void Update(Student student)
         {
             dbcontext.Students.Update(student);
             dbcontext.SaveChanges();
-
         }
     }
 }

@@ -6,7 +6,7 @@ namespace DAL
 {
     public class DALManager : IDAL
     {
-        dbcontext data = new dbcontext();
+        Dbcontext data = new Dbcontext();
 
         public DALManager()
         {

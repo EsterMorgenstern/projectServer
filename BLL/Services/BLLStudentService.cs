@@ -1,4 +1,5 @@
-﻿using BLL.Api;
+﻿using System.Diagnostics.CodeAnalysis;
+using BLL.Api;
 using BLL.Models;
 using DAL.Api;
 using DAL.Models;
@@ -27,7 +28,9 @@ namespace BLL.Services
                 City = student.City,
                 School = student.School,
                 HealthFund = student.HealthFund,
-                Phone = student.Phone// Fix for CS0029: Convert string to int
+                Phone = student.Phone,// Fix for CS0029: Convert string to int
+                Community = student.Community,
+                Active = student.Active // Fix for CS8601: Possible null reference assignment   
             };
             dal.Students.Create(p);
         }
@@ -49,14 +52,16 @@ namespace BLL.Services
                 BirthDate = p.BirthDate.ToDateTime(TimeOnly.MinValue),
                 City = p.City ?? "", // Fix for CS8601: Possible null reference assignment
                 School = p.School ?? "", // Fix for CS8601: Possible null reference assignment
-                HealthFund = p.HealthFund ?? "" // Fix for CS8601: Possible null reference assignment
+                HealthFund = p.HealthFund ?? "", // Fix for CS8601: Possible null reference assignment
+                Community=p.Community ?? "", // Fix for CS8601: Possible null reference assignment
+                Active = p.Active ?? true // Fix for CS8601: Possible null reference assignment 
             }));
             return list;
         }
-
+        [return: NotNullIfNotNull("id")]
         public BLLStudent? GetById(int id)
         {
-            var p = dal.Students.GetById(id); 
+            var p = dal.Students.GetById(id);
             if (p != null)
             {
                 BLLStudent t2 = new BLLStudent()
@@ -68,11 +73,26 @@ namespace BLL.Services
                     BirthDate = p.BirthDate.ToDateTime(TimeOnly.MinValue),
                     City = p.City ?? "", // Fix for CS8601: Possible null reference assignment
                     School = p.School ?? "", // Fix for CS8601: Possible null reference assignment
-                    HealthFund = p.HealthFund ?? "" // Fix for CS8601: Possible null reference assignment
+                    HealthFund = p.HealthFund ?? "", // Fix for CS8601: Possible null reference assignment
+                    Community = p.Community ?? "", // Fix for CS8601: Possible null reference assignment  
+                    Active=p.Active ?? true // Fix for CS8601: Possible null reference assignment   
                 };
                 return t2;
             }
-            return null;
+
+           return new BLLStudent()
+            {
+                Id = id,
+                FirstName = "",
+                LastName = "",
+                Phone = "",
+                BirthDate = DateTime.MinValue,
+                City = "",
+                School = "",
+                HealthFund = "",
+               Community = "",
+               Active = true // Fix for CS8601: Possible null reference assignment
+           };
         }
 
         public void Delete(int id)
@@ -91,6 +111,8 @@ namespace BLL.Services
             m.City = student.City;
             m.School = student.School;
             m.HealthFund = student.HealthFund;
+            m.Community = student.Community;
+            m.Active = student.Active; // Fix for CS8601: Possible null reference assignment    
 
             dal.Students.Update(m);
         }

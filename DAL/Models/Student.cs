@@ -31,6 +31,11 @@ public partial class Student
     [StringLength(50)]
     public string? HealthFund { get; set; }
 
+    [StringLength(50)]
+    public string? Community { get; set; }
+
+    public bool? Active { get; set; }
+
     [InverseProperty("Student")]
     public virtual ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
 }

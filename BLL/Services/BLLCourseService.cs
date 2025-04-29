@@ -29,15 +29,6 @@ namespace BLL.Services
 
         public void Delete(BLLCourse course)
         {
-            dal.Courses.Delete(new Course()
-            {
-                CourseId = course.CourseId,
-                CouresName = course.CourseName,
-                InstructorId = course.InstructorId,
-                MaxNumOfStudents = course.MaxNumOfStudent,
-                NumOfStudents = course.NumOfStudents,
-                StartDate = course.StartDate
-            });
             foreach (var item in dal.StudentCourses.Get())
             {
                 if (item.CourseId == course.CourseId)
@@ -45,6 +36,8 @@ namespace BLL.Services
                   dal.StudentCourses.Delete(dal.StudentCourses.GetByIdCourse(item.CourseId)); 
                 }
             }
+            dal.Courses.Delete(dal.Courses.GetById(course.CourseId));
+
         }
 
         public List<BLLCourse> Get()

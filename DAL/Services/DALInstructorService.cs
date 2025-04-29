@@ -5,8 +5,8 @@ namespace DAL.Services
 {
     public class DALInstructorService : IDALInstructor
     {
-        dbcontext dbcontext;
-        public DALInstructorService(dbcontext data)
+        Dbcontext dbcontext;
+        public DALInstructorService(Dbcontext data)
         {
             dbcontext = data;
         }
@@ -41,10 +41,17 @@ namespace DAL.Services
                 throw new Exception("No instructors found.");
         }
 
-        public Instructor GetById(int id)
+        public Instructor GetById(int id) 
         {
-            return dbcontext.Instructors.SingleOrDefault(x => x.Id == id);
+            var instructor = dbcontext.Instructors.SingleOrDefault(x => x.Id == id);
+            if (instructor == null)
+            {
+                throw new KeyNotFoundException($"Instructor with ID {id} not found.");
+            }
+            return instructor;
         }
+
+
 
         public void Update(Instructor instructor)
         {

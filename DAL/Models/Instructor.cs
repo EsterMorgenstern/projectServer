@@ -1,5 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Models;
 
@@ -14,10 +17,10 @@ public partial class Instructor
     [StringLength(20)]
     public string LastName { get; set; } = null!;
 
-    public int? Phone { get; set; }
+    public int Phone { get; set; }
 
     [StringLength(30)]
-    public string Email { get; set; } = null!;
+    public string? Email { get; set; }
 
     [StringLength(20)]
     public string? City { get; set; }
