@@ -26,6 +26,11 @@ namespace Project.Controllers
         {
             return studentCourses.GetById(cId, sId);
         }
+        [HttpGet("getByIdStudent/{sId}")]
+        public List<BLLStudentCoursePerfect> GetByIdStudent(int sId)
+        {
+            return studentCourses.GetByIdStudent(sId);
+        }
 
         [HttpPost("Add")]
         public void Create(BLLStudentCourse studentCourse)

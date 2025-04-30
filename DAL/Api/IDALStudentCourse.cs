@@ -8,6 +8,7 @@ namespace DAL.Api
         void Create(StudentCourse studentCourse);
         StudentCourse GetById(int cId, int sId);
         StudentCourse GetByIdCourse(int cId);
+        List<StudentCourse> GetByIdStudent(int sId);
         void Delete(StudentCourse studentCourse);
         void Update(StudentCourse studentCourse);
     }

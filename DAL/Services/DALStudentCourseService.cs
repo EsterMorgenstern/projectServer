@@ -42,6 +42,12 @@ namespace DAL.Services
 			}
 			return StudentCourse;
 		}
+        public List<StudentCourse> GetByIdStudent(int sId)
+        {
+            var lst = dbcontext.StudentCourses.ToList();
+            var lst2 = lst.FindAll(x => x.StudentId == sId);
+            return lst2;
+        }
         public void Update(StudentCourse studentCourse)
         {
             dbcontext.StudentCourses.Update(studentCourse);
