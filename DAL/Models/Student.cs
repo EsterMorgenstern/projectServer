@@ -20,7 +20,7 @@ public partial class Student
     [StringLength(20)]
     public string Phone { get; set; } = null!;
 
-    public DateOnly BirthDate { get; set; }
+    public DateTime? BirthDate { get; set; }
 
     [StringLength(20)]
     public string? City { get; set; }
@@ -32,9 +32,9 @@ public partial class Student
     public string? HealthFund { get; set; }
 
     [StringLength(50)]
-    public string? Community { get; set; }
-
-    public bool? Active { get; set; }
+    public string? Gender { get; set; } 
+    public string? Sector { get; set; }
+    public DateTime? LastActivityDate { get; set; }
 
     [InverseProperty("Student")]
     public virtual ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();

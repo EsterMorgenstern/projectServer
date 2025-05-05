@@ -22,7 +22,10 @@ namespace BLL.Services
                 InstructorId = course.InstructorId,
                 MaxNumOfStudents = course.MaxNumOfStudent,
                 NumOfStudents = course.NumOfStudents,
-                StartDate = course.StartDate
+                StartDate = course.StartDate,
+                Branch = course.Branch,
+                City = course.City,
+                Group = course.Group
             };
             dal.Courses.Create(c);
         }
@@ -49,7 +52,10 @@ namespace BLL.Services
                 InstructorId = c.InstructorId,
                 MaxNumOfStudent = c.MaxNumOfStudents ?? 0,
                 NumOfStudents = c.NumOfStudents ?? 0,
-                StartDate = c.StartDate
+                StartDate = c.StartDate,
+                Branch = c.Branch??"",
+                City = c.City??"",
+                Group = c.Group ?? ""
             }).ToList();
         }
 
@@ -63,7 +69,10 @@ namespace BLL.Services
                 InstructorId = c.InstructorId,
                 MaxNumOfStudent = c.MaxNumOfStudents ?? 0,
                 NumOfStudents = c.NumOfStudents ?? 0,
-                StartDate = c.StartDate
+                StartDate = c.StartDate,
+                Branch = c.Branch??"",
+                City = c.City ?? "",
+                Group = c.Group ?? ""
             };
             return blc;
         }
@@ -79,6 +88,10 @@ namespace BLL.Services
                 c.MaxNumOfStudents = course.MaxNumOfStudent;
                 c.NumOfStudents = course.NumOfStudents;
                 c.StartDate = course.StartDate;
+                c.Branch = course.Branch;
+                c.City = course.City;
+                c.Group = course.Group;
+
                 dal.Courses.Update(c);
             }
             else

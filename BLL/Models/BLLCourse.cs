@@ -10,5 +10,8 @@ namespace BLL.Models
         public int NumOfStudents { get; set; }
         public int MaxNumOfStudent { get; set; }
         public DateTime StartDate { get; set; }
+        public string Branch { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string Group { get; set; } = string.Empty;
     }
 }

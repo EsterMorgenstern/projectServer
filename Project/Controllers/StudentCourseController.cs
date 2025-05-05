@@ -33,7 +33,7 @@ namespace Project.Controllers
         }
 
         [HttpPost("Add")]
-        public void Create(BLLStudentCourse studentCourse)
+        public void Create([FromBody] BLLStudentCourse studentCourse)
         {
             studentCourses.Create(studentCourse);
         }

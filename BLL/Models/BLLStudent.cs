@@ -10,7 +10,8 @@
         public string City { get; set; } = string.Empty;
         public string School { get; set; } = string.Empty;
         public string HealthFund { get; set; } = string.Empty;
-        public string Community { get; set; } = string.Empty;
-        public bool Active { get; set; } = true;    
+        public string Gender { get; set; } = string.Empty;
+        public string Sector { get; set; } = string.Empty;
+        public DateTime LastActivityDate { get; set; }
     }
 }

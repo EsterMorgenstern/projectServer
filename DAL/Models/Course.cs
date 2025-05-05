@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Models;
 
@@ -22,6 +19,9 @@ public partial class Course
 
     [Column(TypeName = "datetime")]
     public DateTime StartDate { get; set; }
+    public string? Branch { get; set; }
+    public string? City { get; set; }
+    public string? Group { get; set; }
 
     [ForeignKey("InstructorId")]
     [InverseProperty("Courses")]

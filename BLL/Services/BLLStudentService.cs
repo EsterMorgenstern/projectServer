@@ -24,13 +24,14 @@ namespace BLL.Services
                 Id = student.Id,
                 FirstName = student.FirstName,
                 LastName = student.LastName,
-                BirthDate = DateOnly.FromDateTime(student.BirthDate),
+                BirthDate = student.BirthDate,
                 City = student.City,
                 School = student.School,
                 HealthFund = student.HealthFund,
-                Phone = student.Phone,// Fix for CS0029: Convert string to int
-                Community = student.Community,
-                Active = student.Active // Fix for CS8601: Possible null reference assignment   
+                Phone = student.Phone,
+                Gender = student.Gender,
+                Sector = student.Sector,
+                LastActivityDate = student.LastActivityDate
             };
             dal.Students.Create(p);
         }
@@ -49,12 +50,13 @@ namespace BLL.Services
                 FirstName = p.FirstName ?? "", // Fix for CS8601: Possible null reference assignment
                 LastName = p.LastName ?? "", // Fix for CS8601: Possible null reference assignment
                 Phone = p.Phone.ToString(), // Fix for CS0029: Convert int to string
-                BirthDate = p.BirthDate.ToDateTime(TimeOnly.MinValue),
+                BirthDate = p.BirthDate ?? DateTime.MinValue, // Fix for CS8601: Possible null reference assignment
                 City = p.City ?? "", // Fix for CS8601: Possible null reference assignment
                 School = p.School ?? "", // Fix for CS8601: Possible null reference assignment
                 HealthFund = p.HealthFund ?? "", // Fix for CS8601: Possible null reference assignment
-                Community=p.Community ?? "", // Fix for CS8601: Possible null reference assignment
-                Active = p.Active ?? true // Fix for CS8601: Possible null reference assignment 
+                Gender = p.Gender ?? "",
+                Sector = p.Sector ?? "",
+                LastActivityDate = p.LastActivityDate ?? DateTime.MinValue // Fix for CS8601: Possible null reference assignment
             }));
             return list;
         }
@@ -67,32 +69,34 @@ namespace BLL.Services
                 BLLStudent t2 = new BLLStudent()
                 {
                     Id = p.Id,
-                    FirstName = p.FirstName ?? "", // Fix for CS8601: Possible null reference assignment
-                    LastName = p.LastName ?? "", // Fix for CS8601: Possible null reference assignment
-                    Phone = p.Phone.ToString(), // Fix for CS0029: Convert int to string
-                    BirthDate = p.BirthDate.ToDateTime(TimeOnly.MinValue),
-                    City = p.City ?? "", // Fix for CS8601: Possible null reference assignment
-                    School = p.School ?? "", // Fix for CS8601: Possible null reference assignment
-                    HealthFund = p.HealthFund ?? "", // Fix for CS8601: Possible null reference assignment
-                    Community = p.Community ?? "", // Fix for CS8601: Possible null reference assignment  
-                    Active=p.Active ?? true // Fix for CS8601: Possible null reference assignment   
+                    FirstName = p.FirstName ?? "", // Fix for CS8601: Possible null reference assignment  
+                    LastName = p.LastName ?? "", // Fix for CS8601: Possible null reference assignment  
+                    Phone = p.Phone.ToString(), // Fix for CS0029: Convert int to string  
+                    BirthDate = p.BirthDate??DateTime.MinValue,
+                    City = p.City ?? "", // Fix for CS8601: Possible null reference assignment  
+                    School = p.School ?? "", // Fix for CS8601: Possible null reference assignment  
+                    HealthFund = p.HealthFund ?? "", // Fix for CS8601: Possible null reference assignment  
+                    Gender = p.Gender ?? "",
+                    Sector = p.Sector ?? "",
+                    LastActivityDate = p.LastActivityDate ?? DateTime.MinValue
                 };
                 return t2;
             }
 
-           return new BLLStudent()
+            return new BLLStudent()
             {
                 Id = id,
                 FirstName = "",
                 LastName = "",
                 Phone = "",
-                BirthDate = DateTime.MinValue,
+                BirthDate = DateTime.MinValue, // Fix for CS1001 and CS0117: Use DateTime.MinValue as a default value  
                 City = "",
                 School = "",
                 HealthFund = "",
-               Community = "",
-               Active = true // Fix for CS8601: Possible null reference assignment
-           };
+                Gender = "",
+                Sector = "",
+                LastActivityDate = DateTime.MinValue
+            };
         }
 
         public void Delete(int id)
@@ -107,12 +111,13 @@ namespace BLL.Services
             m.FirstName = student.FirstName;
             m.LastName = student.LastName;
             m.Phone = student.Phone; // Fix for CS0029: Convert string to int
-            m.BirthDate = DateOnly.FromDateTime(student.BirthDate);
+            m.BirthDate = DateTime.MinValue;
             m.City = student.City;
             m.School = student.School;
             m.HealthFund = student.HealthFund;
-            m.Community = student.Community;
-            m.Active = student.Active; // Fix for CS8601: Possible null reference assignment    
+            m.Gender = student.Gender;
+            m.Sector = student.Sector;
+            m.LastActivityDate = student.LastActivityDate;
 
             dal.Students.Update(m);
         }
