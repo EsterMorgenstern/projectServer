@@ -42,15 +42,15 @@ namespace BLL.Services
                 FirstName = p.FirstName,
                 LastName = p.LastName,
                 City = p.City ?? string.Empty,
-                Email = p.Email,
-                Phone = p.Phone ?? 0 // Use null-coalescing operator to handle nullable Phone
+                Email = p.Email=string.Empty,
+                Phone = p.Phone 
             }));
             return list;
         }
 
         public BLLInstructor GetById(int id)
         {
-            Instructor p = dal.Instructors.GetById(id);
+            Instructor? p = dal.Instructors.GetById(id); 
             if (p != null)
             {
                 BLLInstructor t = new BLLInstructor()
@@ -58,13 +58,21 @@ namespace BLL.Services
                     Id = p.Id,
                     FirstName = p.FirstName,
                     LastName = p.LastName,
-                    City = p.City ?? string.Empty,
-                    Email = p.Email,
-                    Phone = p.Phone ?? 0,
+                    City = p.City ?? string.Empty, // Null-coalescing operator to handle null
+                    Email = p.Email ?? string.Empty, // Null-coalescing operator to handle null
+                    Phone = p.Phone,
                 };
                 return t;
             }
-            return null; 
+            return new BLLInstructor()
+            {
+                Id = 0,
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                City = string.Empty,
+                Email = string.Empty,
+                Phone = string.Empty    
+            };
         }
 
         public void Update(BLLInstructor instructor)

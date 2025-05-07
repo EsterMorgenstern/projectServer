@@ -1,29 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DAL.Models;
 
 public partial class Course
 {
-    [Key]
     public int CourseId { get; set; }
 
-    [StringLength(20)]
     public string CouresName { get; set; } = null!;
 
-    public int InstructorId { get; set; }
+    public string Description { get; set; } = null!;
 
-    public int? NumOfStudents { get; set; }
+    public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 
-    public int? MaxNumOfStudents { get; set; }
-
-    [Column(TypeName = "datetime")]
-    public DateTime StartDate { get; set; }
-
-    [ForeignKey("InstructorId")]
-    [InverseProperty("Courses")]
-    public virtual Instructor Instructor { get; set; } = null!;
-
-    [InverseProperty("Course")]
     public virtual ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
 }

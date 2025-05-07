@@ -1,4 +1,6 @@
-﻿using BLL.Api;
+﻿using System.Collections.Generic;
+using System.Security.Cryptography;
+using BLL.Api;
 using BLL.Models;
 using DAL.Api;
 using DAL.Models;
@@ -22,11 +24,11 @@ namespace BLL.Services
             };
             dal.StudentCourses.Create(p);
             var course = dal.Courses.GetById(studentCourses.CourseId);
-            if (course != null)
-            {
-                course.NumOfStudents += 1;
-                dal.Courses.Update(course);
-            }
+            //if (course != null)
+            //{
+            //    course.NumOfStudents += 1;
+            //    dal.Courses.Update(course);
+            //}
         }
 
         public List<BLLStudentCourse> Get()
@@ -68,7 +70,24 @@ namespace BLL.Services
                 RegistrationDate = p.RegistrationDate ?? DateTime.MinValue // Handle nullable DateTime
             };  
         }
-
+        public List<BLLStudentCoursePerfect> GetByIdStudent(int sId)
+        {
+          List<BLLStudentCoursePerfect> lst = new List<BLLStudentCoursePerfect>();
+          var lstFromDal = dal.StudentCourses.GetByIdStudent(sId);
+            foreach (var item in lstFromDal)
+            {
+                //BLLStudentCoursePerfect blc = new BLLStudentCoursePerfect
+                //{
+                //    StudentId = item.StudentId,
+                //    CourseId = item.CourseId,
+                //    CourseName = dal.Courses.GetById(item.CourseId).CouresName,
+                //    InstructorId = dal.Courses.GetById(item.CourseId).InstructorId,
+                //    RegistrationDate = item.RegistrationDate ?? DateTime.MinValue // Handle nullable DateTime
+                //};
+                //lst.Add(blc);  
+            }
+            return lst;
+        }
         public void Delete(BLLStudentCourse studentCourse)
         {
             var m = dal.StudentCourses.GetById(studentCourse.CourseId, studentCourse.StudentId);

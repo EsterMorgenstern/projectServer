@@ -15,29 +15,11 @@ namespace BLL.Services
 
         public void Create(BLLCourse course)
         {
-            Course c = new Course()
-            {
-                CourseId = course.CourseId,
-                CouresName = course.CourseName,
-                InstructorId = course.InstructorId,
-                MaxNumOfStudents = course.MaxNumOfStudent,
-                NumOfStudents = course.NumOfStudents,
-                StartDate = course.StartDate
-            };
-            dal.Courses.Create(c);
+           
         }
 
         public void Delete(BLLCourse course)
         {
-            dal.Courses.Delete(new Course()
-            {
-                CourseId = course.CourseId,
-                CouresName = course.CourseName,
-                InstructorId = course.InstructorId,
-                MaxNumOfStudents = course.MaxNumOfStudent,
-                NumOfStudents = course.NumOfStudents,
-                StartDate = course.StartDate
-            });
             foreach (var item in dal.StudentCourses.Get())
             {
                 if (item.CourseId == course.CourseId)
@@ -45,6 +27,8 @@ namespace BLL.Services
                   dal.StudentCourses.Delete(dal.StudentCourses.GetByIdCourse(item.CourseId)); 
                 }
             }
+            dal.Courses.Delete(dal.Courses.GetById(course.CourseId));
+
         }
 
         public List<BLLCourse> Get()
@@ -52,11 +36,8 @@ namespace BLL.Services
             return dal.Courses.Get().Select(c => new BLLCourse()
             {
                 CourseId = c.CourseId,
-                CourseName = c.CouresName,
-                InstructorId = c.InstructorId,
-                MaxNumOfStudent = c.MaxNumOfStudents ?? 0,
-                NumOfStudents = c.NumOfStudents ?? 0,
-                StartDate = c.StartDate
+                CouresName = c.CouresName,
+                Description = c.Description,
             }).ToList();
         }
 
@@ -66,11 +47,8 @@ namespace BLL.Services
             BLLCourse blc = new BLLCourse()
             {
                 CourseId = c.CourseId,
-                CourseName = c.CouresName,
-                InstructorId = c.InstructorId,
-                MaxNumOfStudent = c.MaxNumOfStudents ?? 0,
-                NumOfStudents = c.NumOfStudents ?? 0,
-                StartDate = c.StartDate
+                    CouresName = c.CouresName,
+                Description = c.Description,    
             };
             return blc;
         }
@@ -81,11 +59,9 @@ namespace BLL.Services
             if (c != null)
             {
                 c.CourseId = course.CourseId;
-                c.CouresName = course.CourseName;
-                c.InstructorId = course.InstructorId;
-                c.MaxNumOfStudents = course.MaxNumOfStudent;
-                c.NumOfStudents = course.NumOfStudents;
-                c.StartDate = course.StartDate;
+                c.CouresName = course.CouresName;
+                c.Description = course.Description;
+
                 dal.Courses.Update(c);
             }
             else

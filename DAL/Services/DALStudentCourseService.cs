@@ -5,8 +5,8 @@ namespace DAL.Services
 {
     public class DALStudentCourseService : IDALStudentCourse
     {
-        dbcontext dbcontext;
-        public DALStudentCourseService(dbcontext data)
+        Dbcontext dbcontext;
+        public DALStudentCourseService(Dbcontext data)
         {
             dbcontext = data;
         }
@@ -25,7 +25,7 @@ namespace DAL.Services
 
         public List<StudentCourse> Get()
         {
-            return dbcontext.StudentCourses.ToList();
+            return  dbcontext.StudentCourses.ToList();
         }
 
         public StudentCourse GetById(int cId, int sId)
@@ -35,7 +35,18 @@ namespace DAL.Services
         }
         public StudentCourse GetByIdCourse(int cId)
         {
-            return dbcontext.StudentCourses.SingleOrDefault(x => x.CourseId == cId);
+			var StudentCourse = dbcontext.StudentCourses.SingleOrDefault(x => x.CourseId == cId);
+			if (StudentCourse == null)
+			{
+				throw new KeyNotFoundException($"StudentCourse with ID {cId} not found.");
+			}
+			return StudentCourse;
+		}
+        public List<StudentCourse> GetByIdStudent(int sId)
+        {
+            var lst = dbcontext.StudentCourses.ToList();
+            var lst2 = lst.FindAll(x => x.StudentId == sId);
+            return lst2;
         }
         public void Update(StudentCourse studentCourse)
         {
