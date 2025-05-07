@@ -12,6 +12,10 @@ namespace BLL
         public IBLLInstructor Instructors { get; }
         public IBLLCourse Courses { get; }
         public IBLLStudentCourse StudentCourses { get; }
+        public IBLLGroup Groups { get; }
+        public IBLLAttendance Attendances { get; }
+        public IBLLBranch Branches { get; }
+        public IBLLGroupStudent GroupStudents { get; }  
 
         public BLLManager()
         {
@@ -20,7 +24,10 @@ namespace BLL
             Instructors = new BLLInstructorService(dal);
             Courses = new BLLCourseService(dal);
             StudentCourses = new BLLStudentCourseService(dal);
-
+            Groups = new BLLGroupService(dal);
+            Attendances = new BLLAttendanceService(dal);  
+            Branches = new BLLBranchService(dal);
+            GroupStudents = new BLLGroupStudentService(dal);    
         }
     }
 }

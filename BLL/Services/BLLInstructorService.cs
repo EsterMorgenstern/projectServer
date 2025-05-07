@@ -71,7 +71,7 @@ namespace BLL.Services
                 LastName = string.Empty,
                 City = string.Empty,
                 Email = string.Empty,
-                Phone = 0
+                Phone = string.Empty    
             };
         }
 

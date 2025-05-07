@@ -32,4 +32,5 @@ public partial class Student
     public virtual ICollection<GroupStudent> GroupStudents { get; set; } = new List<GroupStudent>();
 
     public virtual ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
+
 }

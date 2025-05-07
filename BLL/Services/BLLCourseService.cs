@@ -15,19 +15,7 @@ namespace BLL.Services
 
         public void Create(BLLCourse course)
         {
-            Course c = new Course()
-            {
-                CourseId = course.CourseId,
-                CouresName = course.CourseName,
-                InstructorId = course.InstructorId,
-                MaxNumOfStudents = course.MaxNumOfStudent,
-                NumOfStudents = course.NumOfStudents,
-                StartDate = course.StartDate,
-                Branch = course.Branch,
-                City = course.City,
-                Group = course.Group
-            };
-            dal.Courses.Create(c);
+           
         }
 
         public void Delete(BLLCourse course)
@@ -48,14 +36,8 @@ namespace BLL.Services
             return dal.Courses.Get().Select(c => new BLLCourse()
             {
                 CourseId = c.CourseId,
-                CourseName = c.CouresName,
-                InstructorId = c.InstructorId,
-                MaxNumOfStudent = c.MaxNumOfStudents ?? 0,
-                NumOfStudents = c.NumOfStudents ?? 0,
-                StartDate = c.StartDate,
-                Branch = c.Branch??"",
-                City = c.City??"",
-                Group = c.Group ?? ""
+                CouresName = c.CouresName,
+                Description = c.Description,
             }).ToList();
         }
 
@@ -65,14 +47,8 @@ namespace BLL.Services
             BLLCourse blc = new BLLCourse()
             {
                 CourseId = c.CourseId,
-                CourseName = c.CouresName,
-                InstructorId = c.InstructorId,
-                MaxNumOfStudent = c.MaxNumOfStudents ?? 0,
-                NumOfStudents = c.NumOfStudents ?? 0,
-                StartDate = c.StartDate,
-                Branch = c.Branch??"",
-                City = c.City ?? "",
-                Group = c.Group ?? ""
+                    CouresName = c.CouresName,
+                Description = c.Description,    
             };
             return blc;
         }
@@ -83,14 +59,8 @@ namespace BLL.Services
             if (c != null)
             {
                 c.CourseId = course.CourseId;
-                c.CouresName = course.CourseName;
-                c.InstructorId = course.InstructorId;
-                c.MaxNumOfStudents = course.MaxNumOfStudent;
-                c.NumOfStudents = course.NumOfStudents;
-                c.StartDate = course.StartDate;
-                c.Branch = course.Branch;
-                c.City = course.City;
-                c.Group = course.Group;
+                c.CouresName = course.CouresName;
+                c.Description = course.Description;
 
                 dal.Courses.Update(c);
             }

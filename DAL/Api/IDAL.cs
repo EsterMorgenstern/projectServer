@@ -6,5 +6,10 @@
         public IDALInstructor Instructors { get; }
         public IDALCourse Courses { get; }
         public IDALStudentCourse StudentCourses { get; }
+        public IDALGroup Groups { get; }
+        public IDALAttendance Attendances { get; }
+        public IDALGroupStudent GroupStudents { get; }
+        public IDALBranch Branches { get; } 
+
     }
 }

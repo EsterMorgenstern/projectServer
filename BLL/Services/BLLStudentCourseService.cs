@@ -24,11 +24,11 @@ namespace BLL.Services
             };
             dal.StudentCourses.Create(p);
             var course = dal.Courses.GetById(studentCourses.CourseId);
-            if (course != null)
-            {
-                course.NumOfStudents += 1;
-                dal.Courses.Update(course);
-            }
+            //if (course != null)
+            //{
+            //    course.NumOfStudents += 1;
+            //    dal.Courses.Update(course);
+            //}
         }
 
         public List<BLLStudentCourse> Get()
@@ -76,15 +76,15 @@ namespace BLL.Services
           var lstFromDal = dal.StudentCourses.GetByIdStudent(sId);
             foreach (var item in lstFromDal)
             {
-                BLLStudentCoursePerfect blc = new BLLStudentCoursePerfect
-                {
-                    StudentId = item.StudentId,
-                    CourseId = item.CourseId,
-                    CourseName = dal.Courses.GetById(item.CourseId).CouresName,
-                    InstructorId = dal.Courses.GetById(item.CourseId).InstructorId,
-                    RegistrationDate = item.RegistrationDate ?? DateTime.MinValue // Handle nullable DateTime
-                };
-                lst.Add(blc);  
+                //BLLStudentCoursePerfect blc = new BLLStudentCoursePerfect
+                //{
+                //    StudentId = item.StudentId,
+                //    CourseId = item.CourseId,
+                //    CourseName = dal.Courses.GetById(item.CourseId).CouresName,
+                //    InstructorId = dal.Courses.GetById(item.CourseId).InstructorId,
+                //    RegistrationDate = item.RegistrationDate ?? DateTime.MinValue // Handle nullable DateTime
+                //};
+                //lst.Add(blc);  
             }
             return lst;
         }

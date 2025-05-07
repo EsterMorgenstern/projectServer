@@ -24,14 +24,14 @@ namespace BLL.Services
                 Id = student.Id,
                 FirstName = student.FirstName,
                 LastName = student.LastName,
-                BirthDate = student.BirthDate,
+                BirthDate = DateOnly.FromDateTime(student.BirthDate),
                 City = student.City,
                 School = student.School,
                 HealthFund = student.HealthFund,
                 Phone = student.Phone,
                 Gender = student.Gender,
                 Sector = student.Sector,
-                LastActivityDate = student.LastActivityDate
+                LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate)
             };
             dal.Students.Create(p);
         }
@@ -50,13 +50,13 @@ namespace BLL.Services
                 FirstName = p.FirstName ?? "", // Fix for CS8601: Possible null reference assignment
                 LastName = p.LastName ?? "", // Fix for CS8601: Possible null reference assignment
                 Phone = p.Phone.ToString(), // Fix for CS0029: Convert int to string
-                BirthDate = p.BirthDate ?? DateTime.MinValue, // Fix for CS8601: Possible null reference assignment
+                BirthDate = p.BirthDate.ToDateTime(TimeOnly.MinValue), // Fix for CS1503: Convert DateOnly to DateTime
                 City = p.City ?? "", // Fix for CS8601: Possible null reference assignment
                 School = p.School ?? "", // Fix for CS8601: Possible null reference assignment
                 HealthFund = p.HealthFund ?? "", // Fix for CS8601: Possible null reference assignment
                 Gender = p.Gender ?? "",
                 Sector = p.Sector ?? "",
-                LastActivityDate = p.LastActivityDate ?? DateTime.MinValue // Fix for CS8601: Possible null reference assignment
+                LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue // Fix for CS1503: Convert DateOnly? to DateTime
             }));
             return list;
         }
@@ -72,13 +72,13 @@ namespace BLL.Services
                     FirstName = p.FirstName ?? "", // Fix for CS8601: Possible null reference assignment  
                     LastName = p.LastName ?? "", // Fix for CS8601: Possible null reference assignment  
                     Phone = p.Phone.ToString(), // Fix for CS0029: Convert int to string  
-                    BirthDate = p.BirthDate??DateTime.MinValue,
+                    BirthDate = p.BirthDate.ToDateTime(TimeOnly.MinValue), // Fix for CS1503: Convert DateOnly to DateTime
                     City = p.City ?? "", // Fix for CS8601: Possible null reference assignment  
                     School = p.School ?? "", // Fix for CS8601: Possible null reference assignment  
                     HealthFund = p.HealthFund ?? "", // Fix for CS8601: Possible null reference assignment  
                     Gender = p.Gender ?? "",
                     Sector = p.Sector ?? "",
-                    LastActivityDate = p.LastActivityDate ?? DateTime.MinValue
+                    LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue // Fix for CS1503: Convert DateOnly? to DateTime
                 };
                 return t2;
             }
@@ -111,13 +111,13 @@ namespace BLL.Services
             m.FirstName = student.FirstName;
             m.LastName = student.LastName;
             m.Phone = student.Phone; // Fix for CS0029: Convert string to int
-            m.BirthDate = DateTime.MinValue;
+            m.BirthDate = DateOnly.FromDateTime(student.BirthDate); // Fix for CS0029: Convert DateTime to DateOnly
             m.City = student.City;
             m.School = student.School;
             m.HealthFund = student.HealthFund;
             m.Gender = student.Gender;
             m.Sector = student.Sector;
-            m.LastActivityDate = student.LastActivityDate;
+            m.LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate);
 
             dal.Students.Update(m);
         }
