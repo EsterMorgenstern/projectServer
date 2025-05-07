@@ -1,30 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Models;
 
 public partial class Instructor
 {
-    [Key]
     public int Id { get; set; }
 
-    [StringLength(20)]
     public string FirstName { get; set; } = null!;
 
-    [StringLength(20)]
     public string LastName { get; set; } = null!;
 
-    public int Phone { get; set; }
+    public string Phone { get; set; } = null!;
 
-    [StringLength(30)]
     public string? Email { get; set; }
 
-    [StringLength(20)]
     public string? City { get; set; }
 
-    [InverseProperty("Instructor")]
-    public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
+    public string? Sector { get; set; }
+
+    public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 }
