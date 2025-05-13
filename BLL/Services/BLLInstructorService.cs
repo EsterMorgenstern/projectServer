@@ -18,18 +18,19 @@ namespace BLL.Services
             Instructor p = new Instructor()
             {
                 Id = instructor.Id,
-                City = instructor.City,
-                Email = instructor.Email,
                 FirstName = instructor.FirstName,
                 LastName = instructor.LastName,
-                Phone = instructor.Phone
+                Phone = instructor.Phone,
+                Email = instructor.Email,
+                City = instructor.City,
+                Sector =instructor.Sector
             };
             dal.Instructors.Create(p);
         }
 
         public void Delete(int id)
         {
-          dal.Instructors.Delete(id);
+            dal.Instructors.Delete(id);
         }
 
         public List<BLLInstructor> Get()
@@ -42,8 +43,9 @@ namespace BLL.Services
                 FirstName = p.FirstName,
                 LastName = p.LastName,
                 City = p.City ?? string.Empty,
-                Email = p.Email=string.Empty,
-                Phone = p.Phone 
+                Email = p.Email ?? string.Empty,
+                Phone = p.Phone,
+                Sector=p.Sector??string.Empty
             }));
             return list;
         }
@@ -61,6 +63,7 @@ namespace BLL.Services
                     City = p.City ?? string.Empty, // Null-coalescing operator to handle null
                     Email = p.Email ?? string.Empty, // Null-coalescing operator to handle null
                     Phone = p.Phone,
+                    Sector=p.Sector?? string.Empty
                 };
                 return t;
             }
@@ -71,13 +74,23 @@ namespace BLL.Services
                 LastName = string.Empty,
                 City = string.Empty,
                 Email = string.Empty,
-                Phone = string.Empty    
+                Phone = string.Empty,
+                Sector=string.Empty
             };
         }
 
         public void Update(BLLInstructor instructor)
         {
-            throw new NotImplementedException();
+            var m = dal.Instructors.GetById(instructor.Id);
+            m.Id = instructor.Id;
+            m.FirstName = instructor.FirstName;
+            m.LastName = instructor.LastName;
+            m.Phone = instructor.Phone; // Fix for CS0029: Convert string to int
+            m.City = instructor.City;
+            m.Email = instructor.Email;
+            m.Sector = instructor.Sector;
+           
+            dal.Instructors.Update(m);
         }
     }
 }

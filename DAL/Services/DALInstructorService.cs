@@ -55,18 +55,7 @@ namespace DAL.Services
 
         public void Update(Instructor instructor)
         {
-            var existingInstructor = dbcontext.Instructors.SingleOrDefault(x => x.Id == instructor.Id);
-            if (existingInstructor == null)
-            {
-                throw new KeyNotFoundException($"Instructor with ID {instructor.Id} not found.");
-            }
-
-            existingInstructor.FirstName = instructor.FirstName;
-            existingInstructor.LastName = instructor.LastName;
-            existingInstructor.Phone = instructor.Phone;
-            existingInstructor.Email = instructor.Email;
-            existingInstructor.City = instructor.City;
-
+            dbcontext.Instructors.Update(instructor);
             dbcontext.SaveChanges();
         }
 
