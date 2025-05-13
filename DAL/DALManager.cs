@@ -6,14 +6,13 @@ namespace DAL
 {
     public class DALManager : IDAL
     {
-        Dbcontext data = new Dbcontext();
+        dbcontext data = new dbcontext();
 
         public DALManager()
         {
             Students = new DALStudentService(data);
             Instructors = new DALInstructorService(data);
             Courses = new DALCourseService(data);
-            StudentCourses = new DALStudentCourseService(data);
             Groups = new DALGroupService(data);
             GroupStudents = new DALGroupStudentService(data);
             Branches = new DALBranchService(data);
@@ -23,7 +22,6 @@ namespace DAL
         public IDALStudent Students { get; }
         public IDALInstructor Instructors { get; }
         public IDALCourse Courses { get; }
-        public IDALStudentCourse StudentCourses { get; }
         public IDALGroup Groups { get; }
         public IDALGroupStudent GroupStudents { get; }
         public IDALBranch Branches { get; }

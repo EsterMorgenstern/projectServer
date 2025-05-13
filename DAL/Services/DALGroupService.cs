@@ -10,8 +10,8 @@ namespace DAL.Services
 {
     public class DALGroupService:IDALGroup
     {
-        Dbcontext dbcontext;
-        public DALGroupService(Dbcontext data)
+        dbcontext dbcontext;
+        public DALGroupService(dbcontext data)
         {
             dbcontext = data;
         }

@@ -10,8 +10,8 @@ namespace DAL.Services
 {
     public class DALAttendanceService:IDALAttendance
     {
-        Dbcontext dbcontext;
-        public DALAttendanceService(Dbcontext data)
+        dbcontext dbcontext;
+        public DALAttendanceService(dbcontext data)
         {
             dbcontext = data;
         }

@@ -10,8 +10,8 @@ namespace DAL.Services
 {
     public class DALBranchService:IDALBranch
     {
-        Dbcontext dbcontext;
-        public DALBranchService(Dbcontext data)
+        dbcontext dbcontext;
+        public DALBranchService(dbcontext data)
         {
             dbcontext = data;
         }

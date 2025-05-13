@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Models;
 
-public partial class Dbcontext : DbContext
+public partial class dbcontext : DbContext
 {
-    public Dbcontext()
+    public dbcontext()
     {
     }
 
-    public Dbcontext(DbContextOptions<Dbcontext> options)
+    public dbcontext(DbContextOptions<dbcontext> options)
         : base(options)
     {
     }
@@ -27,36 +27,34 @@ public partial class Dbcontext : DbContext
 
     public virtual DbSet<Instructor> Instructors { get; set; }
 
-    public virtual DbSet<Student> Students { get; set; }
+    public virtual DbSet<Payment> Payments { get; set; }
 
-    public virtual DbSet<StudentCourse> StudentCourses { get; set; }
+    public virtual DbSet<Student> Students { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Esty\\server\\Courses.mdf;Integrated Security=True;Connect Timeout=30;Encrypt=True");
+        => optionsBuilder.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\project\\server\\CoursesDB.mdf;Integrated Security=True;Connect Timeout=30");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.UseCollation("Hebrew_CI_AS");
-
         modelBuilder.Entity<Attendance>(entity =>
         {
-            entity.HasKey(e => e.AttendanceId).HasName("PK__Attendan__8B69261C4C356667");
+            entity.HasKey(e => e.AttendanceId).HasName("PK__Attendan__8B69261CFE17C02C");
 
             entity.ToTable("Attendance");
 
             entity.HasOne(d => d.Group).WithMany(p => p.Attendances)
                 .HasForeignKey(d => d.GroupId)
-                .HasConstraintName("FK__Attendanc__Group__0B91BA14");
+                .HasConstraintName("FK__Attendanc__Group__46E78A0C");
 
             entity.HasOne(d => d.Student).WithMany(p => p.Attendances)
                 .HasForeignKey(d => d.StudentId)
-                .HasConstraintName("FK__Attendanc__Stude__0C85DE4D");
+                .HasConstraintName("FK__Attendanc__Stude__47DBAE45");
         });
 
         modelBuilder.Entity<Branch>(entity =>
         {
-            entity.HasKey(e => e.BranchId).HasName("PK__Branches__A1682FC5E7E311AC");
+            entity.HasKey(e => e.BranchId).HasName("PK__Branches__A1682FC52ADF22B3");
 
             entity.Property(e => e.Address).HasMaxLength(20);
             entity.Property(e => e.Name).HasMaxLength(20);
@@ -64,7 +62,7 @@ public partial class Dbcontext : DbContext
 
         modelBuilder.Entity<Course>(entity =>
         {
-            entity.HasKey(e => e.CourseId).HasName("PK__tmp_ms_x__C92D71A7ECD46B42");
+            entity.HasKey(e => e.CourseId).HasName("PK__Courses__C92D71A76A479A52");
 
             entity.Property(e => e.CouresName).HasMaxLength(20);
             entity.Property(e => e.Description).HasMaxLength(50);
@@ -72,7 +70,7 @@ public partial class Dbcontext : DbContext
 
         modelBuilder.Entity<Group>(entity =>
         {
-            entity.HasKey(e => e.GroupId).HasName("PK__Groups__149AF36AE8EC77DE");
+            entity.HasKey(e => e.GroupId).HasName("PK__Groups__149AF36AF8EA9CDA");
 
             entity.Property(e => e.AgeRange).HasMaxLength(20);
             entity.Property(e => e.City).HasMaxLength(20);
@@ -82,39 +80,39 @@ public partial class Dbcontext : DbContext
             entity.HasOne(d => d.Branch).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.BranchId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Groups__BranchId__02FC7413");
+                .HasConstraintName("FK__Groups__BranchId__3E52440B");
 
             entity.HasOne(d => d.Course).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.CourseId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Groups__CourseId__03F0984C");
+                .HasConstraintName("FK__Groups__CourseId__3F466844");
 
             entity.HasOne(d => d.Instructor).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.InstructorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Groups__Instruct__04E4BC85");
+                .HasConstraintName("FK__Groups__Instruct__403A8C7D");
         });
 
         modelBuilder.Entity<GroupStudent>(entity =>
         {
-            entity.HasKey(e => e.GroupStudentId).HasName("PK__GroupStu__079A8A0E49A49032");
+            entity.HasKey(e => e.GroupStudentId).HasName("PK__GroupStu__079A8A0E02514AB6");
 
             entity.Property(e => e.EnrollmentDate).HasColumnName("EnrollmentDate ");
 
             entity.HasOne(d => d.Group).WithMany(p => p.GroupStudents)
                 .HasForeignKey(d => d.GroupId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GroupStud__Group__08B54D69");
+                .HasConstraintName("FK__GroupStud__Group__440B1D61");
 
             entity.HasOne(d => d.Student).WithMany(p => p.GroupStudents)
                 .HasForeignKey(d => d.StudentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__GroupStud__Stude__07C12930");
+                .HasConstraintName("FK__GroupStud__Stude__4316F928");
         });
 
         modelBuilder.Entity<Instructor>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Instruct__3214EC079FB7DAB8");
+            entity.HasKey(e => e.Id).HasName("PK__Instruct__3214EC07D549CD92");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.City).HasMaxLength(20);
@@ -125,9 +123,22 @@ public partial class Dbcontext : DbContext
             entity.Property(e => e.Sector).HasMaxLength(20);
         });
 
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A38F825FE64");
+
+            entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.Notes).HasMaxLength(200);
+            entity.Property(e => e.PaymentMethod).HasMaxLength(50);
+
+            entity.HasOne(d => d.Student).WithMany(p => p.Payments)
+                .HasForeignKey(d => d.StudentId)
+                .HasConstraintName("FK__Payments__Studen__4AB81AF0");
+        });
+
         modelBuilder.Entity<Student>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Students__3214EC07CC8B0965");
+            entity.HasKey(e => e.Id).HasName("PK__Students__3214EC0799B46BC2");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.City).HasMaxLength(20);
@@ -138,25 +149,6 @@ public partial class Dbcontext : DbContext
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.School).HasMaxLength(20);
             entity.Property(e => e.Sector).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<StudentCourse>(entity =>
-        {
-            entity.HasKey(e => new { e.StudentId, e.CourseId }).HasName("PK__StudentC__5E57FC83E99183C9");
-
-            entity.Property(e => e.RegistrationDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-
-            entity.HasOne(d => d.Course).WithMany(p => p.StudentCourses)
-                .HasForeignKey(d => d.CourseId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__StudentCo__Cours__5DCAEF64");
-
-            entity.HasOne(d => d.Student).WithMany(p => p.StudentCourses)
-                .HasForeignKey(d => d.StudentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__StudentCo__Stude__52593CB8");
         });
 
         OnModelCreatingPartial(modelBuilder);

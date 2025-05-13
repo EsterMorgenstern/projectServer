@@ -6,9 +6,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Learn more about configuring Swagger/OpenAPI at http://localhost:5000/swagger/index.html
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Version = "v1",
+        Title = "My API",
+        Description = "An example API for demonstration purposes"
+    });
+});
 builder.Services.AddSingleton<IBLL,BLLManager>();
 
 builder.Services.AddCors(c => c.AddPolicy("AllowAll",

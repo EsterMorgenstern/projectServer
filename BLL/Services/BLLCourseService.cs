@@ -20,13 +20,7 @@ namespace BLL.Services
 
         public void Delete(BLLCourse course)
         {
-            foreach (var item in dal.StudentCourses.Get())
-            {
-                if (item.CourseId == course.CourseId)
-                {
-                  dal.StudentCourses.Delete(dal.StudentCourses.GetByIdCourse(item.CourseId)); 
-                }
-            }
+           
             dal.Courses.Delete(dal.Courses.GetById(course.CourseId));
 
         }

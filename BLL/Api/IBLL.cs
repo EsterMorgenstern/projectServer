@@ -5,7 +5,6 @@
         public IBLLStudent Students { get; }
         public IBLLInstructor Instructors { get; }
         public IBLLCourse Courses { get; }
-        public IBLLStudentCourse StudentCourses { get; }
         public IBLLGroup Groups { get; }
         public IBLLAttendance Attendances { get; }
         public IBLLBranch Branches { get; }

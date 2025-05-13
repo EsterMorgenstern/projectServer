@@ -5,8 +5,8 @@ namespace DAL.Services
 {
     public class DALInstructorService : IDALInstructor
     {
-        Dbcontext dbcontext;
-        public DALInstructorService(Dbcontext data)
+        dbcontext dbcontext;
+        public DALInstructorService(dbcontext data)
         {
             dbcontext = data;
         }

@@ -7,8 +7,8 @@ namespace DAL.Services
 {
     public class DALCourseService : IDALCourse
     {
-        Dbcontext dbcontext;
-        public DALCourseService(Dbcontext data)
+        dbcontext dbcontext;
+        public DALCourseService(dbcontext data)
         {
             dbcontext = data;
         }

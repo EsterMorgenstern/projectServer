@@ -6,8 +6,8 @@ namespace DAL.Services
 {
     public class DALStudentService : IDALStudent
     {
-        Dbcontext dbcontext;
-        public DALStudentService(Dbcontext data)
+        dbcontext dbcontext;
+        public DALStudentService(dbcontext data)
         {
             dbcontext = data;
         }

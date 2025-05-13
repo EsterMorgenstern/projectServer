@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace DAL.Models;
+namespace Project.Models;
 
-public partial class dbcontext : DbContext
+public partial class YourDbContextName : DbContext
 {
-    public dbcontext()
+    public YourDbContextName()
     {
     }
 
-    public dbcontext(DbContextOptions<dbcontext> options)
+    public YourDbContextName(DbContextOptions<YourDbContextName> options)
         : base(options)
     {
     }
