@@ -38,9 +38,9 @@ namespace server.controllers
             courses.Update(course);
         }
         [HttpDelete("Delete")]
-        public void Delete(BLLCourse course)
+        public void Delete(int courseId)
         {
-            courses.Delete(course);
+            courses.Delete(courseId);
         }
     }
 }

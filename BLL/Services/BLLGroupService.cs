@@ -1,6 +1,7 @@
 ﻿using BLL.Api;
 using BLL.Models;
 using DAL.Api;
+using DAL.Models;
 
 namespace BLL.Services
 {
@@ -13,12 +14,26 @@ namespace BLL.Services
         }
         public void Create(BLLGroup group)
         {
-            throw new NotImplementedException();
+            Group g = new Group()
+            {
+                CourseId =group.CourseId,
+                BranchId=group.BranchId,
+                AgeRange=group.AgeRange,
+                DayOfWeek = group.DayOfWeek ,
+                GroupName = group.GroupName,
+                Hour = group.Hour,
+                MaxStudents= group.MaxStudents,
+                Sector= group.Sector,
+                InstructorId= group.InstructorId ,
+                City= group.City,
+                                
+            };
+            dal.Groups.Create(g);
         }
 
         public void Delete(int id)
         {
-            throw new NotImplementedException();
+            dal.Groups.Delete(id);
         }
 
         public List<BLLGroup> Get()
@@ -42,7 +57,22 @@ namespace BLL.Services
 
         public BLLGroup GetById(int id)
         {
-            throw new NotImplementedException();
+            Group group = dal.Groups.GetById(id);
+            BLLGroup blg = new BLLGroup()
+            {
+
+                CourseId = group.CourseId,
+                BranchId = group.BranchId,
+                AgeRange = group.AgeRange,
+                DayOfWeek = group.DayOfWeek,
+                GroupName = group.GroupName,
+                Hour = group.Hour,
+                MaxStudents = group.MaxStudents,
+                Sector = group.Sector,
+                InstructorId = group.InstructorId,
+                City = group.City,
+            };
+            return blg;
         }
 
         public List<BLLInstructor> GetInstructorsByGroupId(int groupId)

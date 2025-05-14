@@ -12,7 +12,7 @@ namespace DAL.Api
         List<Branch> Get();
         void Create(Branch branch);
         Branch GetById(int id);
-        void Delete(Branch branch);
+        void Delete(int branchId);
         void Update(Branch branch);
     }
 }

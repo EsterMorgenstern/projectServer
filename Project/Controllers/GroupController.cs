@@ -37,9 +37,9 @@ namespace server.controllers
             groups.Update(group);
         }
         [HttpDelete("Delete")]
-        public void Delete(BLLGroup group)
+        public void Delete(int groupId)
         {
-            //groups.Delete(group);
+            groups.Delete(groupId);
         }
     }
 }

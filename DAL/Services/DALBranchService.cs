@@ -20,9 +20,9 @@ namespace DAL.Services
             dbcontext.Branches.Add(branch);
             dbcontext.SaveChanges();
         }
-        public void Delete(int id)
+        public void Delete(int branchId)
         {
-            var trackedBranch = dbcontext.Branches.Find(id);
+            var trackedBranch = dbcontext.Branches.SingleOrDefault(x=>x.BranchId == branchId);
             if (trackedBranch != null)
             {
                 dbcontext.Branches.Remove(trackedBranch);
@@ -30,15 +30,7 @@ namespace DAL.Services
             }
         }
 
-        public void Delete(Branch branch)
-        {
-            var trackedBranch = dbcontext.Branches.Find(branch.BranchId);
-            if (trackedBranch != null)
-            {
-                dbcontext.Branches.Remove(trackedBranch);
-                dbcontext.SaveChanges();
-            }   
-        }
+        
 
         public List<Branch> Get()
         {

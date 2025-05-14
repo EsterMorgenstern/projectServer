@@ -27,19 +27,19 @@ namespace server.controllers
             return branches.GetById(id);
         }
         [HttpPost("Add")]
-        public void Create(BLLBranch branche)
+        public void Create(BLLBranch branch)
         {
-            branches.Create(branche);
+            branches.Create(branch);
         }
         [HttpPut("Update")]
-        public void Update(BLLBranch branche)
+        public void Update(BLLBranch branch)
         {
-            branches.Update(branche);
+            branches.Update(branch);
         }
         [HttpDelete("Delete")]
-        public void Delete(BLLBranch branche)
+        public void Delete(int branchId)
         {
-           // branches.Delete(branche);
+              branches.Delete(branchId);
         }
     }
 }

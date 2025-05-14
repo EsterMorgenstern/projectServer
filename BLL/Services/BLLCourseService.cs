@@ -15,14 +15,18 @@ namespace BLL.Services
 
         public void Create(BLLCourse course)
         {
-           
+            Course c = new Course()
+            {
+                CourseId = course.CourseId,
+                CouresName = course.CouresName,
+                Description = course.Description
+            };
+            dal.Courses.Create(c);
         }
 
-        public void Delete(BLLCourse course)
+        public void Delete(int courseId)
         {
-           
-            dal.Courses.Delete(dal.Courses.GetById(course.CourseId));
-
+            dal.Courses.Delete(courseId);
         }
 
         public List<BLLCourse> Get()
@@ -41,8 +45,8 @@ namespace BLL.Services
             BLLCourse blc = new BLLCourse()
             {
                 CourseId = c.CourseId,
-                    CouresName = c.CouresName,
-                Description = c.Description,    
+                CouresName = c.CouresName,
+                Description = c.Description,
             };
             return blc;
         }
@@ -61,7 +65,7 @@ namespace BLL.Services
             else
             {
                 throw new KeyNotFoundException($"Course with id {course.CourseId} not found.");
-            }   
+            }
         }
     }
 }
