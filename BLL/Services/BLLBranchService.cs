@@ -46,6 +46,7 @@ namespace BLL.Services
             };
             return blc;
         }
+       
         public void Delete(int id)
         {
             dal.Branches.Delete(id);

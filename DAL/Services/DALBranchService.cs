@@ -45,6 +45,7 @@ namespace DAL.Services
             }
             return branch;
         }
+        
         public void Update(Branch branch)
         {
             dbcontext.Branches.Update(branch);

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DAL.Api;
+﻿using DAL.Api;
 using DAL.Models;
 
 namespace DAL.Services
 {
-    public class DALGroupService:IDALGroup
+    public class DALGroupService : IDALGroup
     {
         dbcontext dbcontext;
         public DALGroupService(dbcontext data)
@@ -30,7 +25,7 @@ namespace DAL.Services
             {
                 dbcontext.Groups.Remove(trackedGroup);
                 dbcontext.SaveChanges();
-            }   
+            }
         }
 
         public List<Group> Get()
@@ -47,6 +42,11 @@ namespace DAL.Services
             }
             return group;
         }
+        public List<Group> GetGroupsByCourseId(int id)
+        {
+            return dbcontext.Groups.ToList().FindAll(x => x.CourseId == id);
+        }
+
 
         public List<Group> GetInstructorsByGroupId(int groupId)
         {
