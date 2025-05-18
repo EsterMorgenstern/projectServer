@@ -26,6 +26,11 @@ namespace server.controllers
         {
             return groupStudents.GetById(id);
         }
+        [HttpGet("getByStudentId/{id}")]
+        public List<BLLGroupStudentPerfect> GetByStudentId(int id)
+        {
+            return groupStudents.GetByStudentId(id);
+        }
         [HttpPost("Add")]
         public void Create(BLLGroupStudent groupStudent)
         {
@@ -39,7 +44,7 @@ namespace server.controllers
         [HttpDelete("Delete")]
         public void Delete(BLLGroupStudent groupStudent)
         {
-           // groupStudents.Delete(groupStudent);
+            groupStudents.Delete(groupStudent.StudentId);
         }
     }
 }

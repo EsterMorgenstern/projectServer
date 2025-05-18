@@ -113,9 +113,29 @@ namespace BLL.Services
             throw new NotImplementedException();
         }
 
+
         public void Update(BLLGroup group)
         {
-            throw new NotImplementedException();
+            Group existingGroup = dal.Groups.GetById(group.GroupId);
+            if (existingGroup == null)
+            {
+                throw new KeyNotFoundException($"Group with ID {group.GroupId} not found.");
+            }
+
+            existingGroup.CourseId = group.CourseId;
+            existingGroup.BranchId = group.BranchId;
+            existingGroup.AgeRange = group.AgeRange;
+            existingGroup.DayOfWeek = group.DayOfWeek;
+            existingGroup.GroupName = group.GroupName;
+            existingGroup.Hour = group.Hour;
+            existingGroup.MaxStudents = group.MaxStudents;
+            existingGroup.Sector = group.Sector;
+            existingGroup.InstructorId = group.InstructorId;
+            existingGroup.City = group.City;
+
+            dal.Groups.Update(existingGroup);
         }
+
+
     }
 }

@@ -48,6 +48,14 @@ namespace DAL.Services
             }
             return groupStudent;
         }
+        public List<GroupStudent> GetByStudentId(int id)
+        {
+            return dbcontext.GroupStudents
+                            .Where(gs => gs.StudentId == id)
+                            .ToList();
+        }
+
+
         public void Update(GroupStudent groupStudent)
         {
             dbcontext.GroupStudents.Update(groupStudent);
