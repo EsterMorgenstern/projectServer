@@ -25,7 +25,8 @@ namespace BLL.Services
                 MaxStudents = group.MaxStudents,
                 Sector = group.Sector,
                 InstructorId = group.InstructorId,
-                City = group.City,
+                NumOfLessons=group.NumOfLessons,
+                StartDate = group.StartDate
 
             };
             dal.Groups.Create(g);
@@ -43,14 +44,15 @@ namespace BLL.Services
                 CourseId = c.CourseId,
                 AgeRange = c.AgeRange,
                 BranchId = c.BranchId,
-                City = c.City,
                 DayOfWeek = c.DayOfWeek,
                 GroupId = c.GroupId,
                 GroupName = c.GroupName,
                 Hour = c.Hour,
                 InstructorId = c.InstructorId,
                 MaxStudents = c.MaxStudents,
-                Sector = c.Sector
+                Sector = c.Sector,
+                NumOfLessons = c.NumOfLessons,
+                StartDate = c.StartDate
 
             }).ToList();
         }
@@ -70,7 +72,8 @@ namespace BLL.Services
                 MaxStudents = group.MaxStudents,
                 Sector = group.Sector,
                 InstructorId = group.InstructorId,
-                City = group.City
+                NumOfLessons= group.NumOfLessons,
+                StartDate = group.StartDate
             };
             return blg;
         }
@@ -94,7 +97,8 @@ namespace BLL.Services
                         MaxStudents = group.MaxStudents,
                         Sector = group.Sector,
                         InstructorId = group.InstructorId,
-                        City = group.City
+                        StartDate = group.StartDate,
+                        NumOfLessons=group.NumOfLessons,
                     };
                     bls.Add(bl);
                 }
@@ -131,7 +135,8 @@ namespace BLL.Services
             existingGroup.MaxStudents = group.MaxStudents;
             existingGroup.Sector = group.Sector;
             existingGroup.InstructorId = group.InstructorId;
-            existingGroup.City = group.City;
+            existingGroup.StartDate = group.StartDate;
+            existingGroup.NumOfLessons = group.NumOfLessons;
 
             dal.Groups.Update(existingGroup);
         }

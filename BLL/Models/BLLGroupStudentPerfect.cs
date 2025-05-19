@@ -5,7 +5,7 @@
         public int StudentId { get; set; }
         public DateOnly? EnrollmentDate { get; set; }
         public bool? IsActive { get; set; }
-        public int DayOfWeek { get; set; }
+        public string DayOfWeek { get; set; } = null!;
         public TimeOnly? Hour { get; set; }
         public string CourseName { get; set; } = string.Empty;
         public string BranchName { get; set; } = string.Empty;

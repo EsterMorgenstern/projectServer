@@ -33,7 +33,7 @@ public partial class dbcontext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\project\\server\\CoursesDB.mdf;Integrated Security=True;Connect Timeout=30");
+        => optionsBuilder.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\project\\server\\CoursesDB.mdf;Integrated Security=True;Connect Timeout=30;Encrypt=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -57,6 +57,7 @@ public partial class dbcontext : DbContext
             entity.HasKey(e => e.BranchId).HasName("PK__Branches__A1682FC52ADF22B3");
 
             entity.Property(e => e.Address).HasMaxLength(20);
+            entity.Property(e => e.City).HasMaxLength(20);
             entity.Property(e => e.Name).HasMaxLength(20);
         });
 
@@ -73,7 +74,7 @@ public partial class dbcontext : DbContext
             entity.HasKey(e => e.GroupId).HasName("PK__Groups__149AF36AF8EA9CDA");
 
             entity.Property(e => e.AgeRange).HasMaxLength(20);
-            entity.Property(e => e.City).HasMaxLength(20);
+            entity.Property(e => e.DayOfWeek).HasMaxLength(20);
             entity.Property(e => e.GroupName).HasMaxLength(20);
             entity.Property(e => e.Sector).HasMaxLength(20);
 

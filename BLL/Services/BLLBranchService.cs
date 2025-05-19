@@ -20,7 +20,8 @@ namespace BLL.Services
                BranchId = b.BranchId,
                Name = b.Name,
                Address = b.Address,
-               MaxGroupSize = b.MaxGroupSize,   
+               MaxGroupSize = b.MaxGroupSize,
+               City = b.City
            }).ToList(); 
         }
         public void Create(BLLBranch branch)
@@ -30,7 +31,8 @@ namespace BLL.Services
                 BranchId = branch.BranchId,
                 Name = branch.Name,
                 Address = branch.Address,
-                MaxGroupSize = branch.MaxGroupSize
+                MaxGroupSize = branch.MaxGroupSize,
+                City= branch.City
             };
             dal.Branches.Create(b);
         }
@@ -42,7 +44,8 @@ namespace BLL.Services
                 BranchId = b.BranchId,
                 Name = b.Name,
                 Address = b.Address,
-                MaxGroupSize = b.MaxGroupSize
+                MaxGroupSize = b.MaxGroupSize,
+                City = b.City
             };
             return blc;
         }
@@ -60,6 +63,7 @@ namespace BLL.Services
                 b.Name = branch.Name;
                 b.Address = branch.Address;
                 b.MaxGroupSize = branch.MaxGroupSize;
+                b.City = branch.City;   
 
                 dal.Branches.Update(b);
             }

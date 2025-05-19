@@ -13,5 +13,7 @@ public partial class Branch
 
     public int? MaxGroupSize { get; set; }
 
+    public string? City { get; set; }
+
     public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
 }

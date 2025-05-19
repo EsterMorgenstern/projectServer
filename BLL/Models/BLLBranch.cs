@@ -15,5 +15,6 @@ namespace BLL.Models
         public string? Address { get; set; }
 
         public int? MaxGroupSize { get; set; }
+        public string? City { get; set; }
     }
 }

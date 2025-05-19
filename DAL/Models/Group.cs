@@ -15,7 +15,7 @@ public partial class Group
 
     public string GroupName { get; set; } = null!;
 
-    public int DayOfWeek { get; set; }
+    public string DayOfWeek { get; set; } = null!;
 
     public TimeOnly? Hour { get; set; }
 
@@ -23,9 +23,11 @@ public partial class Group
 
     public int? MaxStudents { get; set; }
 
-    public string? City { get; set; }
-
     public string? Sector { get; set; }
+
+    public DateOnly? StartDate { get; set; }
+
+    public int? NumOfLessons { get; set; }
 
     public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 
