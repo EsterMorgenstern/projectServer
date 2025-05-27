@@ -16,7 +16,6 @@ namespace server.controllers
             attendances = manager.Attendances;
         }
 
-        // פונקציות קיימות
         [HttpGet("GetAll")]
         public List<BLLAttendance> Get()
         {
@@ -71,7 +70,6 @@ namespace server.controllers
             }
         }
 
-        // פונקציות חדשות לניהול נוכחות מתקדם
 
         [HttpPost("SaveAttendanceForDate")]
         public IActionResult SaveAttendanceForDate([FromBody] SaveAttendanceRequest request)

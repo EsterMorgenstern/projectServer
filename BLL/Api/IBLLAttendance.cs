@@ -13,7 +13,7 @@ namespace BLL.Api
         List<BLLAttendance> Get();
         void Create(BLLAttendance attendance);
          BLLAttendance GetById(int id);
-         List<BLLAttendance> GetAttendanceByGroupAndDate(int groupId, DateOnly date);
+         List<BLLAttendanceRecord> GetAttendanceByGroupAndDate(int groupId, DateOnly date);
          Dictionary<DateOnly, List<BLLAttendanceRecord>> GetAttendanceByGroupAndDateRange(
               int groupId, DateOnly startDate, DateOnly endDate);
          void DeleteByGroupAndDate(int groupId,DateOnly date);

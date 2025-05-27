@@ -77,15 +77,12 @@ namespace BLL.Services
             dal.Attendances.Update(a);
         }
 
-        // פונקציות חדשות
         public bool SaveAttendanceForDate(int groupId, DateOnly date, List<BLLAttendanceRecord> attendanceRecords)
         {
             try
             {
-                // מחיקת נוכחות קיימת לאותו יום (אם קיימת)
                 dal.Attendances.DeleteByGroupAndDate(groupId, date);
 
-                // שמירת הנוכחות החדשה
                 foreach (var record in attendanceRecords)
                 {
                     dal.Attendances.Create(new Attendance
@@ -257,10 +254,7 @@ namespace BLL.Services
             }
         }
 
-        List<BLLAttendance> IBLLAttendance.GetAttendanceByGroupAndDate(int groupId, DateOnly date)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public void DeleteByGroupAndDate(int groupId, DateOnly date)
         {
