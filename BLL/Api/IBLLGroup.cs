@@ -15,7 +15,7 @@ namespace BLL.Api
         public void Delete(int id);
         public void Update(BLLGroup group);
         public List<BLLGroup> GetGroupsByCourseId(int courseId);
-        public List<BLLGroupStudent> GetStudentsByGroupId(int groupId);
+        public List<BLLGroupStudentPerfect> GetStudentsByGroupId(int groupId);
         public List<BLLInstructor> GetInstructorsByGroupId(int groupId);
     }
 }

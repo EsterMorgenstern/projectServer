@@ -10,7 +10,7 @@ namespace BLL.Services
 {
     public class BLLGroupStudentService : IBLLGroupStudent
     {
-        IDAL dal;
+        private readonly IDAL dal;
         public BLLGroupStudentService(IDAL dal)
         {
             this.dal = dal;
@@ -30,7 +30,7 @@ namespace BLL.Services
             var gl = dal.Groups.Get().ToList().Find(x => x.GroupId == groupStudent.GroupId);
             if (gl != null)
             {
-                gl.MaxStudents = (gl.MaxStudents ?? 0) + 1;
+                gl.MaxStudents = (gl.MaxStudents ?? 0) - 1;
                 dal.Groups.Update(gl);
             }
         }
@@ -48,7 +48,7 @@ namespace BLL.Services
             var group = dal.Groups.GetById(groupStudent.GroupId);
             if (group != null)
             {
-                group.MaxStudents = (group.MaxStudents ?? 0) - 1;
+                group.MaxStudents = (group.MaxStudents ?? 0) + 1;
                 dal.Groups.Update(group);
             }
         }
@@ -93,7 +93,8 @@ namespace BLL.Services
                 BLLGroupStudentPerfect gspl = new BLLGroupStudentPerfect()
                 {
                     StudentId=item.StudentId,
-                    EnrollmentDate=item.EnrollmentDate,
+                    StudentName=dal.Students.GetById(item.StudentId).FirstName+" "+ dal.Students.GetById(item.StudentId).LastName,
+                    EnrollmentDate =item.EnrollmentDate,
                     IsActive=item.IsActive,
                     DayOfWeek=d.DayOfWeek,
                     Hour=d.Hour,

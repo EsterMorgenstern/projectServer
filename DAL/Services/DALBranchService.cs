@@ -32,8 +32,8 @@ namespace DAL.Services
 
         
 
-        public List<Branch> Get()
-        {
+        public  List<Branch> Get()
+   {
             return dbcontext.Branches.ToList();
         }
         public Branch GetById(int id)

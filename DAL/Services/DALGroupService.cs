@@ -5,7 +5,7 @@ namespace DAL.Services
 {
     public class DALGroupService : IDALGroup
     {
-        dbcontext dbcontext;
+       private readonly dbcontext dbcontext;
         public DALGroupService(dbcontext data)
         {
             dbcontext = data;
@@ -58,14 +58,14 @@ namespace DAL.Services
             return dbcontext.Groups.Where(x => x.InstructorId == group.InstructorId).ToList();
         }
 
-        public List<Group> GetStudentsByGroupId(int groupId)
+        public List<GroupStudent> GetStudentsByGroupId(int groupId)
         {
-            var group = dbcontext.Groups.SingleOrDefault(x => x.GroupId == groupId);
-            if (group == null)
+           var lst= dbcontext.GroupStudents.Where(x => x.GroupId == groupId).ToList();
+            if (lst == null)
             {
-                throw new KeyNotFoundException($"Group with ID {groupId} not found.");
+                throw new KeyNotFoundException($"Students with GroupId {groupId} not found.");
             }
-            return dbcontext.Groups.Where(x => x.GroupStudents.Any(gs => gs.GroupId == groupId)).ToList();
+            return lst;
         }
 
         public void Update(Group group)

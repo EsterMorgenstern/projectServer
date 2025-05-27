@@ -7,7 +7,7 @@ namespace BLL.Services
 {
     public class BLLInstructorService : IBLLInstructor
     {
-        IDAL dal;
+        private readonly IDAL dal;
         public BLLInstructorService(IDAL dal)
         {
             this.dal = dal;

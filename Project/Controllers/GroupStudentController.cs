@@ -32,7 +32,7 @@ namespace server.controllers
             return groupStudents.GetByStudentId(id);
         }
         [HttpPost("Add")]
-        public void Create(BLLGroupStudent groupStudent)
+        public void Create([FromBody]BLLGroupStudent groupStudent)
         {
             groupStudents.Create(groupStudent);
         }

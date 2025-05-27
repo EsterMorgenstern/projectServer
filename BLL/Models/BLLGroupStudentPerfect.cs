@@ -3,6 +3,7 @@
     public class BLLGroupStudentPerfect
     {
         public int StudentId { get; set; }
+        public string StudentName { get; set; } =string.Empty;
         public DateOnly? EnrollmentDate { get; set; }
         public bool? IsActive { get; set; }
         public string DayOfWeek { get; set; } = null!;

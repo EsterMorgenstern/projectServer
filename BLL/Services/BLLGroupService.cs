@@ -7,7 +7,7 @@ namespace BLL.Services
 {
     public class BLLGroupService : IBLLGroup
     {
-        IDAL dal;
+        private readonly IDAL dal;
         public BLLGroupService(IDAL dal)
         {
             this.dal = dal;
@@ -16,6 +16,7 @@ namespace BLL.Services
         {
             Group g = new Group()
             {
+                GroupId = group.GroupId,
                 CourseId = group.CourseId,
                 BranchId = group.BranchId,
                 AgeRange = group.AgeRange,
@@ -25,7 +26,7 @@ namespace BLL.Services
                 MaxStudents = group.MaxStudents,
                 Sector = group.Sector,
                 InstructorId = group.InstructorId,
-                NumOfLessons=group.NumOfLessons,
+                NumOfLessons = group.NumOfLessons,
                 StartDate = group.StartDate
 
             };
@@ -41,11 +42,11 @@ namespace BLL.Services
         {
             return dal.Groups.Get().Select(c => new BLLGroup()
             {
+                GroupId = c.GroupId,
                 CourseId = c.CourseId,
                 AgeRange = c.AgeRange,
                 BranchId = c.BranchId,
                 DayOfWeek = c.DayOfWeek,
-                GroupId = c.GroupId,
                 GroupName = c.GroupName,
                 Hour = c.Hour,
                 InstructorId = c.InstructorId,
@@ -62,7 +63,7 @@ namespace BLL.Services
             Group group = dal.Groups.GetById(id);
             BLLGroup blg = new BLLGroup()
             {
-
+                GroupId = group.GroupId,
                 CourseId = group.CourseId,
                 BranchId = group.BranchId,
                 AgeRange = group.AgeRange,
@@ -72,7 +73,7 @@ namespace BLL.Services
                 MaxStudents = group.MaxStudents,
                 Sector = group.Sector,
                 InstructorId = group.InstructorId,
-                NumOfLessons= group.NumOfLessons,
+                NumOfLessons = group.NumOfLessons,
                 StartDate = group.StartDate
             };
             return blg;
@@ -88,6 +89,7 @@ namespace BLL.Services
                 {
                     BLLGroup bl = new BLLGroup()
                     {
+                        GroupId = group.GroupId,
                         CourseId = group.CourseId,
                         BranchId = group.BranchId,
                         AgeRange = group.AgeRange,
@@ -98,7 +100,7 @@ namespace BLL.Services
                         Sector = group.Sector,
                         InstructorId = group.InstructorId,
                         StartDate = group.StartDate,
-                        NumOfLessons=group.NumOfLessons,
+                        NumOfLessons = group.NumOfLessons,
                     };
                     bls.Add(bl);
                 }
@@ -112,9 +114,30 @@ namespace BLL.Services
             throw new NotImplementedException();
         }
 
-        public List<Models.BLLGroupStudent> GetStudentsByGroupId(int groupId)
+        public List<BLLGroupStudentPerfect> GetStudentsByGroupId(int groupId)
         {
-            throw new NotImplementedException();
+            var lst = dal.Groups.GetStudentsByGroupId(groupId);
+            List<BLLGroupStudentPerfect> lstgp = new List<BLLGroupStudentPerfect>();
+            foreach (var item in lst)
+            {
+                var d = dal.Groups.GetById(item.GroupId);
+
+                BLLGroupStudentPerfect gspl = new BLLGroupStudentPerfect()
+                {
+                    StudentId = item.StudentId,
+                    StudentName = dal.Students.GetById(item.StudentId).FirstName + " " + dal.Students.GetById(item.StudentId).LastName,
+                    EnrollmentDate = item.EnrollmentDate,
+                    IsActive = item.IsActive,
+                    DayOfWeek = d.DayOfWeek,
+                    Hour = d.Hour,
+                    GroupName = d.GroupName,
+                    BranchName = dal.Branches.GetById(d.BranchId).Name,
+                    InstructorName = dal.Instructors.GetById(d.InstructorId).FirstName + " " + dal.Instructors.GetById(d.InstructorId).LastName,
+                    CourseName = dal.Courses.GetById(d.CourseId).CouresName
+                };
+                lstgp.Add(gspl);
+            }
+            return lstgp;
         }
 
 
@@ -125,7 +148,7 @@ namespace BLL.Services
             {
                 throw new KeyNotFoundException($"Group with ID {group.GroupId} not found.");
             }
-
+            existingGroup.GroupId = group.GroupId;
             existingGroup.CourseId = group.CourseId;
             existingGroup.BranchId = group.BranchId;
             existingGroup.AgeRange = group.AgeRange;

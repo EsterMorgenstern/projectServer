@@ -1,12 +1,23 @@
 using BLL.Api;
 using BLL;
+using Microsoft.EntityFrameworkCore;
+using DAL.Models;
+using DAL.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddDbContext<dbcontext>(options =>
+    options.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\project\\server\\CoursesDB.mdf;Integrated Security=True;Connect Timeout=30;Encrypt=True"));
 
+builder.Services.AddScoped<DALCourseService>();
+builder.Services.AddScoped<DALGroupService>();
+builder.Services.AddScoped<DALBranchService>();
+builder.Services.AddScoped<DALStudentService>();
+builder.Services.AddScoped<DALAttendanceService>();
+builder.Services.AddScoped<DALGroupStudentService>();
+builder.Services.AddScoped<DALInstructorService>();
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at http://localhost:5000/swagger/index.html
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -18,7 +29,7 @@ builder.Services.AddSwaggerGen(options =>
         Description = "An example API for demonstration purposes"
     });
 });
-builder.Services.AddSingleton<IBLL,BLLManager>();
+builder.Services.AddScoped<IBLL, BLLManager>();
 
 builder.Services.AddCors(c => c.AddPolicy("AllowAll",
     option => option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));

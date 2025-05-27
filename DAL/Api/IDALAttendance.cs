@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DAL.Models;
+﻿using DAL.Models;
 
 namespace DAL.Api
 {
@@ -12,7 +7,13 @@ namespace DAL.Api
         List<Attendance> Get();
         void Create(Attendance attendance);
         Attendance GetById(int id);
+        List<Attendance> GetAttendanceByGroupAndDate(int groupId, DateOnly date);
+        List<Attendance> GetByGroupAndDateRange(int groupId, DateOnly startDate, DateOnly endDate);
+        void DeleteByGroupAndDate(int groupId, DateOnly date);
         void Delete(Attendance attendance);
         void Update(Attendance attendance);
+        List<Attendance> GetAttendanceByStudent(int studentId);
+        List<Attendance> GetAttendanceByStudentAndDateRange(int studentId, DateOnly startDate, DateOnly endDate);
+        List<Attendance> GetAttendanceByGroup(int groupId);
     }
 }

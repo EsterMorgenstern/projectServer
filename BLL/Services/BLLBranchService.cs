@@ -8,7 +8,7 @@ namespace BLL.Services
 {
     public class BLLBranchService : IBLLBranch
     {
-        IDAL dal;
+        private readonly IDAL dal;
         public BLLBranchService(IDAL dal)
         {
             this.dal = dal;

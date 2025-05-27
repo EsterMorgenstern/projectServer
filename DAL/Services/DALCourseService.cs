@@ -34,8 +34,9 @@ namespace DAL.Services
         public List<Course> Get()
         {
             return dbcontext.Courses.ToList();
-        }
 
+
+        }
         public Course GetById(int id)
         {
             var course = dbcontext.Courses.SingleOrDefault(x => x.CourseId == id);
