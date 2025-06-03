@@ -24,6 +24,10 @@ namespace BLL.Api
         List<BLLAttendance> GetAttendanceByStudentAndDateRange(int studentId, DateOnly startDate, DateOnly endDate);
         BLLAttendanceStatistics GetAttendanceStatistics(int groupId);
         BLLAttendanceStatistics GetAttendanceStatisticsByDateRange(int groupId, DateOnly startDate, DateOnly endDate);
+        BLLStudentAttendanceSummary GetStudentAttendanceSummary(int studentId, int? month = null, int? year = null);
+        List<BLLStudentAttendanceHistory> GetStudentAttendanceHistory(int studentId, int? month = null, int? year = null);
+        BLLMonthlyReport GetMonthlyReport(int month, int year, int? groupId = null);
+        BLLOverallStatistics GetOverallStatistics(int? month = null, int? year = null);
         bool DeleteAttendanceByGroupAndDate(int groupId, DateOnly date);
     }
 

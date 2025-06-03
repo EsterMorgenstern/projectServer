@@ -254,7 +254,164 @@ namespace BLL.Services
             }
         }
 
+        public BLLStudentAttendanceSummary GetStudentAttendanceSummary(int studentId, int? month = null, int? year = null)
+        {
+            var student = dal.Students.GetById(studentId);
+            var attendanceRecords = dal.Attendances.GetAttendanceByStudent(studentId);
 
+            if (month.HasValue && year.HasValue)
+            {
+                attendanceRecords = attendanceRecords.Where(a =>
+                    a.Date.HasValue &&
+                    a.Date.Value.Month == month.Value &&
+                    a.Date.Value.Year == year.Value).ToList();
+            }
+
+            var totalLessons = attendanceRecords.Count;
+            var attendedLessons = attendanceRecords.Count(a => a.WasPresent == true);
+            var absentLessons = totalLessons - attendedLessons;
+            var attendanceRate = totalLessons > 0 ? (double)attendedLessons / totalLessons * 100 : 0;
+
+            return new BLLStudentAttendanceSummary
+            {
+                StudentId = studentId,
+                StudentName = $"{student.FirstName} {student.LastName}",
+                TotalLessons = totalLessons,
+                AttendedLessons = attendedLessons,
+                AbsentLessons = absentLessons,
+                AttendanceRate = Math.Round(attendanceRate, 1),
+                Month = month ?? DateTime.Now.Month,
+                Year = year ?? DateTime.Now.Year
+            };
+        }
+
+        public List<BLLStudentAttendanceHistory> GetStudentAttendanceHistory(int studentId, int? month = null, int? year = null)
+        {
+            var attendanceRecords = dal.Attendances.GetAttendanceByStudent(studentId);
+
+            if (month.HasValue && year.HasValue)
+            {
+                attendanceRecords = attendanceRecords.Where(a =>
+                    a.Date.HasValue &&
+                    a.Date.Value.Month == month.Value &&
+                    a.Date.Value.Year == year.Value).ToList();
+            }
+
+            var result = new List<BLLStudentAttendanceHistory>();
+
+            foreach (var record in attendanceRecords)
+            {
+                try
+                {
+                    var group = dal.Groups.GetById(record.GroupId ?? 0);
+                    var course = dal.Courses.GetById(group.CourseId );
+                    var branch = dal.Branches.GetById(group.BranchId );
+                    var instructor = dal.Instructors.GetById(group.InstructorId );
+
+                    result.Add(new BLLStudentAttendanceHistory
+                    {
+                        AttendanceId = record.AttendanceId,
+                        StudentId = studentId,
+                        StudentName = GetStudentName(studentId),
+                        GroupId = record.GroupId ?? 0,
+                        GroupName = group.GroupName ?? "",
+                        CourseName = course.CouresName ?? "",
+                        InstructorName = $"{instructor.FirstName} {instructor.LastName}",
+                        BranchName = branch.Name ?? "",
+                        Date = record.Date ?? DateOnly.MinValue,
+                        LessonTime = group.Hour,
+                        IsPresent = record.WasPresent ?? false,
+                        
+                    });
+                }
+                catch (Exception ex)
+                {
+                    // לוג השגיאה אבל המשך עם הרשומות האחרות
+                    Console.WriteLine($"Error processing attendance record {record.AttendanceId}: {ex.Message}");
+                }
+            }
+
+            return result.OrderByDescending(r => r.Date).ToList();
+        }
+
+        public BLLMonthlyReport GetMonthlyReport(int month, int year, int? groupId = null)
+        {
+            var startDate = new DateOnly(year, month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            var groups = groupId.HasValue ?
+                new List<DAL.Models.Group> { dal.Groups.GetById(groupId.Value) } :
+                dal.Groups.Get();
+
+            var groupReports = new List<BLLGroupReport>();
+            var totalStudents = 0;
+            var totalLessons = 0;
+            var totalAttendanceRecords = 0;
+            var totalPresentRecords = 0;
+
+            foreach (var group in groups)
+            {
+                try
+                {
+                    var attendanceRecords = dal.Attendances.GetByGroupAndDateRange(group.GroupId, startDate, endDate);
+                    var groupStudents = dal.Groups.GetStudentsByGroupId(group.GroupId);
+                    var course = dal.Courses.GetById(group.CourseId );
+                    var branch = dal.Branches.GetById(group.BranchId );
+
+                    var groupTotalLessons = attendanceRecords.GroupBy(a => a.Date).Count();
+                    var groupTotalAttendance = attendanceRecords.Count;
+                    var groupPresentCount = attendanceRecords.Count(a => a.WasPresent == true);
+                    var groupAttendanceRate = groupTotalAttendance > 0 ?
+                        (double)groupPresentCount / groupTotalAttendance * 100 : 0;
+
+                    groupReports.Add(new BLLGroupReport
+                    {
+                        GroupId = group.GroupId,
+                        GroupName = group.GroupName ?? "",
+                        CourseName = course.CouresName ?? "",
+                        BranchName = branch.Name ?? "",
+                        TotalStudents = groupStudents.Count,
+                        TotalLessons = groupTotalLessons,
+                        AverageAttendanceRate = Math.Round(groupAttendanceRate, 1)
+                    });
+
+                    totalStudents += groupStudents.Count;
+                    totalLessons += groupTotalLessons;
+                    totalAttendanceRecords += groupTotalAttendance;
+                    totalPresentRecords += groupPresentCount;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error processing group {group.GroupId}: {ex.Message}");
+                }
+            }
+
+            var overallAttendanceRate = totalAttendanceRecords > 0 ?
+                (double)totalPresentRecords / totalAttendanceRecords * 100 : 0;
+
+            return new BLLMonthlyReport
+            {
+                Month = month,
+                Year = year,
+                OverallStatistics = new BLLOverallStatistics
+                {
+                    TotalStudents = totalStudents,
+                    TotalLessons = totalLessons,
+                    TotalGroups = groups.Count,
+                    OverallAttendanceRate = Math.Round(overallAttendanceRate, 1)
+                },
+                Groups = groupReports
+            };
+        }
+
+        public BLLOverallStatistics GetOverallStatistics(int? month = null, int? year = null)
+        {
+            var currentMonth = month ?? DateTime.Now.Month;
+            var currentYear = year ?? DateTime.Now.Year;
+
+            var report = GetMonthlyReport(currentMonth, currentYear);
+            return report.OverallStatistics;
+        }
 
         public void DeleteByGroupAndDate(int groupId, DateOnly date)
         {

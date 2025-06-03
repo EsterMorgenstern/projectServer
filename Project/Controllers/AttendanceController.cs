@@ -69,6 +69,23 @@ namespace server.controllers
                 return BadRequest($"שגיאה במחיקת נוכחות: {ex.Message}");
             }
         }
+        [HttpDelete("DeleteAttendanceByGroupAndDate/{groupId}/{date}")]
+        public IActionResult DeleteAttendanceByGroupAndDate(int groupId, string date)
+        {
+            try
+            {
+                if (DateOnly.TryParse(date, out DateOnly parsedDate))
+                {
+                    attendances.DeleteByGroupAndDate(groupId, parsedDate);
+                    return Ok("נוכחות נמחקה בהצלחה");
+                }
+                return BadRequest("תאריך לא תקין");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"שגיאה במחיקת נוכחות: {ex.Message}");
+            }
+        }
 
 
         [HttpPost("SaveAttendanceForDate")]
@@ -127,39 +144,7 @@ namespace server.controllers
             }
         }
 
-        //[HttpGet("GetAttendanceByStudent/{studentId}")]
-        //public IActionResult GetAttendanceByStudent(int studentId)
-        //{
-        //    try
-        //    {
-        //        var attendance = attendances.GetAttendanceByStudent(studentId);
-        //        return Ok(attendance);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest($"שגיאה בקבלת נוכחות תלמיד: {ex.Message}");
-        //    }
-        //}
-
-        [HttpGet("GetAttendanceByStudentAndDateRange/{studentId}/{startDate}/{endDate}")]
-        public IActionResult GetAttendanceByStudentAndDateRange(int studentId, string startDate, string endDate)
-        {
-            try
-            {
-                if (DateOnly.TryParse(startDate, out DateOnly start) &&
-                    DateOnly.TryParse(endDate, out DateOnly end))
-                {
-                    var attendance = attendances.GetAttendanceByGroupAndDateRange(studentId, start, end);
-                    return Ok(attendance);
-                }
-                return BadRequest("תאריכים לא תקינים");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"שגיאה בקבלת נוכחות תלמיד לטווח תאריכים: {ex.Message}");
-            }
-        }
-
+       
         [HttpGet("GetAttendanceStatistics/{groupId}")]
         public IActionResult GetAttendanceStatistics(int groupId)
         {
@@ -193,23 +178,77 @@ namespace server.controllers
             }
         }
 
-        [HttpDelete("DeleteAttendanceByGroupAndDate/{groupId}/{date}")]
-        public IActionResult DeleteAttendanceByGroupAndDate(int groupId, string date)
+       
+        [HttpGet("GetAttendanceByStudent/{studentId}")]
+        public IActionResult GetAttendanceByStudent(int studentId)
         {
             try
             {
-                if (DateOnly.TryParse(date, out DateOnly parsedDate))
-                {
-                    attendances.DeleteByGroupAndDate(groupId, parsedDate);
-                    return Ok("נוכחות נמחקה בהצלחה");
-                }
-                return BadRequest("תאריך לא תקין");
+                var attendance = attendances.GetAttendanceByStudent(studentId);
+                return Ok(attendance);
             }
             catch (Exception ex)
             {
-                return BadRequest($"שגיאה במחיקת נוכחות: {ex.Message}");
+                return BadRequest($"שגיאה בקבלת נוכחות תלמיד: {ex.Message}");
             }
         }
+
+        [HttpGet("student/{studentId}/summary")]
+        public IActionResult GetStudentAttendanceSummary(int studentId, [FromQuery] int? month = null, [FromQuery] int? year = null)
+        {
+            try
+            {
+                var summary = attendances.GetStudentAttendanceSummary(studentId, month, year);
+                return Ok(summary);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"שגיאה בקבלת סיכום נוכחות תלמיד: {ex.Message}");
+            }
+        }
+
+        [HttpGet("student/{studentId}/history")]
+        public IActionResult GetStudentAttendanceHistory(int studentId, [FromQuery] int? month = null, [FromQuery] int? year = null)
+        {
+            try
+            {
+                var history = attendances.GetStudentAttendanceHistory(studentId, month, year);
+                return Ok(history);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"שגיאה בקבלת היסטוריית נוכחות תלמיד: {ex.Message}");
+            }
+        }
+
+        [HttpGet("reports/monthly")]
+        public IActionResult GetMonthlyReport([FromQuery] int month, [FromQuery] int year, [FromQuery] int? groupId = null)
+        {
+            try
+            {
+                var report = attendances.GetMonthlyReport(month, year, groupId);
+                return Ok(report);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"שגיאה בקבלת דוח חודשי: {ex.Message}");
+            }
+        }
+
+        [HttpGet("reports/overall")]
+        public IActionResult GetOverallStatistics([FromQuery] int? month = null, [FromQuery] int? year = null)
+        {
+            try
+            {
+                var statistics = attendances.GetOverallStatistics(month, year);
+                return Ok(statistics);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"שגיאה בקבלת סטטיסטיקות כלליות: {ex.Message}");
+            }
+        }
+
     }
 
     // מודלים לבקשות
