@@ -1,7 +1,9 @@
-using BLL.Api;
+ï»¿using BLL.Api;
 using BLL;
+using BLL.Services; // ×”×•×¡×£ ××ª ×–×”
 using Microsoft.EntityFrameworkCore;
 using DAL.Models;
+using DAL.Api;
 using DAL.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,8 +19,9 @@ builder.Services.AddScoped<DALStudentService>();
 builder.Services.AddScoped<DALAttendanceService>();
 builder.Services.AddScoped<DALGroupStudentService>();
 builder.Services.AddScoped<DALInstructorService>();
-builder.Services.AddControllers();
+builder.Services.AddScoped<DALStudentNoteService>();
 
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -29,17 +32,15 @@ builder.Services.AddSwaggerGen(options =>
         Description = "An example API for demonstration purposes"
     });
 });
-builder.Services.AddScoped<IBLL, BLLManager>();
 
+builder.Services.AddScoped<IBLL, BLLManager>();
 builder.Services.AddCors(c => c.AddPolicy("AllowAll",
     option => option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
-
 var app = builder.Build();
-//ìäòúé÷ àçøé äâãøú ä app
+
 app.UseCors("AllowAll");
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -47,9 +48,21 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var dalService = services.GetRequiredService<IDALStudentNote>();
+        var bllService = services.GetRequiredService<IBLLStudentNote>();
+        Console.WriteLine("âœ… Services registered successfully");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"âŒ Service registration failed: {ex.Message}");
+    }
+}
 
 app.Run();

@@ -15,6 +15,7 @@ namespace BLL
         public IBLLAttendance Attendances { get; }
         public IBLLBranch Branches { get; }
         public IBLLGroupStudent GroupStudents { get; }  
+        public IBLLStudentNote Notes { get; }   
 
         public BLLManager()
         {
@@ -25,7 +26,8 @@ namespace BLL
             Groups = new BLLGroupService(dal);
             Attendances = new BLLAttendanceService(dal);  
             Branches = new BLLBranchService(dal);
-            GroupStudents = new BLLGroupStudentService(dal);    
+            GroupStudents = new BLLGroupStudentService(dal);  
+            Notes=  new BLLStudentNoteService(dal);    
         }
     }
 }

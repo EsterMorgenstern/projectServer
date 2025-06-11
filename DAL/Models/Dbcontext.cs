@@ -31,13 +31,11 @@ public partial class dbcontext : DbContext
 
     public virtual DbSet<Student> Students { get; set; }
 
+    public virtual DbSet<StudentNote> StudentNotes { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\project\\server\\CoursesDB.mdf;Integrated Security=True;Connect Timeout=30;Encrypt=True");
-        }
-    }
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\project\\server\\CoursesDB.mdf;Integrated Security=True;Connect Timeout=30;Encrypt=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -154,6 +152,27 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.School).HasMaxLength(20);
             entity.Property(e => e.Sector).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<StudentNote>(entity =>
+        {
+            entity.HasKey(e => e.NoteId).HasName("PK__StudentN__EACE355FC9BE3B08");
+
+            entity.Property(e => e.AuthorName).HasMaxLength(100);
+            entity.Property(e => e.AuthorRole).HasMaxLength(50);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsPrivate).HasDefaultValue(false);
+            entity.Property(e => e.NoteType).HasMaxLength(50);
+            entity.Property(e => e.Priority)
+                .HasMaxLength(20)
+                .HasDefaultValue("Normal");
+            entity.Property(e => e.UpdatedDate).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(d => d.Student).WithMany(p => p.StudentNotes)
+                .HasForeignKey(d => d.StudentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_StudentNotes_Student");
         });
 
         OnModelCreatingPartial(modelBuilder);

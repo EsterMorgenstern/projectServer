@@ -9,6 +9,7 @@
         public IDALAttendance Attendances { get; }
         public IDALGroupStudent GroupStudents { get; }
         public IDALBranch Branches { get; } 
+        public IDALStudentNote StudentNotes { get; }   
 
     }
 }

@@ -17,6 +17,7 @@ namespace DAL
             GroupStudents = new DALGroupStudentService(data);
             Branches = new DALBranchService(data);
             Attendances = new DALAttendanceService(data);
+            StudentNotes=new DALStudentNoteService(data);   
         }
 
         public IDALStudent Students { get; }
@@ -26,6 +27,7 @@ namespace DAL
         public IDALGroupStudent GroupStudents { get; }
         public IDALBranch Branches { get; }
         public IDALAttendance Attendances { get; }
+        public IDALStudentNote StudentNotes { get; }
 
     }
 }

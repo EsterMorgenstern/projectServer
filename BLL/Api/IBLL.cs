@@ -9,6 +9,7 @@
         public IBLLAttendance Attendances { get; }
         public IBLLBranch Branches { get; }
         public IBLLGroupStudent GroupStudents { get; }
+        public IBLLStudentNote Notes { get; }   
         
     }
 }
