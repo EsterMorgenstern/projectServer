@@ -16,6 +16,6 @@ namespace DAL.Api
         public void Delete(int id);
         public void Update( Group group);
         public List<GroupStudent> GetStudentsByGroupId(int groupId);
-        public List<Group> GetInstructorsByGroupId(int groupId);
+        public List<Group> GetGroupsByInstructorId(int groupId);
     }
 }

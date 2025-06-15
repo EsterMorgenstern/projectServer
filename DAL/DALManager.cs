@@ -1,4 +1,5 @@
-﻿using DAL.Api;
+﻿using System.Configuration;
+using DAL.Api;
 using DAL.Models;
 using DAL.Services;
 
@@ -18,6 +19,7 @@ namespace DAL
             Branches = new DALBranchService(data);
             Attendances = new DALAttendanceService(data);
             StudentNotes=new DALStudentNoteService(data);   
+            Users = new DALUserService(data);    
         }
 
         public IDALStudent Students { get; }
@@ -28,6 +30,7 @@ namespace DAL
         public IDALBranch Branches { get; }
         public IDALAttendance Attendances { get; }
         public IDALStudentNote StudentNotes { get; }
+        public IDALUser Users { get; }   
 
     }
 }

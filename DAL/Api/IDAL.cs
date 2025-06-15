@@ -10,6 +10,7 @@
         public IDALGroupStudent GroupStudents { get; }
         public IDALBranch Branches { get; } 
         public IDALStudentNote StudentNotes { get; }   
+        public IDALUser Users { get; }
 
     }
 }

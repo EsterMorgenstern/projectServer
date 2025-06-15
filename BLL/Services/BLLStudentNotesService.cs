@@ -20,12 +20,12 @@ namespace BLL.Services
             {
                 StudentId = studentNote.StudentId,
                 AuthorId = studentNote.AuthorId,
-                AuthorName = studentNote.AuthorName=string.Empty,
+                AuthorName = studentNote.AuthorName = string.Empty,
                 AuthorRole = studentNote.AuthorRole = string.Empty,
                 CreatedDate = studentNote.CreatedDate,
                 IsActive = studentNote.IsActive,
                 IsPrivate = studentNote.IsPrivate,
-                NoteContent = studentNote.NoteContent = string.Empty,
+                NoteContent = studentNote.NoteContent ,
                 NoteId = studentNote.NoteId,
                 NoteType = studentNote.NoteType,
                 Priority = studentNote.Priority,
@@ -36,7 +36,7 @@ namespace BLL.Services
 
         public void Delete(int id)
         {
-            throw new NotImplementedException();
+            dal.StudentNotes.Delete(id);
         }
 
         public List<BLLStudentNote> Get()
@@ -87,7 +87,23 @@ namespace BLL.Services
 
         public void Update(BLLStudentNote studentNote)
         {
-            throw new NotImplementedException();
+            var m = dal.StudentNotes.GetByNoteId(studentNote.NoteId);
+            m.StudentId = studentNote.StudentId;
+            m.AuthorId = studentNote.AuthorId;
+            m.AuthorName = studentNote.AuthorName = string.Empty;
+            m.AuthorRole = studentNote.AuthorRole = string.Empty;
+            m.CreatedDate = (DateTime)studentNote.CreatedDate;
+            m.IsActive = studentNote.IsActive;
+            m.IsPrivate = studentNote.IsPrivate;
+            m.NoteContent = studentNote.NoteContent ;
+            m.NoteId = studentNote.NoteId;
+            m.NoteType = studentNote.NoteType;
+            m.Priority = studentNote.Priority;
+            m.UpdatedDate = (DateTime)studentNote.UpdatedDate;
+
+
+            dal.StudentNotes.Update(m);
+
         }
     }
 }

@@ -48,7 +48,7 @@ namespace DAL.Services
         }
 
 
-        public List<Group> GetInstructorsByGroupId(int groupId)
+        public List<Group> GetGroupsByInstructorId(int groupId)
         {
             var group = dbcontext.Groups.SingleOrDefault(x => x.GroupId == groupId);
             if (group == null)

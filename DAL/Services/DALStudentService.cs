@@ -40,7 +40,7 @@ namespace DAL.Services
             var student = dbcontext.Students.SingleOrDefault(x => x.Id == id);
             if (student == null)
             {
-                throw new KeyNotFoundException($"Instructor with ID {id} not found.");
+                throw new KeyNotFoundException($"Student with ID {id} not found.");
             }
 
             dbcontext.Students.Remove(student);

@@ -20,7 +20,14 @@ namespace DAL.Services
 
         public void Delete(int noteId)
         {
-            throw new NotImplementedException();
+            var note = dbcontext.StudentNotes.SingleOrDefault(x => x.NoteId == noteId);
+            if (note == null)
+            {
+                throw new KeyNotFoundException($"StudentNote with ID {noteId} not found.");
+            }
+
+            dbcontext.StudentNotes.Remove(note);
+            dbcontext.SaveChanges();
         }
 
         public List<StudentNote> Get()
@@ -33,14 +40,25 @@ namespace DAL.Services
             var sNote = dbcontext.StudentNotes.Where(x => x.StudentId == id).ToList();
             if (sNote == null)
             {
-                throw new KeyNotFoundException($"Branch with ID {id} not found.");
+                throw new KeyNotFoundException($"StudentNote with ID {id} not found.");
             }
             return sNote;
         }
+        public StudentNote GetByNoteId(int id)
+        {
+            var sNote = dbcontext.StudentNotes.SingleOrDefault(x => x.NoteId == id);
+            if (sNote == null)
+            {
+                throw new KeyNotFoundException($"StudentNote with ID {id} not found.");
+            }
+            return sNote;
 
+
+        }
         public void Update(StudentNote studentNote)
         {
-            throw new NotImplementedException();
+            dbcontext.StudentNotes.Update(studentNote);
+            dbcontext.SaveChanges();
         }
     }
 }

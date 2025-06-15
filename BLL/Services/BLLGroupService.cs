@@ -109,7 +109,7 @@ namespace BLL.Services
 
         }
 
-        public List<BLLInstructor> GetInstructorsByGroupId(int groupId)
+        public List<BLLGroup> GetGroupsByInstructorId(int groupId)
         {
             throw new NotImplementedException();
         }
