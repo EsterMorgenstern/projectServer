@@ -20,12 +20,12 @@ namespace BLL.Services
             {
                 StudentId = studentNote.StudentId,
                 AuthorId = studentNote.AuthorId,
-                AuthorName = studentNote.AuthorName = string.Empty,
-                AuthorRole = studentNote.AuthorRole = string.Empty,
+                AuthorName = studentNote.AuthorName ??string.Empty,
+                AuthorRole = studentNote.AuthorRole ??string.Empty,
                 CreatedDate = studentNote.CreatedDate,
                 IsActive = studentNote.IsActive,
                 IsPrivate = studentNote.IsPrivate,
-                NoteContent = studentNote.NoteContent ,
+                NoteContent = studentNote.NoteContent?? string.Empty     ,
                 NoteId = studentNote.NoteId,
                 NoteType = studentNote.NoteType,
                 Priority = studentNote.Priority,
@@ -90,12 +90,12 @@ namespace BLL.Services
             var m = dal.StudentNotes.GetByNoteId(studentNote.NoteId);
             m.StudentId = studentNote.StudentId;
             m.AuthorId = studentNote.AuthorId;
-            m.AuthorName = studentNote.AuthorName = string.Empty;
-            m.AuthorRole = studentNote.AuthorRole = string.Empty;
+            m.AuthorName = studentNote.AuthorName??string.Empty;
+            m.AuthorRole = studentNote.AuthorRole ??string.Empty;
             m.CreatedDate = (DateTime)studentNote.CreatedDate;
             m.IsActive = studentNote.IsActive;
             m.IsPrivate = studentNote.IsPrivate;
-            m.NoteContent = studentNote.NoteContent ;
+            m.NoteContent = studentNote.NoteContent ??string.Empty;
             m.NoteId = studentNote.NoteId;
             m.NoteType = studentNote.NoteType;
             m.Priority = studentNote.Priority;

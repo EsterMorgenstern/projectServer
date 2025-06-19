@@ -26,7 +26,7 @@ namespace server.controllers
             return studentNote.GetById(id);
         }
         [HttpPost("Add")]
-        public void Create(BLLStudentNote sNote)
+        public void Create([FromBody]BLLStudentNote sNote)
         {
             studentNote.Create(sNote);
         }
