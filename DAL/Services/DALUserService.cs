@@ -12,9 +12,12 @@ namespace DAL.Services
             dbcontext = data;
         }
 
+
         public void Create(User user)
         {
-            throw new NotImplementedException();
+            dbcontext.Users.Add(user);
+            dbcontext.SaveChanges();
+
         }
 
         public void Delete(int userId)
@@ -24,12 +27,17 @@ namespace DAL.Services
 
         public List<User> Get()
         {
-            throw new NotImplementedException();
+            return dbcontext.Users.ToList();
         }
 
         public User GetById(int id)
         {
-            throw new NotImplementedException();
+            var user = dbcontext.Users.SingleOrDefault(x => x.Id == id);
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"user with ID {id} not found.");
+            }
+            return user;
         }
 
         public void Update(User user)

@@ -22,6 +22,8 @@ namespace BLL.Services
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
+                Phone = user.Phone,
+                Role = user.Role
             };
             dal.Users.Create(u);
         }
@@ -33,12 +35,33 @@ namespace BLL.Services
 
         public List<BLLUser> Get()
         {
-            throw new NotImplementedException();
+            return dal.Users.Get().Select(c => new BLLUser()
+            {
+               Id = c.Id,
+               Email = c.Email,
+               FirstName = c.FirstName, 
+               LastName = c.LastName,   
+               Phone = c.Phone,
+               Role = c.Role
+
+            }).ToList();
         }
 
         public BLLUser GetById(int id)
         {
-            throw new NotImplementedException();
+
+            User user = dal.Users.GetById(id);
+            BLLUser bluser = new BLLUser()
+            {
+                Id=user.Id,
+                FirstName=user.FirstName,
+                LastName=user.LastName,
+                Email= user.Email,
+                Phone = user.Phone,
+                Role=user.Role
+
+            };
+            return bluser;
         }
 
         public void Update(BLLUser user)

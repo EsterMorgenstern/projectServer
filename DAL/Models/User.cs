@@ -1,4 +1,7 @@
-﻿namespace DAL.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace DAL.Models;
 
 public partial class User
 {
@@ -11,4 +14,6 @@ public partial class User
     public string Phone { get; set; } = null!;
 
     public string? Email { get; set; }
+
+    public string? Role { get; set; }
 }
