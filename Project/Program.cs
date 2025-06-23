@@ -1,16 +1,17 @@
 ﻿using BLL.Api;
 using BLL;
-using BLL.Services; // הוסף את זה
+using BLL.Services;
 using Microsoft.EntityFrameworkCore;
 using DAL.Models;
 using DAL.Api;
 using DAL.Services;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// קריאת Connection String מ-appsettings.json
 builder.Services.AddDbContext<dbcontext>(options =>
-    options.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\project\\server\\CoursesDB.mdf;Integrated Security=True;Connect Timeout=30;Encrypt=True"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<DALCourseService>();
 builder.Services.AddScoped<DALGroupService>();
@@ -34,12 +35,28 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddScoped<IBLL, BLLManager>();
-builder.Services.AddCors(c => c.AddPolicy("AllowAll",
-    option => option.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+
+// עדכון CORS - הוספת הדומיינים הספציפיים 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins", policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:5173",                    // React לפיתוח מקומי
+            "http://localhost:5248",                    // API לפיתוח מקומי
+            "https://coursenet.nethost.co.il",          // האתר הראשי 
+            "https://api.coursenet.nethost.co.il"       // ה-API (למקרה של בקשות פנימיות)
+        )
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials(); // חשוב לאימות ועוגיות
+    });
+});
 
 var app = builder.Build();
 
-app.UseCors("AllowAll");
+// שימוש ב-CORS המעודכן
+app.UseCors("AllowSpecificOrigins");
 
 if (app.Environment.IsDevelopment())
 {
@@ -50,6 +67,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
