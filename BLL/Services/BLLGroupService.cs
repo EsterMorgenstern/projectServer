@@ -108,6 +108,24 @@ namespace BLL.Services
             return bls;
 
         }
+        public List<BLLGroupDetails> GetGroupsByDayOfWeek(string dayOfWeek)
+        {
+            var groups = dal.Groups.GetGroupsByDayOfWeek(dayOfWeek);
+            return groups.Select(g => new BLLGroupDetails
+            {
+                GroupId = g.GroupId,
+                GroupName = g.GroupName,
+                DayOfWeek = g.DayOfWeek,
+                CourseName = g.Course.CouresName,
+                BranchName = g.Branch.Name,
+                Hour = g.Hour,
+                AgeRange = g.AgeRange,
+                MaxStudents = g.MaxStudents,
+                Sector = g.Sector,
+                StartDate = g.StartDate,
+                NumOfLessons = g.NumOfLessons
+            }).ToList();
+        }
 
         public List<BLLGroup> GetGroupsByInstructorId(int groupId)
         {

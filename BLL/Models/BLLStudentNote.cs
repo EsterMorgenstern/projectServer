@@ -19,7 +19,7 @@ namespace BLL.Models
         public string? AuthorRole { get; set; }
 
         [Required]
-        [StringLength(2000, MinimumLength = 5)]
+        [StringLength(2000, MinimumLength = 1)]
         public string? NoteContent { get; set; }
 
         [Required]

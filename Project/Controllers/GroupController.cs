@@ -1,6 +1,5 @@
 ﻿using BLL.Api;
 using BLL.Models;
-using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace server.controllers
@@ -31,6 +30,12 @@ namespace server.controllers
         {
             return groups.GetGroupsByCourseId(id);
         }
+        [HttpGet("GetGroupsByDay/{dayOfWeek}")]
+        public List<BLLGroupDetails> GetGroupsByDay(string dayOfWeek)
+        {
+            return groups.GetGroupsByDayOfWeek(dayOfWeek);
+        }
+
         [HttpGet("getGroupsByInstructorId/{id}")]
         public List<BLLGroup> GetGroupsByInstructorId(int id)
         {

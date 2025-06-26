@@ -14,6 +14,7 @@ namespace server.controllers
         {
             branches = manager.Branches;
         }
+
         [HttpGet("GetAll")]
         public List<BLLBranch> Get()
         {

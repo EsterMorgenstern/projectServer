@@ -20,9 +20,9 @@ namespace DAL.Services
             dbcontext.GroupStudents.Add(groupStudent);
             dbcontext.SaveChanges();
         }
-        public void Delete(int id)
+        public void Delete(int groupStudentId)
         {
-            var trackedGroupStudent = dbcontext.GroupStudents.Find(id);
+            var trackedGroupStudent = dbcontext.GroupStudents.SingleOrDefault(x=>x.GroupStudentId== groupStudentId);
             if (trackedGroupStudent != null)
             {
                 dbcontext.GroupStudents.Remove(trackedGroupStudent);
@@ -34,6 +34,7 @@ namespace DAL.Services
         {
             throw new NotImplementedException();
         }
+       
 
         public List<GroupStudent> Get()
         {

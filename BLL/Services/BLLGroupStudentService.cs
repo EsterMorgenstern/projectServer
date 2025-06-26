@@ -53,6 +53,25 @@ namespace BLL.Services
             }
         }
 
+        public void DeleteByGsId(int id)
+       
+        {
+            var groupStudent = GetByGsId(id);
+            if (groupStudent == null)
+            {
+                throw new KeyNotFoundException($"GroupStudent with ID {id} not found.");
+            }
+
+            dal.GroupStudents.Delete(id);
+
+            var group = dal.Groups.GetById(groupStudent.GroupId);
+            if (group != null)
+            {
+                group.MaxStudents = (group.MaxStudents ?? 0) + 1;
+                dal.Groups.Update(group);
+            }
+        }
+
         public List<BLLGroupStudent> Get()
         {
             return dal.GroupStudents.Get().Select(gs => new BLLGroupStudent
@@ -68,6 +87,23 @@ namespace BLL.Services
         public BLLGroupStudent GetById(int id)
         {
             var groupStudent = dal.GroupStudents.GetById(id);
+            if (groupStudent == null)
+            {
+                throw new KeyNotFoundException($"GroupStudent with ID {id} not found.");
+            }
+
+            return new BLLGroupStudent
+            {
+                GroupStudentId = groupStudent.GroupStudentId,
+                GroupId = groupStudent.GroupId,
+                StudentId = groupStudent.StudentId,
+                EnrollmentDate = groupStudent.EnrollmentDate,
+                IsActive = groupStudent.IsActive
+            };
+        }
+        public BLLGroupStudent GetByGsId(int id)
+        {
+            var groupStudent = dal.GroupStudents.Get().SingleOrDefault(x=>x.GroupStudentId==id);
             if (groupStudent == null)
             {
                 throw new KeyNotFoundException($"GroupStudent with ID {id} not found.");

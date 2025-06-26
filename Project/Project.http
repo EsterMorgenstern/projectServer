@@ -1,6 +1,1 @@
-@Project_HostAddress = http://localhost:5248
-
-GET {{Project_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
+@Project_HostAddress = https://api.coursenet.nethost.co.il

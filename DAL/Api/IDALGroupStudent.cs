@@ -9,6 +9,7 @@ namespace DAL.Api
         GroupStudent GetById(int id);
         List<GroupStudent> GetByStudentId(int id);
         void Delete(GroupStudent groupStudent);
+        void Delete(int groupStudentId);
         void Update(GroupStudent groupStudent);
     }
 }

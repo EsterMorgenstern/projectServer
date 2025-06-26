@@ -46,6 +46,12 @@ namespace DAL.Services
         {
             return dbcontext.Groups.ToList().FindAll(x => x.CourseId == id);
         }
+        public List<Group> GetGroupsByDayOfWeek(string dayOfWeek)
+        {
+            return dbcontext.Groups
+                .Where(g => g.DayOfWeek.Equals(dayOfWeek, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
 
 
         public List<Group> GetGroupsByInstructorId(int groupId)
