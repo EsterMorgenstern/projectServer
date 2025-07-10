@@ -36,6 +36,7 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 

@@ -14,12 +14,12 @@ namespace server.controllers
             groups = manager.Groups;
         }
         [HttpGet("GetAll")]
-        public List<BLLGroup> Get()
+        public List<BLLGroupDetailsPerfect> Get()
         {
             return groups.Get();
         }
 
-
+       
         [HttpGet("getById/{id}")]
         public BLLGroup GetById(int id)
         {

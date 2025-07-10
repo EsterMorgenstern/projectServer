@@ -29,6 +29,10 @@ namespace BLL.Api
         BLLMonthlyReport GetMonthlyReport(int month, int year, int? groupId = null);
         BLLOverallStatistics GetOverallStatistics(int? month = null, int? year = null);
         bool DeleteAttendanceByGroupAndDate(int groupId, DateOnly date);
+        bool IsAttendanceMarkedForGroup(int groupId, DateOnly date);
+        public bool IsAttendanceMarkedForDay(DateOnly date);
+
+
     }
 
 }

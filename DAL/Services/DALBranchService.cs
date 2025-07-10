@@ -30,12 +30,25 @@ namespace DAL.Services
             }
         }
 
-        
+        public List<Branch> Get()
+        {
+            try
+            {
+                if (dbcontext.Branches == null || !dbcontext.Branches.Any())
+                {
+                    throw new Exception("No Branch records found.");
+                }
 
-        public  List<Branch> Get()
-   {
-            return dbcontext.Branches.ToList();
+                return dbcontext.Branches.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving Branch records.", ex);
+            }
         }
+
+
+       
         public Branch GetById(int id)
         {
             var branch = dbcontext.Branches.SingleOrDefault(x => x.BranchId == id);

@@ -101,6 +101,23 @@ namespace BLL.Services
 
         public void Delete(int id)
         {
+            var attendances= dal.Attendances.GetAttendanceByStudent(id);
+            foreach (var item in attendances)
+            {
+                dal.Attendances.Delete(item);
+            }
+            var notes = dal.StudentNotes.GetById(id);
+            foreach (var item in notes)
+            {
+                dal.StudentNotes.Delete(item.NoteId);
+            }
+            var groupStudents=dal.GroupStudents.GetByStudentId(id);
+            foreach (var item in groupStudents)
+            {
+                dal.GroupStudents.Delete(item);
+            }
+
+
             dal.Students.Delete(id);
         }
 

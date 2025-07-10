@@ -25,10 +25,15 @@ namespace server.controllers
         {
             return studentNote.GetById(id);
         }
+
+        [HttpGet("getByUserId/{id}")]
+        public List<BLLStudentNote> GetByUserId(int id)
+        {
+            return studentNote.GetByUserId(id);
+        }
+
         [HttpPost("Add")]
-
-
-        public void Create([FromBody]BLLStudentNote sNote)
+        public void Create([FromBody] BLLStudentNote sNote)
         {
             studentNote.Create(sNote);
         }

@@ -27,8 +27,21 @@ namespace DAL.Services
 
         public List<User> Get()
         {
-            return dbcontext.Users.ToList();
+            try
+            {
+                if (dbcontext.Users == null || !dbcontext.Users.Any())
+                {
+                    throw new Exception("No User records found.");
+                }
+
+                return dbcontext.Users.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving User records.", ex);
+            }
         }
+
 
         public User GetById(int id)
         {

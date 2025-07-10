@@ -32,8 +32,21 @@ namespace DAL.Services
 
         public List<StudentNote> Get()
         {
-            return dbcontext.StudentNotes.ToList();
+            try
+            {
+                if (dbcontext.StudentNotes == null || !dbcontext.StudentNotes.Any())
+                {
+                    throw new Exception("No StudentNote records found.");
+                }
+
+                return dbcontext.StudentNotes.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving StudentNote records.", ex);
+            }
         }
+
 
         public List<StudentNote> GetById(int id)
         {
@@ -44,6 +57,17 @@ namespace DAL.Services
             }
             return sNote;
         }
+
+        public List<StudentNote> GetByUserId(int userId)
+        {
+            var sNote = dbcontext.StudentNotes.Where(x => x.AuthorId == userId).ToList();
+            if (sNote == null)
+            {
+                throw new KeyNotFoundException($"StudentNote with userId {userId} not found.");
+            }
+            return sNote;
+        }
+
         public StudentNote GetByNoteId(int id)
         {
             var sNote = dbcontext.StudentNotes.SingleOrDefault(x => x.NoteId == id);

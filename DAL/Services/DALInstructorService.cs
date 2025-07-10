@@ -35,11 +35,21 @@ namespace DAL.Services
 
         public List<Instructor> Get()
         {
-            if(dbcontext.Instructors !=null)
+            try
+            {
+                if (dbcontext.Instructors == null || !dbcontext.Instructors.Any())
+                {
+                    throw new Exception("No Instructor records found.");
+                }
+
                 return dbcontext.Instructors.ToList();
-            else
-                throw new Exception("No instructors found.");
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving Instructor records.", ex);
+            }
         }
+
 
         public Instructor GetById(int id) 
         {

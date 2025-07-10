@@ -11,6 +11,7 @@
         public IDALBranch Branches { get; } 
         public IDALStudentNote StudentNotes { get; }   
         public IDALUser Users { get; }
+        public IDALLessonCancellations LessonCancellations { get; }   
 
     }
 }

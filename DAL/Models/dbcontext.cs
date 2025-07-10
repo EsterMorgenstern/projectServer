@@ -35,6 +35,8 @@ public partial class dbcontext : DbContext
     public virtual DbSet<StudentNote> StudentNotes { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<LessonCancellations> LessonCancellations { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -186,8 +188,44 @@ public partial class dbcontext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_StudentNotes_Student");
         });
+       
+        modelBuilder.Entity<LessonCancellations>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_LessonCancellations");
 
-        modelBuilder.Entity<User>(entity =>
+            entity.ToTable("LessonCancellations");
+
+            entity.Property(e => e.Date)
+                .IsRequired()
+                .HasColumnType("date");
+
+            entity.Property(e => e.Reason)
+                .IsRequired()
+                .HasColumnType("nvarchar(max)");
+
+            // שינוי המאפיין Created_at עם ממיר ערכים
+            entity.Property(e => e.Created_at)
+                .HasDefaultValueSql("GETDATE()")
+                .HasConversion(
+                    v => v.ToDateTime(TimeOnly.MinValue), // המרה מ-DateOnly ל-DateTime
+                    v => DateOnly.FromDateTime(v)        // המרה מ-DateTime ל-DateOnly
+                )
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.Created_by)
+                .HasColumnType("nvarchar(max)");
+
+           
+
+            entity.HasIndex(e => new { e.GroupId, e.Date })
+                .IsUnique()
+                .HasDatabaseName("UQ_Group_Date");
+        });
+
+      
+   
+
+    modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__tmp_ms_x__3214EC07E1248B76");
 

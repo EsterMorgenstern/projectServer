@@ -23,5 +23,6 @@
         public string? Sector { get; set; }
         public DateOnly? StartDate { get; set; }
         public int? NumOfLessons { get; set; }
+        public int? LessonsCompleted { get; set; }
     }
 }

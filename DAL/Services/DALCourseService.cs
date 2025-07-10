@@ -33,10 +33,21 @@ namespace DAL.Services
 
         public List<Course> Get()
         {
-            return dbcontext.Courses.ToList();
+            try
+            {
+                if (dbcontext.Courses == null || !dbcontext.Courses.Any())
+                {
+                    throw new Exception("No Course records found.");
+                }
 
-
+                return dbcontext.Courses.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving course records.", ex);
+            }
         }
+
         public Course GetById(int id)
         {
             var course = dbcontext.Courses.SingleOrDefault(x => x.CourseId == id);

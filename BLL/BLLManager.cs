@@ -3,6 +3,7 @@ using BLL.Api;
 using BLL.Services;
 using DAL;
 using DAL.Api;
+using DAL.Models;
 
 namespace BLL
 {
@@ -17,6 +18,7 @@ namespace BLL
         public IBLLGroupStudent GroupStudents { get; }  
         public IBLLStudentNote Notes { get; }   
         public IBLLUser Users { get; }
+        public IBLLLessonCancellations LessonCancellations {  get; }
 
         public BLLManager()
         {
@@ -29,7 +31,8 @@ namespace BLL
             Branches = new BLLBranchService(dal);
             GroupStudents = new BLLGroupStudentService(dal);  
             Notes=  new BLLStudentNoteService(dal);  
-            Users=new BLLUserService(dal);  
+            Users=new BLLUserService(dal);
+            LessonCancellations = new BLLLessonCancellationsService(dal);
         }
     }
 }

@@ -41,11 +41,11 @@ namespace server.controllers
         {
             groupStudents.Update(groupStudent);
         }
-        [HttpDelete("Delete")]
-        public void Delete(BLLGroupStudent groupStudent)
-        {
-            groupStudents.Delete(groupStudent.StudentId);
-        }
+        //[HttpDelete("Delete")]
+        //public void Delete(BLLGroupStudent groupStudent)
+        //{
+        //    groupStudents.Delete(groupStudent.StudentId);
+        //}
         [HttpDelete("Delete")]
         public void Delete(int gsId)
         {

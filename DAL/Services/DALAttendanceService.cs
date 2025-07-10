@@ -40,8 +40,26 @@ namespace DAL.Services
 
         public List<Attendance> Get()
         {
-            return dbcontext.Attendances.ToList();
+            try
+            {
+                if (dbcontext.Attendances == null || !dbcontext.Attendances.Any())
+                {
+                    throw new Exception("No attendance records found.");
+                }
+
+                return dbcontext.Attendances.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving attendance records.", ex);
+            }
         }
+        /// <summary>
+        /// GetById לפי AttendanceId
+        /// </summary>
+        /// <param name="id">AttendanceId</param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
 
         public Attendance GetById(int id)
         {

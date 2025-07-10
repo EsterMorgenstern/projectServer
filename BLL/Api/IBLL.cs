@@ -11,6 +11,7 @@
         public IBLLGroupStudent GroupStudents { get; }
         public IBLLStudentNote Notes { get; }  
         public IBLLUser Users { get; }
+        public IBLLLessonCancellations LessonCancellations { get; }  
         
     }
 }

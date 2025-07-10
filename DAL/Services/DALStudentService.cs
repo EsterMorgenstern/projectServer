@@ -20,10 +20,21 @@ namespace DAL.Services
 
         public List<Student> Get()
         {
-            if ( dbcontext.Students == null)
-                throw new Exception("No students found.");
-            return dbcontext.Students.ToList();
+            try
+            {
+                if (dbcontext.Students == null || !dbcontext.Students.Any())
+                {
+                    throw new Exception("No Student records found.");
+                }
+
+                return dbcontext.Students.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving Student records.", ex);
+            }
         }
+
 
         public Student GetById(int id) 
         {

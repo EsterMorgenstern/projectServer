@@ -84,7 +84,31 @@ namespace BLL.Services
             }
             return blc;
         }
-
+        public List<BLLStudentNote> GetByUserId(int userId)
+        {
+            List<StudentNote> b = dal.StudentNotes.GetByUserId(userId);
+            List<BLLStudentNote> blc = new List<BLLStudentNote>();
+            foreach (StudentNote s in b)
+            {
+                BLLStudentNote bl = new BLLStudentNote()
+                {
+                    StudentId = s.StudentId,
+                    AuthorId = s.AuthorId,
+                    AuthorName = s.AuthorName,
+                    AuthorRole = s.AuthorRole,
+                    CreatedDate = (DateTime)s.CreatedDate,
+                    IsActive = s.IsActive,
+                    IsPrivate = s.IsPrivate,
+                    NoteContent = s.NoteContent,
+                    NoteId = s.NoteId,
+                    NoteType = s.NoteType,
+                    Priority = s.Priority,
+                    UpdatedDate = (DateTime)s.UpdatedDate
+                };
+                blc.Add(bl);
+            }
+            return blc;
+        }
         public void Update(BLLStudentNote studentNote)
         {
             var m = dal.StudentNotes.GetByNoteId(studentNote.NoteId);

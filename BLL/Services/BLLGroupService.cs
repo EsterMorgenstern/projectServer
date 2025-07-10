@@ -27,6 +27,7 @@ namespace BLL.Services
                 Sector = group.Sector,
                 InstructorId = group.InstructorId,
                 NumOfLessons = group.NumOfLessons,
+                LessonsCompleted=group.LessonsCompleted,
                 StartDate = group.StartDate
 
             };
@@ -38,9 +39,30 @@ namespace BLL.Services
             dal.Groups.Delete(id);
         }
 
-        public List<BLLGroup> Get()
+        //public List<BLLGroup> Get()
+        //{
+        //    return dal.Groups.Get().Select(c => new BLLGroup()
+        //    {
+        //        GroupId = c.GroupId,
+        //        CourseId = c.CourseId,
+        //        AgeRange = c.AgeRange,
+        //        BranchId = c.BranchId,
+        //        DayOfWeek = c.DayOfWeek,
+        //        GroupName = c.GroupName,
+        //        Hour = c.Hour,
+        //        InstructorId = c.InstructorId,
+        //        MaxStudents = c.MaxStudents,
+        //        Sector = c.Sector,
+        //        NumOfLessons = c.NumOfLessons,
+        //        LessonsCompleted=c.LessonsCompleted,
+        //        StartDate = c.StartDate
+
+        //    }).ToList();
+        //}
+
+        public List<BLLGroupDetailsPerfect> Get()
         {
-            return dal.Groups.Get().Select(c => new BLLGroup()
+            return dal.Groups.Get().Select(c => new BLLGroupDetailsPerfect()
             {
                 GroupId = c.GroupId,
                 CourseId = c.CourseId,
@@ -53,7 +75,10 @@ namespace BLL.Services
                 MaxStudents = c.MaxStudents,
                 Sector = c.Sector,
                 NumOfLessons = c.NumOfLessons,
-                StartDate = c.StartDate
+                LessonsCompleted = c.LessonsCompleted,
+                StartDate = c.StartDate,
+                BranchName= dal.Branches.GetById(  c.BranchId).Name,
+                CourseName=dal.Courses.GetById(c.CourseId).CouresName
 
             }).ToList();
         }
@@ -74,6 +99,7 @@ namespace BLL.Services
                 Sector = group.Sector,
                 InstructorId = group.InstructorId,
                 NumOfLessons = group.NumOfLessons,
+                LessonsCompleted=group.LessonsCompleted,
                 StartDate = group.StartDate
             };
             return blg;
@@ -101,6 +127,7 @@ namespace BLL.Services
                         InstructorId = group.InstructorId,
                         StartDate = group.StartDate,
                         NumOfLessons = group.NumOfLessons,
+                        LessonsCompleted=group.LessonsCompleted
                     };
                     bls.Add(bl);
                 }
@@ -116,14 +143,15 @@ namespace BLL.Services
                 GroupId = g.GroupId,
                 GroupName = g.GroupName,
                 DayOfWeek = g.DayOfWeek,
-                CourseName = g.Course.CouresName,
-                BranchName = g.Branch.Name,
+                CourseName = dal.Courses.GetById(g.CourseId).CouresName,
+                BranchName = dal.Branches.GetById(g.BranchId).Name,
                 Hour = g.Hour,
                 AgeRange = g.AgeRange,
                 MaxStudents = g.MaxStudents,
                 Sector = g.Sector,
                 StartDate = g.StartDate,
-                NumOfLessons = g.NumOfLessons
+                NumOfLessons = g.NumOfLessons,
+                LessonsCompleted=g.LessonsCompleted
             }).ToList();
         }
 
@@ -178,6 +206,7 @@ namespace BLL.Services
             existingGroup.InstructorId = group.InstructorId;
             existingGroup.StartDate = group.StartDate;
             existingGroup.NumOfLessons = group.NumOfLessons;
+            existingGroup.LessonsCompleted = group.LessonsCompleted;
 
             dal.Groups.Update(existingGroup);
         }

@@ -32,14 +32,28 @@ namespace DAL.Services
 
         public void Delete(GroupStudent groupStudent)
         {
-            throw new NotImplementedException();
+            dbcontext.GroupStudents.Remove(groupStudent);
+            dbcontext.SaveChanges();
         }
-       
+
 
         public List<GroupStudent> Get()
         {
-            return dbcontext.GroupStudents.ToList();
+            try
+            {
+                if (dbcontext.GroupStudents == null || !dbcontext.GroupStudents.Any())
+                {
+                    throw new Exception("No GroupStudent records found.");
+                }
+
+                return dbcontext.GroupStudents.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving GroupStudent records.", ex);
+            }
         }
+
         public GroupStudent GetById(int id)
         {
             var groupStudent = dbcontext.GroupStudents.SingleOrDefault(x => x.GroupId == id);

@@ -13,6 +13,10 @@ namespace BLL.Services
         {
             this.dal = dal;
         }
+        /// <summary>
+        /// נוכחות לתלמיד
+        /// </summary>
+        /// <param name="attendance">נוכחות</param>
 
         public void Create(BLLAttendance attendance)
         {
@@ -25,7 +29,10 @@ namespace BLL.Services
             };
             dal.Attendances.Create(a);
         }
-
+        /// <summary>
+        /// מחיקת נוכחות לתלמיד 
+        /// </summary>
+        /// <param name="attendance"></param>
         public void Delete(BLLAttendance attendance)
         {
             Attendance a = new Attendance()
@@ -38,6 +45,10 @@ namespace BLL.Services
             };
             dal.Attendances.Delete(a);
         }
+        /// <summary>
+        /// Get לכל הנוכחות
+        /// </summary>
+        /// <returns>List<BLLAttendance></returns>
 
         public List<BLLAttendance> Get()
         {
@@ -50,7 +61,11 @@ namespace BLL.Services
                 WasPresent = b.WasPresent
             }).ToList();
         }
-
+        /// <summary>
+        /// GetById לפי AttendanceId
+        /// </summary>
+        /// <param name="id">AttendanceId</param>
+        /// <returns>BLLAttendancereturns>
         public BLLAttendance GetById(int id)
         {
             var attendance = dal.Attendances.GetById(id);
@@ -76,6 +91,13 @@ namespace BLL.Services
             };
             dal.Attendances.Update(a);
         }
+        /// <summary>
+        /// עבור תאריך מסוים מחיקת הנוכחות הקיימת ויצירת נוכחות חדשה לכל התלמידים
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="date"></param>
+        /// <param name="attendanceRecords"></param>
+        /// <returns>האם הפעולה הצליחה</returns>
 
         public bool SaveAttendanceForDate(int groupId, DateOnly date, List<BLLAttendanceRecord> attendanceRecords)
         {
@@ -93,6 +115,12 @@ namespace BLL.Services
                         WasPresent = record.WasPresent
                     });
                 }
+                var group = dal.Groups.GetById(groupId);
+                if (group != null)
+                {
+                    group.LessonsCompleted = (group.LessonsCompleted ?? 0) + 1;
+                    dal.Groups.Update(group);
+                }
                 return true;
             }
             catch
@@ -100,6 +128,85 @@ namespace BLL.Services
                 return false;
             }
         }
+        /// <summary>
+        /// בדיקה אם קיימת נוכחות עבור הקבוצה בתאריך המסוים
+                /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public bool IsAttendanceMarkedForGroup(int groupId, DateOnly date)
+        {
+            try
+            {
+                return dal.Attendances.GetAttendanceByGroupAndDate(groupId, date).Any();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking attendance for group {groupId} on date {date}: {ex.Message}");
+                return false;
+            }
+        }
+        /// <summary>
+        /// המרת תאריך ליום עברי
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        private string GetHebrewDayName(DateOnly date)
+        {
+            return date.DayOfWeek switch
+            {
+                DayOfWeek.Sunday => "ראשון",
+                DayOfWeek.Monday => "שני",
+                DayOfWeek.Tuesday => "שלישי",
+                DayOfWeek.Wednesday => "רביעי",
+                DayOfWeek.Thursday => "חמישי",
+                DayOfWeek.Friday => "שישי",
+                DayOfWeek.Saturday => "שבת",
+                _ => throw new ArgumentException("Invalid day of week")
+            };
+        }
+        /// <summary>
+        /// בדיקה ליום מסוים אם סומן בו נוכחות לכל הקבוצות
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public bool IsAttendanceMarkedForDay(DateOnly date)
+        {
+            try
+            {
+                string dayName = GetHebrewDayName(date);
+
+                var groups = dal.Groups.GetGroupsByDayOfWeek(dayName);
+
+                // בדיקה אם יש קבוצות בכלל
+                if (groups == null || !groups.Any())
+                {
+                    Console.WriteLine($"No groups found for date {date}");
+                    return true; 
+                }
+
+                // בדיקה עבור כל קבוצה
+                foreach (var item in groups)
+                {
+                    if (IsAttendanceMarkedForGroup(item.GroupId, date) == false)
+                    {
+                        Console.WriteLine($"Attendance not marked for group {item.GroupId} on {date}");
+                        return false;
+                    }
+                }
+
+                Console.WriteLine($"Attendance marked for all {groups.Count()} groups on {date}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking attendance on date {date}: {ex.Message}");
+                return false;
+            }
+        }
+
+
 
         public List<BLLAttendanceRecord> GetAttendanceByGroupAndDate(int groupId, DateOnly date)
         {
@@ -143,6 +250,13 @@ namespace BLL.Services
                 WasPresent = a.WasPresent
             }).ToList();
         }
+        /// <summary>
+        /// קבלת נוכחות עבור תלמיד בטווח תאריכים
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="startDate"></param>
+        /// <param name="endDate"></param>
+        /// <returns></returns>
 
         public List<BLLAttendance> GetAttendanceByStudentAndDateRange(int studentId, DateOnly startDate, DateOnly endDate)
         {
@@ -226,7 +340,12 @@ namespace BLL.Services
                 StudentStats = studentStats
             };
         }
-
+        /// <summary>
+        /// מחיקת נוכחויות לפי קבוצה ותאריך
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="date"></param>
+        /// <returns></returns>
         public bool DeleteAttendanceByGroupAndDate(int groupId, DateOnly date)
         {
             try

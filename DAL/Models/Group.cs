@@ -29,6 +29,8 @@ public partial class Group
 
     public int? NumOfLessons { get; set; }
 
+    public int? LessonsCompleted { get; set; }
+
     public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 
     public virtual Branch Branch { get; set; } = null!;
@@ -38,4 +40,5 @@ public partial class Group
     public virtual ICollection<GroupStudent> GroupStudents { get; set; } = new List<GroupStudent>();
 
     public virtual Instructor Instructor { get; set; } = null!;
+
 }

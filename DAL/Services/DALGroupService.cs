@@ -30,8 +30,21 @@ namespace DAL.Services
 
         public List<Group> Get()
         {
-            return dbcontext.Groups.ToList();
+            try
+            {
+                if (dbcontext.Groups == null || !dbcontext.Groups.Any())
+                {
+                    throw new Exception("No groups records found.");
+                }
+
+                return dbcontext.Groups.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving group records.", ex);
+            }
         }
+
 
         public Group GetById(int id)
         {
@@ -49,7 +62,7 @@ namespace DAL.Services
         public List<Group> GetGroupsByDayOfWeek(string dayOfWeek)
         {
             return dbcontext.Groups
-                .Where(g => g.DayOfWeek.Equals(dayOfWeek, StringComparison.OrdinalIgnoreCase))
+                .Where(g => g.DayOfWeek.Equals(dayOfWeek))
                 .ToList();
         }
 

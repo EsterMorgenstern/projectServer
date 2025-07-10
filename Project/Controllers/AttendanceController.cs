@@ -1,6 +1,5 @@
 ﻿using BLL.Api;
 using BLL.Models;
-using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace server.controllers
@@ -69,6 +68,8 @@ namespace server.controllers
                 return BadRequest($"שגיאה במחיקת נוכחות: {ex.Message}");
             }
         }
+
+
         [HttpDelete("DeleteAttendanceByGroupAndDate/{groupId}/{date}")]
         public IActionResult DeleteAttendanceByGroupAndDate(int groupId, string date)
         {
@@ -144,7 +145,7 @@ namespace server.controllers
             }
         }
 
-       
+
         [HttpGet("GetAttendanceStatistics/{groupId}")]
         public IActionResult GetAttendanceStatistics(int groupId)
         {
@@ -178,7 +179,7 @@ namespace server.controllers
             }
         }
 
-       
+
         [HttpGet("GetAttendanceByStudent/{studentId}")]
         public IActionResult GetAttendanceByStudent(int studentId)
         {
@@ -246,6 +247,40 @@ namespace server.controllers
             catch (Exception ex)
             {
                 return BadRequest($"שגיאה בקבלת סטטיסטיקות כלליות: {ex.Message}");
+            }
+        }
+        [HttpGet("IsAttendanceMarkedForGroup/{groupId}/{date}")]
+        public IActionResult IsAttendanceMarkedForGroup(int groupId, string date)
+        {
+            try
+            {
+                if (DateOnly.TryParse(date, out DateOnly parsedDate))
+                {
+                    var attendance = attendances.IsAttendanceMarkedForGroup(groupId, parsedDate);
+                    return Ok(attendance);
+                }
+                return BadRequest("תאריך לא תקין");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"שגיאה בקבלת הנתונים האם קיימת נוכחות : {ex.Message}");
+            }
+        }
+        [HttpGet("IsAttendanceMarkedForDay/{date}")]
+        public IActionResult IsAttendanceMarkedForDay(string date)
+        {
+            try
+            {
+                if (DateOnly.TryParse(date, out DateOnly parsedDate))
+                {
+                    var attendance = attendances.IsAttendanceMarkedForDay(parsedDate);
+                    return Ok(attendance);
+                }
+                return BadRequest("תאריך לא תקין");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"שגיאה בקבלת הנתונים האם קיימת נוכחות : {ex.Message}");
             }
         }
 

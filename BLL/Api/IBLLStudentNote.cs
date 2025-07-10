@@ -7,6 +7,7 @@ namespace BLL.Api
         List<BLLStudentNote> Get();
         void Create(BLLStudentNote studentNote);
         public List<BLLStudentNote> GetById(int id);
+        public List<BLLStudentNote> GetByUserId(int userId);
         public void Delete(int id);
         public void Update(BLLStudentNote studentNote);
     }
