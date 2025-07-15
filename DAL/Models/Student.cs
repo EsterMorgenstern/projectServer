@@ -32,6 +32,6 @@ public partial class Student
     public virtual ICollection<GroupStudent> GroupStudents { get; set; } = new List<GroupStudent>();
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
-
+    public virtual ICollection<PaymentMethod> PaymentMethods { get; set; } = new List<PaymentMethod>();
     public virtual ICollection<StudentNote> StudentNotes { get; set; } = new List<StudentNote>();
 }

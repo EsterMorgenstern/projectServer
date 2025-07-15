@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DAL.Models;
 
-namespace DAL.Models;
-
-public partial class Payment
+public class BLLPayment
 {
     public int PaymentId { get; set; }
     public int StudentId { get; set; }
@@ -12,11 +9,13 @@ public partial class Payment
     public string? PaymentMethod { get; set; }
     public string? Notes { get; set; }
     public int? PaymentMethodId { get; set; }
-    public string? Status { get; set; }
+    public string? Status { get; set; } // PENDING, COMPLETED, FAILED, CANCELLED
     public string? TransactionId { get; set; }
     public int? GroupId { get; set; }
     public DateTime CreatedAt { get; set; }
+
+    // Navigation properties
     public virtual Student? Student { get; set; }
-    public virtual PaymentMethod? PaymentMethodDetails { get; set; }
     public virtual Group? Group { get; set; }
 }
+

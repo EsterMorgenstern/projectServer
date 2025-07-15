@@ -21,6 +21,8 @@ namespace DAL
             StudentNotes=new DALStudentNoteService(data);   
             Users = new DALUserService(data);
             LessonCancellations=new DALLessonCancellationsService(data);
+            PaymentMethods = new DALPaymentMethodService(data);
+            Payments = new DALPaymentService(data);
         }
 
         public IDALStudent Students { get; }
@@ -32,7 +34,9 @@ namespace DAL
         public IDALAttendance Attendances { get; }
         public IDALStudentNote StudentNotes { get; }
         public IDALUser Users { get; }   
-        public IDALLessonCancellations LessonCancellations { get; } 
+        public IDALLessonCancellations LessonCancellations { get; }
+        public IDALPaymentMethod PaymentMethods { get; }
+        public IDALPayment Payments { get; }
 
     }
 }

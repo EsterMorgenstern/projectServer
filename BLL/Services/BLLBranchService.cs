@@ -52,6 +52,12 @@ namespace BLL.Services
        
         public void Delete(int id)
         {
+            var groups = dal.Groups.Get().Where(x => x.BranchId == id);
+            foreach (var item in groups)
+            {
+                dal.Groups.Delete(item.GroupId);
+            }
+
             dal.Branches.Delete(id);
         }
         public void Update(BLLBranch branch)

@@ -36,30 +36,15 @@ namespace BLL.Services
 
         public void Delete(int id)
         {
+         var groupStudents = dal.GroupStudents.Get().Where(x => x.GroupId == id);
+            foreach (var item in groupStudents)
+            {
+                dal.GroupStudents.Delete(item);
+            }
             dal.Groups.Delete(id);
         }
 
-        //public List<BLLGroup> Get()
-        //{
-        //    return dal.Groups.Get().Select(c => new BLLGroup()
-        //    {
-        //        GroupId = c.GroupId,
-        //        CourseId = c.CourseId,
-        //        AgeRange = c.AgeRange,
-        //        BranchId = c.BranchId,
-        //        DayOfWeek = c.DayOfWeek,
-        //        GroupName = c.GroupName,
-        //        Hour = c.Hour,
-        //        InstructorId = c.InstructorId,
-        //        MaxStudents = c.MaxStudents,
-        //        Sector = c.Sector,
-        //        NumOfLessons = c.NumOfLessons,
-        //        LessonsCompleted=c.LessonsCompleted,
-        //        StartDate = c.StartDate
-
-        //    }).ToList();
-        //}
-
+       
         public List<BLLGroupDetailsPerfect> Get()
         {
             return dal.Groups.Get().Select(c => new BLLGroupDetailsPerfect()

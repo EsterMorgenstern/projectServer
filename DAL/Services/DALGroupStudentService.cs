@@ -56,7 +56,7 @@ namespace DAL.Services
 
         public GroupStudent GetById(int id)
         {
-            var groupStudent = dbcontext.GroupStudents.SingleOrDefault(x => x.GroupId == id);
+            var groupStudent = dbcontext.GroupStudents.SingleOrDefault(x => x.GroupStudentId == id);
             if (groupStudent == null)
             {
                 throw new KeyNotFoundException($"Group with ID {id} not found.");

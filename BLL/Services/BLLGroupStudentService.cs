@@ -19,7 +19,7 @@ namespace BLL.Services
         public void Create(BLLGroupStudent groupStudent)
         {
             GroupStudent g = new GroupStudent()
-            {
+            { 
                 GroupId = groupStudent.GroupId,
                 StudentId = groupStudent.StudentId,
                 IsActive = true,
@@ -128,6 +128,7 @@ namespace BLL.Services
 
                 BLLGroupStudentPerfect gspl = new BLLGroupStudentPerfect()
                 {
+                    GroupStudentId=item.GroupStudentId,
                     StudentId=item.StudentId,
                     StudentName=dal.Students.GetById(item.StudentId).FirstName+" "+ dal.Students.GetById(item.StudentId).LastName,
                     EnrollmentDate =item.EnrollmentDate,

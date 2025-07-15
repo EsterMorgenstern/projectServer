@@ -19,6 +19,8 @@ namespace BLL
         public IBLLStudentNote Notes { get; }   
         public IBLLUser Users { get; }
         public IBLLLessonCancellations LessonCancellations {  get; }
+        public IBLLPaymentMethod PaymentMethods { get; }
+        public IBLLPayment Payments { get; }
 
         public BLLManager()
         {
@@ -33,6 +35,8 @@ namespace BLL
             Notes=  new BLLStudentNoteService(dal);  
             Users=new BLLUserService(dal);
             LessonCancellations = new BLLLessonCancellationsService(dal);
+            PaymentMethods = new BLLPaymentMethodService(dal);
+            Payments = new BLLPaymentService(dal);
         }
     }
 }

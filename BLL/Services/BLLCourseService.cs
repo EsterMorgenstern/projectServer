@@ -26,6 +26,11 @@ namespace BLL.Services
 
         public void Delete(int courseId)
         {
+            var groups = dal.Groups.Get().Where(x => x.CourseId == courseId);
+            foreach (var group in groups)
+            {
+                dal.Groups.Delete(group.GroupId);
+            }
             dal.Courses.Delete(courseId);
         }
 
