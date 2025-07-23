@@ -94,21 +94,7 @@ dotnet run
 
 ```
 
-### משתני סביבה נדרשים
 
-
-```
-# appsettings.Development.json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=localhost;Database=CourseNet;User Id=sa;Password=your_password;"
-},
-"JwtSettings": {
-  "Secret": "your_jwt_secret",
-  "Issuer": "CourseNet",
-  "Audience": "CourseNetUsers"
-}
-
-```
 
 ### פקודות נוספות
 
@@ -233,22 +219,13 @@ scp -r publish/ user@server:/var/www/projectServer
 
 
 ```
-"ConnectionStrings": {
-  "DefaultConnection": "Server=prod_server;Database=CourseNet;User Id=sa;Password=prod_password;"
-},
-"JwtSettings": {
-  "Secret": "prod_jwt_secret",
-  "Issuer": "CourseNet",
-  "Audience": "CourseNetUsers"
-}
 
-```
+
 
 ## 👩‍💻 מפתחת הפרויקט
 
 **אסתר מורגנשטרן**
 - 🎓 **התמחות:** Full-Stack Development
-- 💼 **LinkedIn:** [linkedin.com/in/ester-morgenstern](https://linkedin.com/in/ester-morgenstern)
 - 📧 **Email:** em0527104104@gmail.com
 - 💻 **GitHub:** [github.com/EsterMorgenstern](https://github.com/EsterMorgenstern)
 
