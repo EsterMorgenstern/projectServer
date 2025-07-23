@@ -488,4 +488,7 @@ scp -r publish/ user@server:/var/www/projectServer
 
 📞 **מעוניינים בשיתוף פעולה? צרו קשר!**
 
+🌐 **בקרו באתר החי:** [https://coursenet.nethost.co.il](https://coursenet.nethost.co.il)
+
+
 
