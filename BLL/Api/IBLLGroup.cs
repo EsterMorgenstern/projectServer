@@ -18,6 +18,8 @@ namespace BLL.Api
         public List<BLLGroupDetails> GetGroupsByDayOfWeek(string dayOfWeek);
 
         public List<BLLGroupStudentPerfect> GetStudentsByGroupId(int groupId);
-        public List<BLLGroup> GetGroupsByInstructorId(int groupId);
+        public List<BLLGroupDetailsPerfect> GetGroupsByInstructorId(int instructorId);
+        public BLLGroupDetailsPerfect FindBestGroupForStudent(int studentId);
+       public List<BLLGroupDetailsPerfect> FindBestGroupsForStudent(int studentId, int maxResults = 5);
     }
 }

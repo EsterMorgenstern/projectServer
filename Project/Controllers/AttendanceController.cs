@@ -283,6 +283,20 @@ namespace server.controllers
                 return BadRequest($"שגיאה בקבלת הנתונים האם קיימת נוכחות : {ex.Message}");
             }
         }
+        [HttpPost("AutoMarkDailyAttendance")]
+        public IActionResult AutoMarkDailyAttendance()
+        {
+            try
+            {
+                attendances.AutoMarkDailyAttendance();
+                return Ok("נוכחות יומית סומנה בהצלחה.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"שגיאה בסימון נוכחות יומית: {ex.Message}");
+            }
+        }
+
 
     }
 

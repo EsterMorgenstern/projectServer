@@ -1,32 +1,36 @@
-﻿using BLL.Api;
-using BLL;
+﻿using BLL;
+using BLL.Api;
 using BLL.Services;
-using Microsoft.EntityFrameworkCore;
-using DAL.Models;
+using DAL;
 using DAL.Api;
+using DAL.Models;
 using DAL.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Register DbContext
 builder.Services.AddDbContext<dbcontext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<DALCourseService>();
-builder.Services.AddScoped<DALGroupService>();
-builder.Services.AddScoped<DALBranchService>();
-builder.Services.AddScoped<DALStudentService>();
-builder.Services.AddScoped<DALAttendanceService>();
-builder.Services.AddScoped<DALGroupStudentService>();
-builder.Services.AddScoped<DALInstructorService>();
-builder.Services.AddScoped<DALStudentNoteService>();
+// Register DAL services
+builder.Services.AddScoped<IDAL, DALManager>();
+builder.Services.AddScoped<IDALAttendance, DALAttendanceService>();
+builder.Services.AddScoped<IDALGroup, DALGroupService>();
 
+// Register BLL services
+builder.Services.AddScoped<IBLLAttendance, BLLAttendanceService>();
+builder.Services.AddScoped<IBLL, BLLManager>();
+
+// Register hosted services
+builder.Services.AddHostedService<DailyAttendanceMarker>();
+
+// Add controllers and other services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IBLL, BLLManager>();
-
-// CORS
+// CORS configuration
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -36,7 +40,6 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -47,7 +50,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-// בדיקת חיבור למסד נתונים
 try
 {
     using var scope = app.Services.CreateScope();

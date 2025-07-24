@@ -33,6 +33,19 @@ namespace BLL.Models
         public DateOnly? StartDate { get; set; }
         public int? NumOfLessons { get; set; }
         public int? LessonsCompleted { get; set; }
+        // שדות חדשים
+        public string InstructorName { get; set; } = string.Empty;
+        public string BranchCity { get; set; } = string.Empty;
+        public string BranchAddress { get; set; } = string.Empty;
+        public int MatchScore { get; set; }
+        public List<string> MatchReasons { get; set; } = new List<string>();
+
+        // שדות מחושבים
+        public int AvailableSpots => MaxStudents ?? 0;
+        public bool HasAvailableSpots => MaxStudents.HasValue && MaxStudents > 0;
+        public string Schedule => $"{DayOfWeek} {Hour?.ToString("HH:mm")}";
+        public string Location => $"{BranchName}, {BranchCity}";
+        public int RemainingLessons => (NumOfLessons ?? 0) - (LessonsCompleted ?? 0);
     }
 
 }

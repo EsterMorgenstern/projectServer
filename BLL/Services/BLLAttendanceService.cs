@@ -536,5 +536,100 @@ namespace BLL.Services
         {
             throw new NotImplementedException();
         }
+
+        public void AutoMarkDailyAttendance()
+        {
+            var today = DateOnly.FromDateTime(DateTime.Now);
+            Console.WriteLine($"AutoMarkDailyAttendance started for {today}");
+
+            try
+            {
+                var dayName = GetHebrewDayName(today);
+                Console.WriteLine($"Day name for today: {dayName}");
+
+                // שליפת קבוצות עם שיעורים היום שלא סומנו להן נוכחות ושלא בוטלו
+                var groupsWithoutAttendance = dal.Groups.GetGroupsByDayOfWeek(dayName)
+                    .Where(group => !IsAttendanceMarkedForGroup(group.GroupId, today) &&
+                                    !IsGroupCanceledForDay(group.GroupId, today))
+                    .ToList();
+
+                if (!groupsWithoutAttendance.Any())
+                {
+                    Console.WriteLine($"No groups require attendance marking for {today}.");
+                    return;
+                }
+
+                foreach (var group in groupsWithoutAttendance)
+                {
+                    var students = dal.Groups.GetStudentsByGroupId(group.GroupId);
+
+                    // יצירת רשומות נוכחות רק לתלמידים שאין להם נוכחות מסומנת
+                    var attendanceRecords = students
+                        .Where(student => !IsAttendanceMarkedForStudent(student.StudentId, group.GroupId, today))
+                        .Select(student => new BLLAttendanceRecord
+                        {
+                            StudentId = student.StudentId,
+                            WasPresent = true // ברירת מחדל: נוכחות
+                        })
+                        .ToList();
+
+                    if (attendanceRecords.Any())
+                    {
+                        SaveAttendanceForDate(group.GroupId, today, attendanceRecords);
+                    }
+                }
+
+                Console.WriteLine($"Successfully marked attendance for {groupsWithoutAttendance.Count} groups on {today}.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in AutoMarkDailyAttendance: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// בדיקה אם יש ביטול לקבוצה ביום מסוים
+        /// </summary>
+        /// <param name="groupId">מזהה הקבוצה</param>
+        /// <param name="date">תאריך</param>
+        /// <returns>האם הקבוצה בוטלה</returns>
+        private bool IsGroupCanceledForDay(int groupId, DateOnly date)
+        {
+            try
+            {
+                return dal.LessonCancellations.GetCancellationsByDate(date.ToDateTime(TimeOnly.MinValue))
+                    .Any(cancellation => cancellation.GroupId == groupId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking cancellation for group {groupId} on {date}: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// בדיקה אם יש נוכחות מסומנת לתלמיד בקבוצה ביום מסוים
+        /// </summary>
+        /// <param name="studentId">מזהה התלמיד</param>
+        /// <param name="groupId">מזהה הקבוצה</param>
+        /// <param name="date">תאריך</param>
+        /// <returns>האם יש נוכחות מסומנת</returns>
+        private bool IsAttendanceMarkedForStudent(int studentId, int groupId, DateOnly date)
+        {
+            try
+            {
+                return dal.Attendances.GetAttendanceByGroupAndDate(groupId, date)
+                    .Any(attendance => attendance.StudentId == studentId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking attendance for student {studentId} in group {groupId} on {date}: {ex.Message}");
+                return false;
+            }
+        }
+
+
+
+
     }
 }

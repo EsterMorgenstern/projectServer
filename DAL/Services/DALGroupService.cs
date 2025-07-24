@@ -67,14 +67,14 @@ namespace DAL.Services
         }
 
 
-        public List<Group> GetGroupsByInstructorId(int groupId)
+        public List<Group> GetGroupsByInstructorId(int instructorId)
         {
-            var group = dbcontext.Groups.SingleOrDefault(x => x.GroupId == groupId);
-            if (group == null)
+            var groups = dbcontext.Groups.Where(x => x.InstructorId == instructorId);
+            if (groups == null)
             {
-                throw new KeyNotFoundException($"Group with ID {groupId} not found.");
+                throw new KeyNotFoundException($"Group with InstructorId {instructorId} not found.");
             }
-            return dbcontext.Groups.Where(x => x.InstructorId == group.InstructorId).ToList();
+            return groups.ToList();
         }
 
         public List<GroupStudent> GetStudentsByGroupId(int groupId)

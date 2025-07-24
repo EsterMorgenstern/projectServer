@@ -31,6 +31,7 @@ namespace BLL.Api
         bool DeleteAttendanceByGroupAndDate(int groupId, DateOnly date);
         bool IsAttendanceMarkedForGroup(int groupId, DateOnly date);
         public bool IsAttendanceMarkedForDay(DateOnly date);
+        public void AutoMarkDailyAttendance();
 
 
     }

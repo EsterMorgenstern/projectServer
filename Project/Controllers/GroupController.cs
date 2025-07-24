@@ -19,7 +19,7 @@ namespace server.controllers
             return groups.Get();
         }
 
-       
+
         [HttpGet("getById/{id}")]
         public BLLGroup GetById(int id)
         {
@@ -37,7 +37,7 @@ namespace server.controllers
         }
 
         [HttpGet("getGroupsByInstructorId/{id}")]
-        public List<BLLGroup> GetGroupsByInstructorId(int id)
+        public List<BLLGroupDetailsPerfect> GetGroupsByInstructorId(int id)
         {
             return groups.GetGroupsByInstructorId(id);
         }
@@ -46,6 +46,20 @@ namespace server.controllers
         {
             return groups.GetStudentsByGroupId(id);
         }
+        [HttpGet("FindBestGroupsForStudent/{studentId}")]
+        public List<BLLGroupDetailsPerfect> FindBestGroupsForStudent(int studentId, int maxResults = 5)
+        {
+            return groups.FindBestGroupsForStudent(studentId, maxResults);
+        }
+
+        [HttpGet("FindBestGroupForStudent/{studentId}")]
+        public ActionResult<BLLGroupDetailsPerfect> FindBestGroupForStudent(int studentId)
+        {
+            return groups.FindBestGroupForStudent(studentId);
+
+
+        }
+
         [HttpPost("Add")]
         public void Create(BLLGroup group)
         {
