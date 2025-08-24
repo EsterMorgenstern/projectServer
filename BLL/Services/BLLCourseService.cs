@@ -36,24 +36,62 @@ namespace BLL.Services
 
         public List<BLLCourse> Get()
         {
-            return dal.Courses.Get().Select(c => new BLLCourse()
+            try
             {
-                CourseId = c.CourseId,
-                CouresName = c.CouresName,
-                Description = c.Description,
-            }).ToList();
+                var courses = dal.Courses.Get();
+                if (courses == null || !courses.Any())
+                {
+                    Console.WriteLine("No courses found.");
+                    return new List<BLLCourse>(); // מחזיר מערך ריק
+                }
+
+                return courses.Select(c => new BLLCourse()
+                {
+                    CourseId = c.CourseId,
+                    CouresName = c.CouresName,
+                    Description = c.Description
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching courses: {ex.Message}");
+                return new List<BLLCourse>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
 
         public BLLCourse GetById(int id)
         {
-            Course c = dal.Courses.GetById(id);
-            BLLCourse blc = new BLLCourse()
+            try
             {
-                CourseId = c.CourseId,
-                CouresName = c.CouresName,
-                Description = c.Description,
-            };
-            return blc;
+                var course = dal.Courses.GetById(id);
+                if (course != null)
+                {
+                    return new BLLCourse()
+                    {
+                        CourseId = course.CourseId,
+                        CouresName = course.CouresName,
+                        Description = course.Description
+                    };
+                }
+
+                Console.WriteLine($"Course with ID {id} not found.");
+                return new BLLCourse()
+                {
+                    CourseId = 0,
+                    CouresName = string.Empty,
+                    Description = string.Empty
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching course with ID {id}: {ex.Message}");
+                return new BLLCourse()
+                {
+                    CourseId = 0,
+                    CouresName = string.Empty,
+                    Description = string.Empty
+                };
+            }
         }
 
         public void Update(BLLCourse course)

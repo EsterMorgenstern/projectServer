@@ -50,17 +50,30 @@ namespace BLL.Services
 
         public List<BLLLessonCancellations> GetCancellationsByDate(DateTime date)
         {
-            var dalCancellations = dal.LessonCancellations.GetCancellationsByDate(date);
-
-            return dalCancellations.Select(c => new BLLLessonCancellations()
+            try
             {
-                Id = c.Id,
-                GroupId = c.GroupId,
-                Created_at = c.Created_at,
-                Created_by = c.Created_by,
-                Date = c.Date,
-                Reason = c.Reason
-            }).ToList();
+                var cancellations = dal.LessonCancellations.GetCancellationsByDate(date);
+                if (cancellations == null || !cancellations.Any())
+                {
+                    Console.WriteLine($"No lesson cancellations found for date {date}");
+                    return new List<BLLLessonCancellations>(); // מחזיר מערך ריק
+                }
+
+                return cancellations.Select(c => new BLLLessonCancellations()
+                {
+                    Id = c.Id,
+                    GroupId = c.GroupId,
+                    Created_at = c.Created_at,
+                    Created_by = c.Created_by,
+                    Date = c.Date,
+                    Reason = c.Reason
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching lesson cancellations for date {date}: {ex.Message}");
+                return new List<BLLLessonCancellations>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
         /// <summary>
         /// ביטול כל הביטולים ליום מסוים
@@ -80,21 +93,34 @@ namespace BLL.Services
 
         public List<BLLLessonCancellationsDetails> GetCancellationDetailsByDate(DateTime date)
         {
-            var cancellations = dal.LessonCancellations.GetCancellationsByDate(date);
-
-            return cancellations.Select(c => new BLLLessonCancellationsDetails()
+            try
             {
-                Id = c.Id,
-                GroupId = c.GroupId,
-                GroupName = dal.Groups.GetById(c.GroupId).GroupName,
-                CourseName = dal.Courses.GetById(dal.Groups.GetById(c.GroupId).CourseId).CouresName,
-                BranchName = dal.Branches.GetById(dal.Groups.GetById(c.GroupId).BranchId).Name,
-                Hour = dal.Groups.GetById(c.GroupId).Hour,
-                Created_at = c.Created_at,
-                Created_by = c.Created_by,
-                Date = c.Date,
-                Reason = c.Reason
-            }).ToList();
+                var cancellations = dal.LessonCancellations.GetCancellationsByDate(date);
+                if (cancellations == null || !cancellations.Any())
+                {
+                    Console.WriteLine($"No detailed lesson cancellations found for date {date}");
+                    return new List<BLLLessonCancellationsDetails>(); // מחזיר מערך ריק
+                }
+
+                return cancellations.Select(c => new BLLLessonCancellationsDetails()
+                {
+                    Id = c.Id,
+                    GroupId = c.GroupId,
+                    GroupName = dal.Groups.GetById(c.GroupId).GroupName,
+                    CourseName = dal.Courses.GetById(dal.Groups.GetById(c.GroupId).CourseId).CouresName,
+                    BranchName = dal.Branches.GetById(dal.Groups.GetById(c.GroupId).BranchId).Name,
+                    Hour = dal.Groups.GetById(c.GroupId).Hour,
+                    Created_at = c.Created_at,
+                    Created_by = c.Created_by,
+                    Date = c.Date,
+                    Reason = c.Reason
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching detailed lesson cancellations for date {date}: {ex.Message}");
+                return new List<BLLLessonCancellationsDetails>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
 
         // **מתודה נוספת - קבלת כל הקבוצות שיכולות להתבטל ביום מסוים**
@@ -133,30 +159,74 @@ namespace BLL.Services
 
         public List<BLLLessonCancellations> Get()
         {
-            return dal.LessonCancellations.Get().Select(c => new BLLLessonCancellations()
+            try
             {
-                Id = c.Id,
-                GroupId = c.GroupId,
-                Created_at = c.Created_at,
-                Created_by = c.Created_by,
-                Date = c.Date,
-                Reason = c.Reason
-            }).ToList();
+                var cancellations = dal.LessonCancellations.Get();
+                if (cancellations == null || !cancellations.Any())
+                {
+                    Console.WriteLine("No lesson cancellations found.");
+                    return new List<BLLLessonCancellations>(); // מחזיר מערך ריק
+                }
+
+                return cancellations.Select(c => new BLLLessonCancellations()
+                {
+                    Id = c.Id,
+                    GroupId = c.GroupId,
+                    Created_at = c.Created_at,
+                    Created_by = c.Created_by,
+                    Date = c.Date,
+                    Reason = c.Reason
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching lesson cancellations: {ex.Message}");
+                return new List<BLLLessonCancellations>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
 
         public BLLLessonCancellations GetById(int id)
         {
-            LessonCancellations lc = dal.LessonCancellations.GetById(id);
-            BLLLessonCancellations lcn = new BLLLessonCancellations()
+            try
             {
-                Reason = lc.Reason,
-                Date = lc.Date,
-                Created_at = lc.Created_at,
-                Created_by = lc.Created_by,
-                GroupId = lc.GroupId,
-                Id = id,
-            };
-            return lcn;
+                var lc = dal.LessonCancellations.GetById(id);
+                if (lc != null)
+                {
+                    return new BLLLessonCancellations()
+                    {
+                        Id = lc.Id,
+                        GroupId = lc.GroupId,
+                        Created_at = lc.Created_at,
+                        Created_by = lc.Created_by,
+                        Date = lc.Date,
+                        Reason = lc.Reason
+                    };
+                }
+
+                Console.WriteLine($"Lesson cancellation with ID {id} not found.");
+                return new BLLLessonCancellations()
+                {
+                    Id = id,
+                    GroupId = 0,
+                    Created_at = DateOnly.MinValue,
+                    Created_by = "",
+                    Date = DateOnly.MinValue,
+                    Reason = ""
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching lesson cancellation with ID {id}: {ex.Message}");
+                return new BLLLessonCancellations()
+                {
+                    Id = id,
+                    GroupId = 0,
+                    Created_at = DateOnly.MinValue,
+                    Created_by = "",
+                    Date = DateOnly.MinValue,
+                    Reason = ""
+                };
+            }
         }
 
         public void Update(BLLLessonCancellations lc)

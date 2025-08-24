@@ -24,14 +24,15 @@ namespace BLL.Services
                 Id = student.Id,
                 FirstName = student.FirstName,
                 LastName = student.LastName,
-                BirthDate = DateOnly.FromDateTime(student.BirthDate),
+                Age = student.Age,
                 City = student.City,
                 School = student.School,
                 HealthFund = student.HealthFund,
                 Phone = student.Phone,
-                Gender = student.Gender,
+                Class = student.Class,
                 Sector = student.Sector,
-                LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate)
+                LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate),
+                Status=student.Status
             };
             dal.Students.Create(p);
         }
@@ -42,69 +43,110 @@ namespace BLL.Services
         /// <returns>List  של התלמידים</returns>
         public List<BLLStudent> Get()
         {
-            var pList = dal.Students.Get();
-            List<BLLStudent> list = new();
-            pList.ForEach(p => list.Add(new BLLStudent()
+            try
             {
-                Id = p.Id,
-                FirstName = p.FirstName ?? "", // Fix for CS8601: Possible null reference assignment
-                LastName = p.LastName ?? "", // Fix for CS8601: Possible null reference assignment
-                Phone = p.Phone.ToString(), // Fix for CS0029: Convert int to string
-                BirthDate = p.BirthDate.ToDateTime(TimeOnly.MinValue), // Fix for CS1503: Convert DateOnly to DateTime
-                City = p.City ?? "", // Fix for CS8601: Possible null reference assignment
-                School = p.School ?? "", // Fix for CS8601: Possible null reference assignment
-                HealthFund = p.HealthFund ?? "", // Fix for CS8601: Possible null reference assignment
-                Gender = p.Gender ?? "",
-                Sector = p.Sector ?? "",
-                LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue // Fix for CS1503: Convert DateOnly? to DateTime
-            }));
-            return list;
-        }
-        [return: NotNullIfNotNull("id")]
-        public BLLStudent? GetById(int id)
-        {
-            var p = dal.Students.GetById(id);
-            if (p != null)
-            {
-                BLLStudent t2 = new BLLStudent()
+                var pList = dal.Students.Get();
+                if (pList == null || !pList.Any())
+                {
+                    Console.WriteLine("No students found.");
+                    return new List<BLLStudent>(); // מחזיר מערך ריק
+                }
+
+                List<BLLStudent> list = new();
+                pList.ForEach(p => list.Add(new BLLStudent()
                 {
                     Id = p.Id,
-                    FirstName = p.FirstName ?? "", // Fix for CS8601: Possible null reference assignment  
-                    LastName = p.LastName ?? "", // Fix for CS8601: Possible null reference assignment  
-                    Phone = p.Phone.ToString(), // Fix for CS0029: Convert int to string  
-                    BirthDate = p.BirthDate.ToDateTime(TimeOnly.MinValue), // Fix for CS1503: Convert DateOnly to DateTime
-                    City = p.City ?? "", // Fix for CS8601: Possible null reference assignment  
-                    School = p.School ?? "", // Fix for CS8601: Possible null reference assignment  
-                    HealthFund = p.HealthFund ?? "", // Fix for CS8601: Possible null reference assignment  
-                    Gender = p.Gender ?? "",
+                    FirstName = p.FirstName ?? "",
+                    LastName = p.LastName ?? "",
+                    Phone = p.Phone.ToString(),
+                    Age = p.Age,
+                    City = p.City ?? "",
+                    School = p.School ?? "",
+                    HealthFund = p.HealthFund ?? "",
+                    Class = p.Class ?? "",
                     Sector = p.Sector ?? "",
-                    LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue // Fix for CS1503: Convert DateOnly? to DateTime
-                };
-                return t2;
+                    LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
+                    Status=p.Status?? ""
+                }));
+                return list;
             }
-
-            return new BLLStudent()
+            catch (Exception ex)
             {
-                Id = id,
-                FirstName = "",
-                LastName = "",
-                Phone = "",
-                BirthDate = DateTime.MinValue, // Fix for CS1001 and CS0117: Use DateTime.MinValue as a default value  
-                City = "",
-                School = "",
-                HealthFund = "",
-                Gender = "",
-                Sector = "",
-                LastActivityDate = DateTime.MinValue
-            };
+                Console.WriteLine($"Error fetching students: {ex.Message}");
+                return new List<BLLStudent>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
+        [return: NotNullIfNotNull("id")]
+        public BLLStudent GetById(int id)
+        {
+            try
+            {
+                var p = dal.Students.GetById(id);
+                if (p != null)
+                {
+                    return new BLLStudent()
+                    {
+                        Id = p.Id,
+                        FirstName = p.FirstName ?? "",
+                        LastName = p.LastName ?? "",
+                        Phone = p.Phone.ToString(),
+                        Age = p.Age,
+                        City = p.City ?? "",
+                        School = p.School ?? "",
+                        HealthFund = p.HealthFund ?? "",
+                        Class = p.Class ?? "",
+                        Sector = p.Sector ?? "",
+                        LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
+                        Status=p.Status ?? ""
+                    };
+                }
+
+                Console.WriteLine($"Student with ID {id} not found.");
+                return new BLLStudent()
+                {
+                    Id = id,
+                    FirstName = "",
+                    LastName = "",
+                    Phone = "",
+                    Age = 0,
+                    City = "",
+                    School = "",
+                    HealthFund = "",
+                    Class = "",
+                    Sector = "",
+                    LastActivityDate = DateTime.MinValue,
+                    Status=""
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching student with ID {id}: {ex.Message}");
+                return new BLLStudent()
+                {
+                    Id = id,
+                    FirstName = "",
+                    LastName = "",
+                    Phone = "",
+                    Age = 0,
+                    City = "",
+                    School = "",
+                    HealthFund = "",
+                    Class = "",
+                    Sector = "",
+                    LastActivityDate = DateTime.MinValue,
+                    Status=""
+
+                };
+            }
+        }
+
 
         public void Delete(int id)
         {
             var attendances= dal.Attendances.GetAttendanceByStudent(id);
             foreach (var item in attendances)
             {
-                dal.Attendances.Delete(item);
+                dal.Attendances.Delete(item.AttendanceId);
             }
             var notes = dal.StudentNotes.GetById(id);
             foreach (var item in notes)
@@ -115,9 +157,11 @@ namespace BLL.Services
             foreach (var item in groupStudents)
             {
                 dal.GroupStudents.Delete(item);
+                var group = dal.Groups.GetById(item.GroupId);
+                group.MaxStudents = (group.MaxStudents ?? 0) + 1;
+                dal.Groups.Update(group);
             }
-
-
+           
             dal.Students.Delete(id);
         }
 
@@ -127,15 +171,15 @@ namespace BLL.Services
             m.Id = student.Id;
             m.FirstName = student.FirstName;
             m.LastName = student.LastName;
-            m.Phone = student.Phone; // Fix for CS0029: Convert string to int
-            m.BirthDate = DateOnly.FromDateTime(student.BirthDate); // Fix for CS0029: Convert DateTime to DateOnly
+            m.Phone = student.Phone; 
+            m.Age = student.Age; 
             m.City = student.City;
             m.School = student.School;
             m.HealthFund = student.HealthFund;
-            m.Gender = student.Gender;
+            m.Class = student.Class;
             m.Sector = student.Sector;
             m.LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate);
-
+            m.Status = student.Status;
             dal.Students.Update(m);
         }
     }

@@ -22,7 +22,7 @@ namespace BLL.Services
             { 
                 GroupId = groupStudent.GroupId,
                 StudentId = groupStudent.StudentId,
-                IsActive = true,
+                IsActive = false,
                 EnrollmentDate = DateOnly.FromDateTime(DateTime.Now)
             };
             dal.GroupStudents.Create(g);
@@ -74,14 +74,29 @@ namespace BLL.Services
 
         public List<BLLGroupStudent> Get()
         {
-            return dal.GroupStudents.Get().Select(gs => new BLLGroupStudent
+            try
             {
-                GroupStudentId = gs.GroupStudentId,
-                GroupId = gs.GroupId,
-                StudentId = gs.StudentId,
-                EnrollmentDate = gs.EnrollmentDate,
-                IsActive = gs.IsActive
-            }).ToList();
+                var groupStudents = dal.GroupStudents.Get();
+                if (groupStudents == null || !groupStudents.Any())
+                {
+                    Console.WriteLine("No group students found.");
+                    return new List<BLLGroupStudent>(); // מחזיר מערך ריק
+                }
+
+                return groupStudents.Select(gs => new BLLGroupStudent
+                {
+                    GroupStudentId = gs.GroupStudentId,
+                    GroupId = gs.GroupId,
+                    StudentId = gs.StudentId,
+                    EnrollmentDate = gs.EnrollmentDate,
+                    IsActive = gs.IsActive
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching group students: {ex.Message}");
+                return new List<BLLGroupStudent>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
 
         public BLLGroupStudent GetById(int id)
@@ -120,29 +135,39 @@ namespace BLL.Services
         }
         public List<BLLGroupStudentPerfect> GetByStudentId(int id)
         {
-            List<BLLGroupStudentPerfect> lstgp = new List<BLLGroupStudentPerfect>();
-            var groupStudents = dal.GroupStudents.Get().Where(gs => gs.StudentId == id).ToList();
-            foreach (var item in groupStudents)
+            try
             {
-                var d = dal.Groups.GetById(item.GroupId);
-
-                BLLGroupStudentPerfect gspl = new BLLGroupStudentPerfect()
+                var groupStudents = dal.GroupStudents.Get().Where(gs => gs.StudentId == id).ToList();
+                if (groupStudents == null || !groupStudents.Any())
                 {
-                    GroupStudentId=item.GroupStudentId,
-                    StudentId=item.StudentId,
-                    StudentName=dal.Students.GetById(item.StudentId).FirstName+" "+ dal.Students.GetById(item.StudentId).LastName,
-                    EnrollmentDate =item.EnrollmentDate,
-                    IsActive=item.IsActive,
-                    DayOfWeek=d.DayOfWeek,
-                    Hour=d.Hour,
-                    GroupName = d.GroupName,
-                    BranchName = dal.Branches.GetById(d.BranchId).Name,
-                    InstructorName = dal.Instructors.GetById(d.InstructorId).FirstName + " " + dal.Instructors.GetById(d.InstructorId).LastName,
-                    CourseName=dal.Courses.GetById(d.CourseId).CouresName
-                };
-                lstgp.Add(gspl);
+                    Console.WriteLine($"No group students found for student ID {id}.");
+                    return new List<BLLGroupStudentPerfect>(); // מחזיר מערך ריק
+                }
+
+                return groupStudents.Select(item =>
+                {
+                    var d = dal.Groups.GetById(item.GroupId);
+                    return new BLLGroupStudentPerfect
+                    {
+                        GroupStudentId = item.GroupStudentId,
+                        StudentId = item.StudentId,
+                        StudentName = $"{dal.Students.GetById(item.StudentId).FirstName} {dal.Students.GetById(item.StudentId).LastName}",
+                        EnrollmentDate = item.EnrollmentDate,
+                        IsActive = item.IsActive,
+                        DayOfWeek = d.DayOfWeek,
+                        Hour = d.Hour,
+                        GroupName = d.GroupName,
+                        BranchName = dal.Branches.GetById(d.BranchId).Name,
+                        InstructorName = $"{dal.Instructors.GetById(d.InstructorId).FirstName} {dal.Instructors.GetById(d.InstructorId).LastName}",
+                        CourseName = dal.Courses.GetById(d.CourseId).CouresName
+                    };
+                }).ToList();
             }
-            return lstgp;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching group students for student ID {id}: {ex.Message}");
+                return new List<BLLGroupStudentPerfect>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
 
 

@@ -1,6 +1,4 @@
-﻿using DAL.Models;
-
-public class BLLPayment
+﻿public class BLLPayment
 {
     public int PaymentId { get; set; }
     public int StudentId { get; set; }
@@ -14,8 +12,6 @@ public class BLLPayment
     public int? GroupId { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    // Navigation properties
-    public virtual Student? Student { get; set; }
-    public virtual Group? Group { get; set; }
+
 }
 

@@ -14,5 +14,6 @@
         public IDALLessonCancellations LessonCancellations { get; }
         public IDALPaymentMethod PaymentMethods { get; }
         public IDALPayment Payments { get; }
+        public IDALGrowPayment PaymentGrow { get; }
     }
 }

@@ -17,7 +17,7 @@ namespace BLL.Api
          Dictionary<DateOnly, List<BLLAttendanceRecord>> GetAttendanceByGroupAndDateRange(
               int groupId, DateOnly startDate, DateOnly endDate);
          void DeleteByGroupAndDate(int groupId,DateOnly date);
-         void Delete(BLLAttendance attendance);
+         void Delete(int attendanceId);
         void Update(BLLAttendance attendance);
         bool SaveAttendanceForDate(int groupId, DateOnly date, List<BLLAttendanceRecord> attendanceRecords);
         List<BLLAttendance> GetAttendanceByStudent(int studentId);

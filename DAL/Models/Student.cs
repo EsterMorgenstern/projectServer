@@ -13,7 +13,7 @@ public partial class Student
 
     public string Phone { get; set; } = null!;
 
-    public DateOnly BirthDate { get; set; }
+    public int Age { get; set; }
 
     public string? City { get; set; }
 
@@ -21,11 +21,13 @@ public partial class Student
 
     public string? HealthFund { get; set; }
 
-    public string? Gender { get; set; }
+    public string? Class { get; set; }
 
     public string? Sector { get; set; }
 
     public DateOnly? LastActivityDate { get; set; }
+    public string? Status { get; set; }
+
 
     public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 

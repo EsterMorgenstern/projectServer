@@ -35,48 +35,80 @@ namespace BLL.Services
 
         public List<BLLInstructor> Get()
         {
-            var pList = dal.Instructors.Get();
-            List<BLLInstructor> list = new();
-            pList.ForEach(p => list.Add(new BLLInstructor()
+            try
             {
-                Id = p.Id,
-                FirstName = p.FirstName,
-                LastName = p.LastName,
-                City = p.City ?? string.Empty,
-                Email = p.Email ?? string.Empty,
-                Phone = p.Phone,
-                Sector=p.Sector??string.Empty
-            }));
-            return list;
-        }
+                var pList = dal.Instructors.Get();
+                if (pList == null || !pList.Any())
+                {
+                    Console.WriteLine("No instructors found.");
+                    return new List<BLLInstructor>(); // מחזיר מערך ריק
+                }
 
-        public BLLInstructor GetById(int id)
-        {
-            Instructor? p = dal.Instructors.GetById(id); 
-            if (p != null)
-            {
-                BLLInstructor t = new BLLInstructor()
+                List<BLLInstructor> list = new();
+                pList.ForEach(p => list.Add(new BLLInstructor()
                 {
                     Id = p.Id,
                     FirstName = p.FirstName,
                     LastName = p.LastName,
-                    City = p.City ?? string.Empty, // Null-coalescing operator to handle null
-                    Email = p.Email ?? string.Empty, // Null-coalescing operator to handle null
+                    City = p.City ?? string.Empty,
+                    Email = p.Email ?? string.Empty,
                     Phone = p.Phone,
-                    Sector=p.Sector?? string.Empty
-                };
-                return t;
+                    Sector = p.Sector ?? string.Empty
+                }));
+                return list;
             }
-            return new BLLInstructor()
+            catch (Exception ex)
             {
-                Id = 0,
-                FirstName = string.Empty,
-                LastName = string.Empty,
-                City = string.Empty,
-                Email = string.Empty,
-                Phone = string.Empty,
-                Sector=string.Empty
-            };
+                Console.WriteLine($"Error fetching instructors: {ex.Message}");
+                return new List<BLLInstructor>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
+        }
+
+        public BLLInstructor GetById(int id)
+        {
+            try
+            {
+                var p = dal.Instructors.GetById(id);
+                if (p != null)
+                {
+                    return new BLLInstructor()
+                    {
+                        Id = p.Id,
+                        FirstName = p.FirstName,
+                        LastName = p.LastName,
+                        City = p.City ?? string.Empty,
+                        Email = p.Email ?? string.Empty,
+                        Phone = p.Phone,
+                        Sector = p.Sector ?? string.Empty
+                    };
+                }
+
+                Console.WriteLine($"Instructor with ID {id} not found.");
+                return new BLLInstructor()
+                {
+                    Id = 0,
+                    FirstName = string.Empty,
+                    LastName = string.Empty,
+                    City = string.Empty,
+                    Email = string.Empty,
+                    Phone = string.Empty,
+                    Sector = string.Empty
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching instructor with ID {id}: {ex.Message}");
+                return new BLLInstructor()
+                {
+                    Id = 0,
+                    FirstName = string.Empty,
+                    LastName = string.Empty,
+                    City = string.Empty,
+                    Email = string.Empty,
+                    Phone = string.Empty,
+                    Sector = string.Empty
+                };
+            }
         }
 
         public void Update(BLLInstructor instructor)

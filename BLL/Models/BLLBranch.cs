@@ -9,6 +9,7 @@ namespace BLL.Models
     public class BLLBranch
     {
         public int BranchId { get; set; }
+        public int CourseId { get; set; }
 
         public string Name { get; set; } = null!;
 

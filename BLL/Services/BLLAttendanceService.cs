@@ -33,34 +33,42 @@ namespace BLL.Services
         /// מחיקת נוכחות לתלמיד 
         /// </summary>
         /// <param name="attendance"></param>
-        public void Delete(BLLAttendance attendance)
+        public void Delete(int attendanceId)
         {
-            Attendance a = new Attendance()
-            {
-                AttendanceId = attendance.AttendanceId,
-                StudentId = attendance.StudentId,
-                GroupId = attendance.GroupId,
-                WasPresent = attendance.WasPresent,
-                Date = attendance.Date
-            };
-            dal.Attendances.Delete(a);
+           
+            dal.Attendances.Delete(attendanceId);
         }
         /// <summary>
         /// Get לכל הנוכחות
         /// </summary>
         /// <returns>List<BLLAttendance></returns>
-
         public List<BLLAttendance> Get()
         {
-            return dal.Attendances.Get().Select(b => new BLLAttendance()
+            try
             {
-                Date = b.Date,
-                StudentId = b.StudentId,
-                AttendanceId = b.AttendanceId,
-                GroupId = b.GroupId,
-                WasPresent = b.WasPresent
-            }).ToList();
+                var attendanceRecords = dal.Attendances.Get();
+                if (attendanceRecords == null || !attendanceRecords.Any())
+                {
+                    Console.WriteLine("No attendance records found.");
+                    return new List<BLLAttendance>(); // מחזיר מערך ריק
+                }
+
+                return attendanceRecords.Select(b => new BLLAttendance()
+                {
+                    Date = b.Date,
+                    StudentId = b.StudentId,
+                    AttendanceId = b.AttendanceId,
+                    GroupId = b.GroupId,
+                    WasPresent = b.WasPresent
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching attendance records: {ex.Message}");
+                return new List<BLLAttendance>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
+
         /// <summary>
         /// GetById לפי AttendanceId
         /// </summary>
@@ -210,45 +218,84 @@ namespace BLL.Services
 
         public List<BLLAttendanceRecord> GetAttendanceByGroupAndDate(int groupId, DateOnly date)
         {
-            var attendanceRecords = dal.Attendances.GetAttendanceByGroupAndDate(groupId, date);
-            return attendanceRecords.Select(a => new BLLAttendanceRecord
+            try
             {
-                StudentId = a.StudentId ?? 0,
-                WasPresent = a.WasPresent ?? false,
-                StudentName = GetStudentName(a.StudentId ?? 0)
-            }).ToList();
-        }
+                var attendanceRecords = dal.Attendances.GetAttendanceByGroupAndDate(groupId, date);
+                if (attendanceRecords == null || !attendanceRecords.Any())
+                {
+                    Console.WriteLine($"No attendance records found for group {groupId} on {date}");
+                    return new List<BLLAttendanceRecord>(); // מחזיר מערך ריק
+                }
 
-        public Dictionary<DateOnly, List<BLLAttendanceRecord>> GetAttendanceByGroupAndDateRange(
-            int groupId, DateOnly startDate, DateOnly endDate)
-        {
-            var result = new Dictionary<DateOnly, List<BLLAttendanceRecord>>();
-            var attendanceRecords = dal.Attendances.GetByGroupAndDateRange(groupId, startDate, endDate);
-
-            foreach (var group in attendanceRecords.GroupBy(a => a.Date))
-            {
-                result[group.Key ?? DateOnly.MinValue] = group.Select(a => new BLLAttendanceRecord
+                return attendanceRecords.Select(a => new BLLAttendanceRecord
                 {
                     StudentId = a.StudentId ?? 0,
                     WasPresent = a.WasPresent ?? false,
                     StudentName = GetStudentName(a.StudentId ?? 0)
                 }).ToList();
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching attendance records for group {groupId} on {date}: {ex.Message}");
+                return new List<BLLAttendanceRecord>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
+        }
 
-            return result;
+        public Dictionary<DateOnly, List<BLLAttendanceRecord>> GetAttendanceByGroupAndDateRange(
+            int groupId, DateOnly startDate, DateOnly endDate)
+        {
+            try
+            {
+                var attendanceRecords = dal.Attendances.GetByGroupAndDateRange(groupId, startDate, endDate);
+                if (attendanceRecords == null || !attendanceRecords.Any())
+                {
+                    Console.WriteLine($"No attendance records found for group {groupId} between {startDate} and {endDate}");
+                    return new Dictionary<DateOnly, List<BLLAttendanceRecord>>(); // מחזיר מילון ריק
+                }
+
+                return attendanceRecords.GroupBy(a => a.Date)
+                    .ToDictionary(
+                        group => group.Key ?? DateOnly.MinValue,
+                        group => group.Select(a => new BLLAttendanceRecord
+                        {
+                            StudentId = a.StudentId ?? 0,
+                            WasPresent = a.WasPresent ?? false,
+                            StudentName = GetStudentName(a.StudentId ?? 0)
+                        }).ToList()
+                    );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching attendance records for group {groupId} between {startDate} and {endDate}: {ex.Message}");
+                return new Dictionary<DateOnly, List<BLLAttendanceRecord>>(); // מחזיר מילון ריק במקרה של שגיאה
+            }
         }
 
         public List<BLLAttendance> GetAttendanceByStudent(int studentId)
         {
-            var attendanceRecords = dal.Attendances.GetAttendanceByStudent(studentId);
-            return attendanceRecords.Select(a => new BLLAttendance
+            try
             {
-                AttendanceId = a.AttendanceId,
-                StudentId = a.StudentId,
-                GroupId = a.GroupId,
-                Date = a.Date,
-                WasPresent = a.WasPresent
-            }).ToList();
+                var attendanceRecords = dal.Attendances.GetAttendanceByStudent(studentId);
+                if (attendanceRecords == null || !attendanceRecords.Any())
+                {
+                    Console.WriteLine($"No attendance records found for student {studentId}");
+                    return new List<BLLAttendance>(); // מחזיר מערך ריק
+                }
+
+                return attendanceRecords.Select(a => new BLLAttendance
+                {
+                    AttendanceId = a.AttendanceId,
+                    StudentId = a.StudentId,
+                    GroupId = a.GroupId,
+                    Date = a.Date,
+                    WasPresent = a.WasPresent
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching attendance records for student {studentId}: {ex.Message}");
+                return new List<BLLAttendance>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
         /// <summary>
         /// קבלת נוכחות עבור תלמיד בטווח תאריכים
@@ -547,7 +594,6 @@ namespace BLL.Services
                 var dayName = GetHebrewDayName(today);
                 Console.WriteLine($"Day name for today: {dayName}");
 
-                // שליפת קבוצות עם שיעורים היום שלא סומנו להן נוכחות ושלא בוטלו
                 var groupsWithoutAttendance = dal.Groups.GetGroupsByDayOfWeek(dayName)
                     .Where(group => !IsAttendanceMarkedForGroup(group.GroupId, today) &&
                                     !IsGroupCanceledForDay(group.GroupId, today))
@@ -563,13 +609,12 @@ namespace BLL.Services
                 {
                     var students = dal.Groups.GetStudentsByGroupId(group.GroupId);
 
-                    // יצירת רשומות נוכחות רק לתלמידים שאין להם נוכחות מסומנת
                     var attendanceRecords = students
                         .Where(student => !IsAttendanceMarkedForStudent(student.StudentId, group.GroupId, today))
                         .Select(student => new BLLAttendanceRecord
                         {
                             StudentId = student.StudentId,
-                            WasPresent = true // ברירת מחדל: נוכחות
+                            WasPresent = true
                         })
                         .ToList();
 

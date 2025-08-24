@@ -41,22 +41,36 @@ namespace BLL.Services
 
         public List<BLLStudentNote> Get()
         {
-            return dal.StudentNotes.Get().Select(b => new BLLStudentNote()
+            try
             {
-                StudentId = b.StudentId,
-                AuthorId = b.AuthorId,
-                AuthorName = b.AuthorName,
-                AuthorRole = b.AuthorRole,
-                CreatedDate = (DateTime)b.CreatedDate,
-                IsActive = b.IsActive,
-                IsPrivate = b.IsPrivate,
-                NoteContent = b.NoteContent,
-                NoteId = b.NoteId,
-                NoteType = b.NoteType,
-                Priority = b.Priority,
-                UpdatedDate = (DateTime)b.UpdatedDate
+                var notes = dal.StudentNotes.Get();
+                if (notes == null || !notes.Any())
+                {
+                    Console.WriteLine("No student notes found.");
+                    return new List<BLLStudentNote>(); // מחזיר מערך ריק
+                }
 
-            }).ToList();
+                return notes.Select(b => new BLLStudentNote
+                {
+                    StudentId = b.StudentId,
+                    AuthorId = b.AuthorId,
+                    AuthorName = b.AuthorName,
+                    AuthorRole = b.AuthorRole,
+                    CreatedDate = b.CreatedDate ?? DateTime.MinValue,
+                    IsActive = b.IsActive,
+                    IsPrivate = b.IsPrivate,
+                    NoteContent = b.NoteContent,
+                    NoteId = b.NoteId,
+                    NoteType = b.NoteType,
+                    Priority = b.Priority,
+                    UpdatedDate = b.UpdatedDate ?? DateTime.MinValue
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching student notes: {ex.Message}");
+                return new List<BLLStudentNote>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
 
         public List<BLLStudentNote> GetById(int id)

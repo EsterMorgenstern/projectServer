@@ -18,7 +18,5 @@ public class BLLPaymentMethod
     public string? BankName { get; set; }
     public string? AccountHolderName { get; set; }
 
-    // Navigation properties
-    public virtual Student? Student { get; set; }
-    public virtual ICollection<Payment>? Payments { get; set; }
+    
 }

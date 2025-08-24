@@ -41,16 +41,20 @@ namespace DAL.Services
         {
             try
             {
+                // בדיקה אם ה-DbSet ריק או לא קיים
                 if (dbcontext.GroupStudents == null || !dbcontext.GroupStudents.Any())
                 {
-                    throw new Exception("No GroupStudent records found.");
+                    Console.WriteLine("No GroupStudent records found.");
+                    return new List<GroupStudent>(); // מחזיר מערך ריק
                 }
 
+                // החזרת הרשומות כ-List
                 return dbcontext.GroupStudents.ToList();
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("An error occurred while retrieving GroupStudent records.", ex);
+                Console.WriteLine($"Error fetching GroupStudent records: {ex.Message}");
+                return new List<GroupStudent>(); // מחזיר מערך ריק במקרה של שגיאה
             }
         }
 

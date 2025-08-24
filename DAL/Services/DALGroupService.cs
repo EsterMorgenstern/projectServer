@@ -30,19 +30,12 @@ namespace DAL.Services
 
         public List<Group> Get()
         {
-            try
+            if (dbcontext.Groups == null || !dbcontext.Groups.Any())
             {
-                if (dbcontext.Groups == null || !dbcontext.Groups.Any())
-                {
-                    throw new Exception("No groups records found.");
-                }
+                return new List<Group>(); // מחזיר רשימה ריקה במקום לזרוק שגיאה
+            }
 
-                return dbcontext.Groups.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("An error occurred while retrieving group records.", ex);
-            }
+            return dbcontext.Groups.ToList();
         }
 
 
@@ -92,9 +85,7 @@ namespace DAL.Services
             var trackedGroup = dbcontext.Groups.Find(group.GroupId);
             if (trackedGroup != null)
             {
-                trackedGroup.GroupName = group.GroupName;
-                trackedGroup.InstructorId = group.InstructorId;
-                ////////////////////////////////////
+                dbcontext.Groups.Update(trackedGroup);
                 dbcontext.SaveChanges();
             }
         }

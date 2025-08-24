@@ -28,18 +28,11 @@ public class DALLessonCancellationsService : IDALLessonCancellations
 
     public List<LessonCancellations> Get()
     {
-        try
+        if (dbcontext.LessonCancellations == null || !dbcontext.LessonCancellations.Any())
         {
-            if (dbcontext.LessonCancellations == null || !dbcontext.LessonCancellations.Any())
-            {
-                throw new Exception("No lc found.");
-            }
-            return dbcontext.LessonCancellations.ToList();
+            return new List<LessonCancellations>();
         }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("An error occurred while retrieving lc records.", ex);
-        }
+        return dbcontext.LessonCancellations.ToList();
     }
 
     public void Update(LessonCancellations lc)
