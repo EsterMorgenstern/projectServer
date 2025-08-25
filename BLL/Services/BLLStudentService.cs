@@ -32,7 +32,8 @@ namespace BLL.Services
                 Class = student.Class,
                 Sector = student.Sector,
                 LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate),
-                Status=student.Status
+                Status=student.Status,
+                Email=student.Email
             };
             dal.Students.Create(p);
         }
@@ -66,7 +67,8 @@ namespace BLL.Services
                     Class = p.Class ?? "",
                     Sector = p.Sector ?? "",
                     LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
-                    Status=p.Status?? ""
+                    Status=p.Status?? "",
+                    Email=p.Email ?? ""
                 }));
                 return list;
             }
@@ -97,7 +99,8 @@ namespace BLL.Services
                         Class = p.Class ?? "",
                         Sector = p.Sector ?? "",
                         LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
-                        Status=p.Status ?? ""
+                        Status=p.Status ?? "",
+                        Email=p.Email ?? ""
                     };
                 }
 
@@ -115,7 +118,8 @@ namespace BLL.Services
                     Class = "",
                     Sector = "",
                     LastActivityDate = DateTime.MinValue,
-                    Status=""
+                    Status="",
+                    Email=""
                 };
             }
             catch (Exception ex)
@@ -134,7 +138,8 @@ namespace BLL.Services
                     Class = "",
                     Sector = "",
                     LastActivityDate = DateTime.MinValue,
-                    Status=""
+                    Status="",
+                    Email=""
 
                 };
             }
@@ -180,6 +185,8 @@ namespace BLL.Services
             m.Sector = student.Sector;
             m.LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate);
             m.Status = student.Status;
+            m.Email = student.Email;
+
             dal.Students.Update(m);
         }
     }

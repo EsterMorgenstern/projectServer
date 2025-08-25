@@ -1,6 +1,8 @@
 ﻿using BLL.Api;
 using DAL.Api;
 using DAL.Models;
+using RestSharp;
+
 
 namespace BLL.Services
 {
@@ -96,20 +98,35 @@ namespace BLL.Services
 
         public List<BLLPayment> Get()
         {
-            return dal.Payments.Get().Select(p => new BLLPayment()
+            try
             {
-                PaymentId = p.PaymentId,
-                StudentId = p.StudentId,
-                Amount = p.Amount,
-                PaymentDate = p.PaymentDate,
-                PaymentMethod = p.PaymentMethod,
-                Notes = p.Notes,
-                PaymentMethodId = p.PaymentMethodId,
-                Status = p.Status,
-                TransactionId = p.TransactionId,
-                GroupId = p.GroupId,
-                CreatedAt = p.CreatedAt
-            }).ToList();
+                var payments = dal.Payments.Get();
+                if (payments == null || !payments.Any())
+                {
+                    Console.WriteLine("No payments found.");
+                    return new List<BLLPayment>(); // מחזיר מערך ריק
+                }
+
+                return payments.Select(p => new BLLPayment
+                {
+                    PaymentId = p.PaymentId,
+                    StudentId = p.StudentId,
+                    Amount = p.Amount,
+                    PaymentDate = p.PaymentDate,
+                    PaymentMethod = p.PaymentMethod,
+                    Notes = p.Notes,
+                    PaymentMethodId = p.PaymentMethodId,
+                    Status = p.Status,
+                    TransactionId = p.TransactionId,
+                    GroupId = p.GroupId,
+                    CreatedAt = p.CreatedAt
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching payments: {ex.Message}");
+                return new List<BLLPayment>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
 
         public List<BLLPayment> GetByStudentId(int studentId)
@@ -199,6 +216,95 @@ namespace BLL.Services
             }
             return bllP;
         }
+
+        public async Task<string> CreateGrowWalletPaymentAsync(
+     BLLPayment payment,
+     decimal amount,
+     string fullName,
+     string phone,
+     string description,
+     int studentId,
+     string creditCardNumber)
+        {
+            var student = dal.Students.GetById(studentId);
+            if (student == null)
+            {
+                throw new Exception("Student not found.");
+            }
+
+            // קישור התשלום לתלמיד
+            payment.StudentId = student.Id;
+
+            var req = new GrowPaymentRequest
+            {
+                pageCode = "79fd16425870", // קוד ייחודי לארנק
+                userId = "b03a08c792436c6d", // מזהה ייחודי לעסק
+                chargeType = 1,
+                sum = amount,
+                successUrl = "https://coursenet.nethost.co.il",
+                cancelUrl = "https://coursenet.nethost.co.il",
+                description = description,
+                pageField_fullName = fullName,
+                pageField_phone = phone,
+                pageField_email = "test@example.com",
+                cField1 = "Custom Field 1",
+                cField2 = "Custom Field 2",
+                creditCardNumber = creditCardNumber
+            };
+
+            var result = await dal.PaymentGrow.CreatePaymentProcessAsync(req);
+
+            if (result.status != 1)
+            {
+                throw new Exception($"Grow error: {result.message}");
+            }
+
+            payment.TransactionId = result.data.processToken;
+            payment.Status = "PENDING";
+            payment.CreatedAt = DateTime.Now;
+            payment.PaymentDate = DateTime.Now;
+            Create(payment);
+
+            string redirectUrl = $"https://sandbox.meshulam.co.il/api/light/server/1.0/redirect?processToken={result.data.processToken}";
+            return redirectUrl;
+        }
+        public BLLPayment GetByTransactionId(string transactionId)
+        {
+            var payment = dal.Payments.GetByTransactionId(transactionId);
+            if (payment == null)
+            {
+                return null;
+            }
+
+            return new BLLPayment
+            {
+                PaymentId = payment.PaymentId,
+                StudentId = payment.StudentId,
+                Amount = payment.Amount,
+                PaymentDate = payment.PaymentDate,
+                PaymentMethod = payment.PaymentMethod,
+                Notes = payment.Notes,
+                PaymentMethodId = payment.PaymentMethodId,
+                Status = payment.Status,
+                TransactionId = payment.TransactionId,
+                GroupId = payment.GroupId,
+                CreatedAt = payment.CreatedAt
+            };
+        }
+        public async Task ApproveTransactionAsync(string paymentCode)
+        {
+            var client = new RestClient("https://secure.meshulam.co.il/api/light/server/1.0/approveTransaction");
+            var request = new RestRequest();
+            request.AddParameter("paymentCode", paymentCode);
+            request.AddParameter("status", "APPROVED");
+
+            var response = await client.PostAsync(request);
+            if (response == null || !response.IsSuccessful)
+            {
+                throw new Exception("Failed to approve transaction.");
+            }
+        }
+
     }
 }
 

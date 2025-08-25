@@ -62,6 +62,11 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.Address).HasMaxLength(20);
             entity.Property(e => e.City).HasMaxLength(20);
             entity.Property(e => e.Name).HasMaxLength(20);
+            entity.HasOne(d => d.Course).WithMany(p => p.Branches)
+               .HasForeignKey(d => d.CourseId)
+               .OnDelete(DeleteBehavior.ClientSetNull)
+              ;
+
         });
 
         modelBuilder.Entity<Course>(entity =>
@@ -76,7 +81,7 @@ public partial class dbcontext : DbContext
             entity.HasKey(e => e.GroupId).HasName("PK__Groups__149AF36AF8EA9CDA");
             entity.Property(e => e.AgeRange).HasMaxLength(20);
             entity.Property(e => e.DayOfWeek).HasMaxLength(20);
-            entity.Property(e => e.GroupName).HasMaxLength(20);
+            entity.Property(e => e.GroupName);
             entity.Property(e => e.Sector).HasMaxLength(20);
             entity.HasOne(d => d.Branch).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.BranchId)
@@ -205,12 +210,14 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.City).HasMaxLength(20);
             entity.Property(e => e.FirstName).HasMaxLength(20);
-            entity.Property(e => e.Gender).HasMaxLength(10);
+            entity.Property(e => e.Class).HasMaxLength(10);
             entity.Property(e => e.HealthFund).HasMaxLength(50);
             entity.Property(e => e.LastName).HasMaxLength(20);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.School).HasMaxLength(20);
             entity.Property(e => e.Sector).HasMaxLength(50);
+            entity.Property(e => e.Status).HasMaxLength(30); 
+            entity.Property(e => e.Email);
         });
 
         modelBuilder.Entity<StudentNote>(entity =>

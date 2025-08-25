@@ -1,4 +1,5 @@
-﻿using BLL;
+﻿using System.Text.Json.Serialization;
+using BLL;
 using BLL.Api;
 using BLL.Services;
 using DAL;
@@ -9,24 +10,38 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+   
+});
+builder.Services.AddHttpClient();
+
+
 // Register DbContext
 builder.Services.AddDbContext<dbcontext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register DAL services
 builder.Services.AddScoped<IDAL, DALManager>();
-builder.Services.AddScoped<IDALAttendance, DALAttendanceService>();
-builder.Services.AddScoped<IDALGroup, DALGroupService>();
+//builder.Services.AddScoped<IDALAttendance, DALAttendanceService>();
+//builder.Services.AddScoped<IDALGroup, DALGroupService>();
 
 // Register BLL services
-builder.Services.AddScoped<IBLLAttendance, BLLAttendanceService>();
+//builder.Services.AddScoped<IBLLAttendance, BLLAttendanceService>();
 builder.Services.AddScoped<IBLL, BLLManager>();
 
 // Register hosted services
 builder.Services.AddHostedService<DailyAttendanceMarker>();
 
 // Add controllers and other services
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true; // Optional: Makes JSON output more readable
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

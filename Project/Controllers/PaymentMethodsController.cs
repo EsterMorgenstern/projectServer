@@ -92,5 +92,23 @@ namespace server.controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+        [HttpPost("SaveGrowWalletPaymentMethod")]
+        public IActionResult SaveGrowWalletPaymentMethod([FromBody] BLLPaymentMethod paymentMethodData)
+        {
+            try
+            {
+                paymentMethodData.CreatedAt = DateTime.Now;
+                paymentMethodData.UpdatedAt = DateTime.Now;
+                paymentMethodData.IsActive = true;
+
+                paymentMethod.SaveGrowWalletPaymentMethod(paymentMethodData);
+                return Ok(new { message = "Grow Wallet payment method saved successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
     }
 }

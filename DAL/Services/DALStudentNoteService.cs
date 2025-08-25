@@ -67,6 +67,15 @@ namespace DAL.Services
             }
             return sNote;
         }
+        public List<StudentNote> GetByRegistrationTracking()
+        {
+            var sNote = dbcontext.StudentNotes.Where(x => x.NoteType == "מעקב רישום").ToList();
+            if (sNote == null)
+            {
+                throw new KeyNotFoundException($"StudentNote with מעקב רישום not found.");
+            }
+            return sNote;
+        }
 
         public StudentNote GetByNoteId(int id)
         {
@@ -84,5 +93,7 @@ namespace DAL.Services
             dbcontext.StudentNotes.Update(studentNote);
             dbcontext.SaveChanges();
         }
+
+       
     }
 }

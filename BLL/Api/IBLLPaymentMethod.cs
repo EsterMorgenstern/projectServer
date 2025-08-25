@@ -9,5 +9,7 @@
         BLLPaymentMethod GetById(int paymentMethodId);
         void Update(BLLPaymentMethod paymentMethod);
         void SetAsDefault(int paymentMethodId, int studentId);
+        void SaveGrowWalletPaymentMethod(BLLPaymentMethod paymentMethod);
+
     }
 }

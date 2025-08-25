@@ -286,6 +286,7 @@ namespace BLL.Services
                 {
                     StudentId = item.StudentId,
                     StudentName = dal.Students.GetById(item.StudentId).FirstName + " " + dal.Students.GetById(item.StudentId).LastName,
+                    Student = dal.Students.GetById(item.StudentId),
                     EnrollmentDate = item.EnrollmentDate,
                     IsActive = item.IsActive,
                     DayOfWeek = d.DayOfWeek,

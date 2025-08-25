@@ -40,22 +40,37 @@ namespace BLL.Services
 
         public List<BLLPaymentMethod> Get()
         {
-            return dal.PaymentMethods.Get().Select(pm => new BLLPaymentMethod()
+            try
             {
-                PaymentMethodId = pm.PaymentMethodId,
-                StudentId = pm.StudentId,
-                MethodType = pm.MethodType,
-                IsDefault = pm.IsDefault,
-                IsActive = pm.IsActive,
-                CreatedAt = pm.CreatedAt,
-                UpdatedAt = pm.UpdatedAt,
-                LastFourDigits = pm.LastFourDigits,
-                CardType = pm.CardType,
-                ExpiryMonth = pm.ExpiryMonth,
-                ExpiryYear = pm.ExpiryYear,
-                BankName = pm.BankName,
-                AccountHolderName = pm.AccountHolderName
-            }).ToList();
+                var paymentMethods = dal.PaymentMethods.Get();
+                if (paymentMethods == null || !paymentMethods.Any())
+                {
+                    Console.WriteLine("No payment methods found.");
+                    return new List<BLLPaymentMethod>(); // מחזיר מערך ריק
+                }
+
+                return paymentMethods.Select(pm => new BLLPaymentMethod
+                {
+                    PaymentMethodId = pm.PaymentMethodId,
+                    StudentId = pm.StudentId,
+                    MethodType = pm.MethodType,
+                    IsDefault = pm.IsDefault,
+                    IsActive = pm.IsActive,
+                    CreatedAt = pm.CreatedAt,
+                    UpdatedAt = pm.UpdatedAt,
+                    LastFourDigits = pm.LastFourDigits,
+                    CardType = pm.CardType,
+                    ExpiryMonth = pm.ExpiryMonth,
+                    ExpiryYear = pm.ExpiryYear,
+                    BankName = pm.BankName,
+                    AccountHolderName = pm.AccountHolderName
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching payment methods: {ex.Message}");
+                return new List<BLLPaymentMethod>(); // מחזיר מערך ריק במקרה של שגיאה
+            }
         }
 
         public List<BLLPaymentMethod> GetByStudentId(int studentId)
@@ -130,5 +145,21 @@ namespace BLL.Services
         {
             dal.PaymentMethods.SetAsDefault(paymentMethodId, studentId);
         }
+        public void SaveGrowWalletPaymentMethod(BLLPaymentMethod paymentMethod)
+        {
+            PaymentMethod pm = new PaymentMethod()
+            {
+                StudentId = paymentMethod.StudentId,
+                MethodType = "GROW_WALLET",
+                IsDefault = paymentMethod.IsDefault,
+                IsActive = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                LastFourDigits = paymentMethod.LastFourDigits ?? string.Empty,
+                CardType = paymentMethod.CardType ?? string.Empty
+            };
+            dal.PaymentMethods.Create(pm);
+        }
+
     }
 }

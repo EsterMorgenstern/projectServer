@@ -76,5 +76,10 @@ namespace DAL.Services
             var payments = dbcontext.Payments.Where(x => x.PaymentMethodId == paymentMethodId).ToList();
             return payments;
         }
+        public Payment GetByTransactionId(string transactionId)
+        {
+            return dbcontext.Payments.SingleOrDefault(x => x.TransactionId == transactionId);
+        }
+
     }
 }

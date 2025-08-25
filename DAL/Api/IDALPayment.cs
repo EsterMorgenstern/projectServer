@@ -11,5 +11,7 @@ namespace DAL.Api
         Payment GetById(int paymentId);
         void Update(Payment payment);
         List<Payment> GetByPaymentMethodId(int paymentMethodId);
+        Payment GetByTransactionId(string transactionId);
+
     }
 }

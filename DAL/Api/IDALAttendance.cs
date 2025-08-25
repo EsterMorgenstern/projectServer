@@ -10,7 +10,7 @@ namespace DAL.Api
         List<Attendance> GetAttendanceByGroupAndDate(int groupId, DateOnly date);
         List<Attendance> GetByGroupAndDateRange(int groupId, DateOnly startDate, DateOnly endDate);
         void DeleteByGroupAndDate(int groupId, DateOnly date);
-        void Delete(Attendance attendance);
+        void Delete(int attendanceId);
         void Update(Attendance attendance);
         List<Attendance> GetAttendanceByStudent(int studentId);
         List<Attendance> GetAttendanceByStudentAndDateRange(int studentId, DateOnly startDate, DateOnly endDate);

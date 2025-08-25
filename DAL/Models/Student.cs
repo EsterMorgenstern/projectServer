@@ -27,6 +27,7 @@ public partial class Student
 
     public DateOnly? LastActivityDate { get; set; }
     public string? Status { get; set; }
+    public string? Email { get; set; }
 
 
     public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();

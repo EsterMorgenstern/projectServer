@@ -18,9 +18,9 @@ namespace DAL.Services
             dbcontext.SaveChanges();
         }
 
-        public void Delete(Attendance attendance)
+        public void Delete(int attendanceId)
         {
-            var trackedAttendance = dbcontext.Attendances.SingleOrDefault(x => x.AttendanceId == attendance.AttendanceId);
+            var trackedAttendance = dbcontext.Attendances.SingleOrDefault(x => x.AttendanceId ==attendanceId);
             if (trackedAttendance != null)
             {
                 dbcontext.Attendances.Remove(trackedAttendance);

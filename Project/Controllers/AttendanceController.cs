@@ -56,11 +56,11 @@ namespace server.controllers
         }
 
         [HttpDelete("Delete")]
-        public IActionResult Delete(BLLAttendance attendance)
+        public IActionResult Delete(int attendanceId)
         {
             try
             {
-                attendances.Delete(attendance);
+                attendances.Delete(attendanceId);
                 return Ok("נוכחות נמחקה בהצלחה");
             }
             catch (Exception ex)

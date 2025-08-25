@@ -1,10 +1,13 @@
-﻿namespace BLL.Models
+﻿using DAL.Models;
+
+namespace BLL.Models
 {
     public class BLLGroupStudentPerfect
     {
         public int GroupStudentId { get; set; }
         public int StudentId { get; set; }
         public string StudentName { get; set; } =string.Empty;
+        public required Student Student { get; set; }
         public DateOnly? EnrollmentDate { get; set; }
         public bool? IsActive { get; set; }
         public string DayOfWeek { get; set; } = null!;

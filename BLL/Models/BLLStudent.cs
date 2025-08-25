@@ -14,6 +14,7 @@
         public string Sector { get; set; } = string.Empty;
         public DateTime LastActivityDate { get; set; }
         public string Status { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
 
     }
 }
