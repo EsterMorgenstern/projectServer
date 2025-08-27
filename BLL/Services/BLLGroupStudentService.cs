@@ -22,7 +22,7 @@ namespace BLL.Services
             { 
                 GroupId = groupStudent.GroupId,
                 StudentId = groupStudent.StudentId,
-                IsActive = false,
+                IsActive = dal.Students.GetById(groupStudent.StudentId).Status == "פעיל",
                 EnrollmentDate = DateOnly.FromDateTime(DateTime.Now)
             };
             dal.GroupStudents.Create(g);
@@ -207,7 +207,7 @@ namespace BLL.Services
             }).ToList();
         }
 
-        public void Update(BLLGroupStudent groupStudent)
+        public void Update(BLLGroupStudentSecondly groupStudent)
         {
             var existingGroupStudent = dal.GroupStudents.GetById(groupStudent.GroupStudentId);
             if (existingGroupStudent == null)
@@ -215,7 +215,10 @@ namespace BLL.Services
                 throw new KeyNotFoundException($"GroupStudent with ID {groupStudent.GroupStudentId} not found.");
             }
 
-            existingGroupStudent.GroupId = groupStudent.GroupId;
+            existingGroupStudent.GroupId = dal.Groups.Get()
+                .Where(x => x.GroupName == groupStudent.GroupName)
+                .Select(x => x.GroupId)
+                .FirstOrDefault();
             existingGroupStudent.StudentId = groupStudent.StudentId;
             existingGroupStudent.EnrollmentDate = groupStudent.EnrollmentDate;
             existingGroupStudent.IsActive = groupStudent.IsActive;

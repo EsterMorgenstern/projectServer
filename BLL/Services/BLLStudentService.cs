@@ -29,11 +29,13 @@ namespace BLL.Services
                 School = student.School,
                 HealthFund = student.HealthFund,
                 Phone = student.Phone,
+                SecondaryPhone = student.SecondaryPhone,
                 Class = student.Class,
                 Sector = student.Sector,
                 LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate),
                 Status=student.Status,
-                Email=student.Email
+                Email=student.Email,
+                CreatedBy=student.CreatedBy
             };
             dal.Students.Create(p);
         }
@@ -60,6 +62,7 @@ namespace BLL.Services
                     FirstName = p.FirstName ?? "",
                     LastName = p.LastName ?? "",
                     Phone = p.Phone.ToString(),
+                    SecondaryPhone = p.SecondaryPhone?.ToString() ?? "",
                     Age = p.Age,
                     City = p.City ?? "",
                     School = p.School ?? "",
@@ -68,7 +71,8 @@ namespace BLL.Services
                     Sector = p.Sector ?? "",
                     LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
                     Status=p.Status?? "",
-                    Email=p.Email ?? ""
+                    Email=p.Email ?? "",
+                    CreatedBy=p.CreatedBy ?? ""
                 }));
                 return list;
             }
@@ -92,6 +96,7 @@ namespace BLL.Services
                         FirstName = p.FirstName ?? "",
                         LastName = p.LastName ?? "",
                         Phone = p.Phone.ToString(),
+                        SecondaryPhone = p.SecondaryPhone?.ToString() ?? "",
                         Age = p.Age,
                         City = p.City ?? "",
                         School = p.School ?? "",
@@ -100,7 +105,8 @@ namespace BLL.Services
                         Sector = p.Sector ?? "",
                         LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
                         Status=p.Status ?? "",
-                        Email=p.Email ?? ""
+                        Email=p.Email ?? "",
+                        CreatedBy=p.CreatedBy??""
                     };
                 }
 
@@ -111,6 +117,7 @@ namespace BLL.Services
                     FirstName = "",
                     LastName = "",
                     Phone = "",
+                    SecondaryPhone="",
                     Age = 0,
                     City = "",
                     School = "",
@@ -119,7 +126,8 @@ namespace BLL.Services
                     Sector = "",
                     LastActivityDate = DateTime.MinValue,
                     Status="",
-                    Email=""
+                    Email="",
+                    CreatedBy=""
                 };
             }
             catch (Exception ex)
@@ -131,6 +139,7 @@ namespace BLL.Services
                     FirstName = "",
                     LastName = "",
                     Phone = "",
+                    SecondaryPhone = "",
                     Age = 0,
                     City = "",
                     School = "",
@@ -139,7 +148,8 @@ namespace BLL.Services
                     Sector = "",
                     LastActivityDate = DateTime.MinValue,
                     Status="",
-                    Email=""
+                    Email="",
+                    CreatedBy=""
 
                 };
             }
@@ -177,6 +187,7 @@ namespace BLL.Services
             m.FirstName = student.FirstName;
             m.LastName = student.LastName;
             m.Phone = student.Phone; 
+            m.SecondaryPhone = student.SecondaryPhone;
             m.Age = student.Age; 
             m.City = student.City;
             m.School = student.School;
@@ -186,6 +197,7 @@ namespace BLL.Services
             m.LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate);
             m.Status = student.Status;
             m.Email = student.Email;
+            m.CreatedBy = student.CreatedBy;
 
             dal.Students.Update(m);
         }

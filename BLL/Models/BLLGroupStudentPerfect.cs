@@ -18,4 +18,14 @@ namespace BLL.Models
         public string InstructorName { get; set; } = string.Empty;
 
     }
+    public class BLLGroupStudentSecondly
+    {
+        public int GroupStudentId { get; set; }
+        public int StudentId { get; set; }
+        public string? GroupName { get; set; }
+        public DateOnly? EnrollmentDate { get; set; }
+        public bool? IsActive { get; set; }
+        public Student? Student { get; set; } // Make this property optional
+    }
+
 }

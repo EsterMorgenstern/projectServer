@@ -37,15 +37,11 @@ namespace server.controllers
             groupStudents.Create(groupStudent);
         }
         [HttpPut("Update")]
-        public void Update(BLLGroupStudent groupStudent)
+        public void Update(BLLGroupStudentSecondly groupStudent)
         {
             groupStudents.Update(groupStudent);
         }
-        //[HttpDelete("Delete")]
-        //public void Delete(BLLGroupStudent groupStudent)
-        //{
-        //    groupStudents.Delete(groupStudent.StudentId);
-        //}
+        
         [HttpDelete("Delete")]
         public void Delete(int gsId)
         {

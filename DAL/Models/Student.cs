@@ -12,6 +12,7 @@ public partial class Student
     public string LastName { get; set; } = null!;
 
     public string Phone { get; set; } = null!;
+    public string? SecondaryPhone { get; set; } 
 
     public int Age { get; set; }
 
@@ -28,6 +29,7 @@ public partial class Student
     public DateOnly? LastActivityDate { get; set; }
     public string? Status { get; set; }
     public string? Email { get; set; }
+    public string? CreatedBy { get; set; }
 
 
     public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
