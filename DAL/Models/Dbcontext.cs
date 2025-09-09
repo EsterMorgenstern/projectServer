@@ -39,7 +39,7 @@ public partial class dbcontext : DbContext
                 .Build();
             var connectionString = configuration.GetConnectionString("DefaultConnection");
             optionsBuilder.UseSqlServer(connectionString);
-        }
+        }   
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

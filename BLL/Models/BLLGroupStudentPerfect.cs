@@ -5,6 +5,7 @@ namespace BLL.Models
     public class BLLGroupStudentPerfect
     {
         public int GroupStudentId { get; set; }
+        public int GroupId { get; set; }
         public int StudentId { get; set; }
         public string StudentName { get; set; } =string.Empty;
         public required Student Student { get; set; }

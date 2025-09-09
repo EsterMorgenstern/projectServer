@@ -301,6 +301,65 @@ namespace BLL.Services
             return lstgp;
         }
 
+        /// <summary>
+        /// החזרת רשימת תלמידים לפי קבוצה
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns>List<BLLGroupWithStudentsDto></returns>
+        public BLLGroupWithStudentsDto GetGroupWithStudentsById(int groupId)
+        {
+            // Fetch the group by ID
+            var group = dal.Groups.GetById(groupId);
+            if (group == null)
+                return null;
+
+            // Pre-fetch all required data in bulk to minimize database calls
+            var allStudents = dal.Students.Get(); // Fetch all students once
+            var allCourses = dal.Courses.Get(); // Fetch all courses once
+            var allBranches = dal.Branches.Get(); // Fetch all branches once
+            var allInstructors = dal.Instructors.Get(); // Fetch all instructors once
+            var allGroupStudents = dal.GroupStudents.Get(); // Fetch all group-student mappings once
+
+            // Filter students for the current group
+            var students = allGroupStudents
+                .Where(gs => gs.GroupId == group.GroupId)
+                .Select(s =>
+                {
+                    var student = allStudents.FirstOrDefault(st => st.Id == s.StudentId);
+                    return new StudentDto
+                    {
+                        StudentId = s.StudentId,
+                        StudentName = student != null ? $"{student.FirstName} {student.LastName}" : string.Empty,
+                        Phone = student?.Phone,
+                        City=student?.City,
+                    };
+                })
+                .ToList();
+
+            // Fetch related data for the group
+            var course = allCourses.FirstOrDefault(c => c.CourseId == group.CourseId);
+            var branch = allBranches.FirstOrDefault(b => b.BranchId == group.BranchId);
+            var instructor = allInstructors.FirstOrDefault(i => i.Id == group.InstructorId);
+
+            // Build the result
+            return new BLLGroupWithStudentsDto
+            {
+                GroupId = group.GroupId,
+                GroupName = group.GroupName,
+                CourseName = course?.CouresName,
+                BranchName = branch?.Name,
+                AgeRange=group.AgeRange,
+                LessonsCompleted=group.LessonsCompleted,
+                MaxStudents=group.MaxStudents,
+                NumOfLessons=group.NumOfLessons,
+                Sector=group.Sector,
+                StartDate=group.StartDate,
+                Schedule = $"{group.DayOfWeek} {group.Hour?.ToString("HH:mm")}",
+                InstructorName = instructor != null ? $"{instructor.FirstName} {instructor.LastName}" : string.Empty,
+                Students = students
+            };
+        }
+
         public List<BLLGroupDetailsPerfect> FindBestGroupsForStudent(int studentId, int maxResults = 5)
         {
             var student = dal.Students.GetById(studentId);
@@ -538,6 +597,65 @@ namespace BLL.Services
         }
 
 
+
+        public List<BLLGroupWithStudentsDto> GetAllGroupsWithStudentsSortedByCourse()
+        {
+            var groups = dal.Groups.Get();
+            if (groups == null || !groups.Any())
+                return new List<BLLGroupWithStudentsDto>();
+
+            // Pre-fetch all required data in bulk to minimize database calls
+            var allStudents = dal.Students.Get(); // Fetch all students once
+            var allCourses = dal.Courses.Get(); // Fetch all courses once
+            var allBranches = dal.Branches.Get(); // Fetch all branches once
+            var allInstructors = dal.Instructors.Get(); // Fetch all instructors once
+            var allGroupStudents = dal.GroupStudents.Get(); // Fetch all group-student mappings once
+
+            var result = groups
+                .Select(g =>
+                {
+                    // Filter students for the current group
+                    var students = allGroupStudents
+                        .Where(gs => gs.GroupId == g.GroupId)
+                        .Select(s =>
+                        {
+                            var student = allStudents.FirstOrDefault(st => st.Id == s.StudentId);
+                            return new StudentDto
+                            {
+                                StudentId = s.StudentId,
+                                StudentName = student != null ? $"{student.FirstName} {student.LastName}" : string.Empty,
+                                Phone = student?.Phone
+                            };
+                        })
+                        .ToList();
+
+                    // Fetch related data for the group
+                    var course = allCourses.FirstOrDefault(c => c.CourseId == g.CourseId);
+                    var branch = allBranches.FirstOrDefault(b => b.BranchId == g.BranchId);
+                    var instructor = allInstructors.FirstOrDefault(i => i.Id == g.InstructorId);
+
+                    return new BLLGroupWithStudentsDto
+                    {
+                        GroupId = g.GroupId,
+                        GroupName = g.GroupName,
+                        CourseName = course?.CouresName,
+                        BranchName = branch?.Name,
+                        AgeRange = g.AgeRange,
+                        LessonsCompleted = g.LessonsCompleted,
+                        MaxStudents = g.MaxStudents,
+                        NumOfLessons = g.NumOfLessons,
+                        Sector = g.Sector,
+                        StartDate = g.StartDate,
+                        Schedule = $"{g.DayOfWeek} {g.Hour?.ToString("HH:mm")}",
+                        InstructorName = instructor != null ? $"{instructor.FirstName} {instructor.LastName}" : string.Empty,
+                        Students = students
+                    };
+                })
+                .OrderBy(g => g.CourseName)
+                .ToList();
+
+            return result;
+        }
 
 
     }

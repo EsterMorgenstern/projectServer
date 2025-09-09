@@ -1,5 +1,6 @@
 ﻿using BLL.Api;
 using BLL.Models;
+using BLL.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace server.controllers
@@ -58,6 +59,16 @@ namespace server.controllers
             return groups.FindBestGroupForStudent(studentId);
 
 
+        }
+        [HttpGet("GetAllGroupsWithStudentsSortedByCourse")]
+        public List<BLLGroupWithStudentsDto> GetAllGroupsWithStudentsSortedByCourse()
+        {
+            return groups.GetAllGroupsWithStudentsSortedByCourse();
+        }
+        [HttpGet("GetGroupWithStudentsById/{groupId}")]
+        public BLLGroupWithStudentsDto GetGroupWithStudentsById(int groupId)
+        {
+            return groups.GetGroupWithStudentsById(groupId);
         }
 
         [HttpPost("Add")]

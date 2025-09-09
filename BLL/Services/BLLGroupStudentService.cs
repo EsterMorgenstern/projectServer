@@ -23,7 +23,7 @@ namespace BLL.Services
                 GroupId = groupStudent.GroupId,
                 StudentId = groupStudent.StudentId,
                 IsActive = dal.Students.GetById(groupStudent.StudentId).Status == "פעיל",
-                EnrollmentDate = DateOnly.FromDateTime(DateTime.Now)
+                EnrollmentDate = groupStudent.EnrollmentDate ?? DateOnly.FromDateTime(DateTime.Now)
             };
             dal.GroupStudents.Create(g);
 
@@ -150,6 +150,7 @@ namespace BLL.Services
                     return new BLLGroupStudentPerfect
                     {
                         GroupStudentId = item.GroupStudentId,
+                        GroupId=item.GroupId,
                         StudentId = item.StudentId,
                         StudentName = $"{dal.Students.GetById(item.StudentId).FirstName} {dal.Students.GetById(item.StudentId).LastName}",
                         Student=dal.Students.GetById(item.StudentId),
