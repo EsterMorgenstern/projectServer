@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BLL.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using BLL.Models;
 
 namespace BLL.Api
 {
@@ -12,12 +6,12 @@ namespace BLL.Api
     {
         List<BLLAttendance> Get();
         void Create(BLLAttendance attendance);
-         BLLAttendance GetById(int id);
-         List<BLLAttendanceRecord> GetAttendanceByGroupAndDate(int groupId, DateOnly date);
-         Dictionary<DateOnly, List<BLLAttendanceRecord>> GetAttendanceByGroupAndDateRange(
-              int groupId, DateOnly startDate, DateOnly endDate);
-         void DeleteByGroupAndDate(int groupId,DateOnly date);
-         void Delete(int attendanceId);
+        BLLAttendance GetById(int id);
+        List<BLLAttendanceRecord> GetAttendanceByGroupAndDate(int groupId, DateOnly date);
+        Dictionary<DateOnly, List<BLLAttendanceRecord>> GetAttendanceByGroupAndDateRange(
+             int groupId, DateOnly startDate, DateOnly endDate);
+        void DeleteByGroupAndDate(int groupId, DateOnly date);
+        void Delete(int attendanceId);
         void Update(BLLAttendance attendance);
         bool SaveAttendanceForDate(int groupId, DateOnly date, List<BLLAttendanceRecord> attendanceRecords);
         List<BLLAttendance> GetAttendanceByStudent(int studentId);
@@ -30,8 +24,10 @@ namespace BLL.Api
         BLLOverallStatistics GetOverallStatistics(int? month = null, int? year = null);
         bool DeleteAttendanceByGroupAndDate(int groupId, DateOnly date);
         bool IsAttendanceMarkedForGroup(int groupId, DateOnly date);
-        public bool IsAttendanceMarkedForDay(DateOnly date);
-        public void AutoMarkDailyAttendance();
+        bool IsAttendanceMarkedForDay(DateOnly date);
+        void AutoMarkDailyAttendance();
+        void MarkAttendanceForDate(DateOnly date);
+
 
 
     }

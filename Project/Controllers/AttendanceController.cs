@@ -296,6 +296,20 @@ namespace server.controllers
                 return BadRequest($"שגיאה בסימון נוכחות יומית: {ex.Message}");
             }
         }
+        [HttpPost("MarkAttendanceForDate")]
+
+        public IActionResult MarkAttendanceForDate(DateOnly date)
+        {
+            try
+            {
+                attendances.MarkAttendanceForDate(date);
+                return Ok("נוכחות יומית סומנה בהצלחה.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"שגיאה בסימון נוכחות יומית: {ex.Message}");
+            }
+        }
 
 
     }

@@ -30,6 +30,7 @@ builder.Services.AddScoped<IDAL, DALManager>();
 // Register BLL services
 //builder.Services.AddScoped<IBLLAttendance, BLLAttendanceService>();
 builder.Services.AddScoped<IBLL, BLLManager>();
+builder.Services.AddScoped<IBLLAttendance, BLLAttendanceService>();
 
 // Register hosted services
 builder.Services.AddHostedService<DailyAttendanceMarker>();

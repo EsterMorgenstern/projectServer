@@ -23,14 +23,17 @@ public class DailyAttendanceMarker : BackgroundService
     /// <returns>A task that represents the background operation.</returns>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        Console.WriteLine("DailyAttendanceMarker: Service started.");
+
         while (!stoppingToken.IsCancellationRequested)
         {
             var now = DateTime.Now;
-            var nextRun = now.Date.AddHours(23).AddMinutes(59);
+            var nextRun = now.Date.AddHours(18).AddMinutes(20);
             if (now > nextRun)
             {
-                nextRun = nextRun.AddDays(1);
+                nextRun = nextRun.AddDays(1).AddHours(18).AddMinutes(20);
             }
+
 
             var delay = nextRun - now;
 
