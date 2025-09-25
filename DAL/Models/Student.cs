@@ -30,6 +30,7 @@ public partial class Student
     public string? Status { get; set; }
     public string? Email { get; set; }
     public string? CreatedBy { get; set; }
+    public string? IdentityCard { get; set; }
 
 
     public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();

@@ -35,7 +35,8 @@ namespace BLL.Services
                 LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate),
                 Status=student.Status,
                 Email=student.Email,
-                CreatedBy=student.CreatedBy
+                CreatedBy=student.CreatedBy,
+                IdentityCard = student.IdentityCard
             };
             dal.Students.Create(p);
         }
@@ -72,7 +73,8 @@ namespace BLL.Services
                     LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
                     Status=p.Status?? "",
                     Email=p.Email ?? "",
-                    CreatedBy=p.CreatedBy ?? ""
+                    CreatedBy=p.CreatedBy ?? "",
+                    IdentityCard = p.IdentityCard ?? ""
                 }));
                 return list;
             }
@@ -106,7 +108,8 @@ namespace BLL.Services
                         LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
                         Status=p.Status ?? "",
                         Email=p.Email ?? "",
-                        CreatedBy=p.CreatedBy??""
+                        CreatedBy=p.CreatedBy??"",
+                        IdentityCard = p.IdentityCard ?? ""
                     };
                 }
 
@@ -127,7 +130,8 @@ namespace BLL.Services
                     LastActivityDate = DateTime.MinValue,
                     Status="",
                     Email="",
-                    CreatedBy=""
+                    CreatedBy="",
+                    IdentityCard = ""
                 };
             }
             catch (Exception ex)
@@ -149,7 +153,8 @@ namespace BLL.Services
                     LastActivityDate = DateTime.MinValue,
                     Status="",
                     Email="",
-                    CreatedBy=""
+                    CreatedBy="",
+                    IdentityCard = ""
 
                 };
             }
@@ -198,6 +203,7 @@ namespace BLL.Services
             m.Status = student.Status;
             m.Email = student.Email;
             m.CreatedBy = student.CreatedBy;
+            m.IdentityCard = student.IdentityCard;
 
             dal.Students.Update(m);
         }

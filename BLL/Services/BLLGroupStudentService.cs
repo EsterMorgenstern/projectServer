@@ -33,6 +33,12 @@ namespace BLL.Services
                 gl.MaxStudents = (gl.MaxStudents ?? 0) - 1;
                 dal.Groups.Update(gl);
             }
+            var branch =dal.Branches.Get().ToList().Find(x => x.BranchId == gl?.BranchId);
+            if (branch != null)
+            {
+                branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) + 1;
+                dal.Branches.Update(branch);
+            }
         }
 
         public void Delete(int id)
@@ -50,6 +56,12 @@ namespace BLL.Services
             {
                 group.MaxStudents = (group.MaxStudents ?? 0) + 1;
                 dal.Groups.Update(group);
+            }
+            var branch = dal.Branches.Get().ToList().Find(x => x.BranchId == group?.BranchId);
+            if (branch != null)
+            {
+                branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) - 1;
+                dal.Branches.Update(branch);
             }
         }
 
@@ -69,6 +81,12 @@ namespace BLL.Services
             {
                 group.MaxStudents = (group.MaxStudents ?? 0) + 1;
                 dal.Groups.Update(group);
+            }
+            var branch = dal.Branches.Get().ToList().Find(x => x.BranchId == group?.BranchId);
+            if (branch != null)
+            {
+                branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) -1;
+                dal.Branches.Update(branch);
             }
         }
 
