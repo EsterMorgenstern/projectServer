@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DAL.Models;
+﻿namespace DAL.Models;
 
 public partial class Student
 {
@@ -12,7 +9,7 @@ public partial class Student
     public string LastName { get; set; } = null!;
 
     public string Phone { get; set; } = null!;
-    public string? SecondaryPhone { get; set; } 
+    public string? SecondaryPhone { get; set; }
 
     public int Age { get; set; }
 
@@ -40,4 +37,6 @@ public partial class Student
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
     public virtual ICollection<PaymentMethod> PaymentMethods { get; set; } = new List<PaymentMethod>();
     public virtual ICollection<StudentNote> StudentNotes { get; set; } = new List<StudentNote>();
+    public ICollection<StudentHealthFund> StudentHealthFunds { get; set; }
+
 }

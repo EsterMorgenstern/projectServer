@@ -2,18 +2,22 @@
 {
     public interface IDAL
     {
-        public IDALStudent Students { get; }
-        public IDALInstructor Instructors { get; }
-        public IDALCourse Courses { get; }
-        public IDALGroup Groups { get; }
-        public IDALAttendance Attendances { get; }
-        public IDALGroupStudent GroupStudents { get; }
-        public IDALBranch Branches { get; }
-        public IDALStudentNote StudentNotes { get; }
-        public IDALUser Users { get; }
-        public IDALLessonCancellations LessonCancellations { get; }
-        public IDALPaymentMethod PaymentMethods { get; }
-        public IDALPayment Payments { get; }
-        public IDALGrowPayment PaymentGrow { get; }
+        IDALStudent Students { get; }
+        IDALInstructor Instructors { get; }
+        IDALCourse Courses { get; }
+        IDALGroup Groups { get; }
+        IDALAttendance Attendances { get; }
+        IDALGroupStudent GroupStudents { get; }
+        IDALBranch Branches { get; }
+        IDALStudentNote StudentNotes { get; }
+        IDALUser Users { get; }
+        IDALLessonCancellations LessonCancellations { get; }
+        IDALPaymentMethod PaymentMethods { get; }
+        IDALPayment Payments { get; }
+        IDALGrowPayment PaymentGrow { get; }
+        IDALHealthFund HealthFunds { get; }
+        IDALStudentHealthFund StudentHealthFunds { get; }
+        IDALReportedDate ReportedDates { get; } 
+        IDALUnreportedDate UnreportedDates { get; }   
     }
 }

@@ -28,7 +28,10 @@ public partial class dbcontext : DbContext
     public virtual DbSet<StudentNote> StudentNotes { get; set; }
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<LessonCancellations> LessonCancellations { get; set; }
-
+    public virtual DbSet<HealthFund> HealthFunds { get; set; }
+    public virtual DbSet<StudentHealthFund> StudentHealthFunds { get; set; }
+    public virtual DbSet<ReportedDate> ReportedDates { get; set; }
+    public virtual DbSet<UnreportedDate> UnreportedDates {  get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -212,7 +215,7 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.FirstName).HasMaxLength(20);
             entity.Property(e => e.Class).HasMaxLength(10);
             entity.Property(e => e.HealthFund).HasMaxLength(50);
-            entity.Property(e => e.LastName).HasMaxLength(20);
+            entity.Property(e => e.LastName);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.SecondaryPhone).HasMaxLength(20);
             entity.Property(e => e.School).HasMaxLength(20);
@@ -220,6 +223,7 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.Status).HasMaxLength(30); 
             entity.Property(e => e.Email);
             entity.Property(e => e.CreatedBy);
+            entity.Property(e => e.IdentityCard).HasMaxLength(20);
         });
 
         modelBuilder.Entity<StudentNote>(entity =>
@@ -276,6 +280,54 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.Role).HasMaxLength(20);
         });
+        modelBuilder.Entity<HealthFund>(entity =>
+        {
+            entity.HasKey(e => e.HealthFundId);
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.FundType).HasMaxLength(100);
+            entity.Property(e => e.PricePerLesson).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.MonthlyPrice).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.RequiresReferral).HasDefaultValue(false);
+            entity.Property(e => e.RequiresCommitment).HasDefaultValue(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<StudentHealthFund>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.StartDate).HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.TreatmentsUsed).HasDefaultValue(0);
+            entity.Property(e => e.ReportedTreatments).HasDefaultValue(0);
+
+            entity.HasOne(d => d.Student)
+                .WithMany(p => p.StudentHealthFunds)
+                .HasForeignKey(d => d.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(d => d.HealthFund)
+                .WithMany(p => p.StudentHealthFunds)
+                .HasForeignKey(d => d.HealthFundId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<ReportedDate>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.DateReported).IsRequired();
+            entity.HasOne(d => d.StudentHealthFund)
+                .WithMany(p => p.ReportedDates)
+                .HasForeignKey(d => d.StudentHealthFundId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<UnreportedDate>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.DateUnreported).IsRequired();
+            entity.HasOne(d => d.StudentHealthFund)
+                .WithMany(p => p.UnreportedDates)
+                .HasForeignKey(d => d.StudentHealthFundId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
 
         OnModelCreatingPartial(modelBuilder);
     }

@@ -14,6 +14,8 @@
         public IBLLLessonCancellations LessonCancellations { get; }
         public IBLLPaymentMethod PaymentMethods { get; }
         public IBLLPayment Payments { get; }
+        public IBLLHealthFund HealthFunds { get; }
+        public IBLLStudentHealthFund StudentHealthFunds { get; }
 
     }
 }

@@ -161,9 +161,9 @@ namespace BLL.Services
         }
 
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var attendances= dal.Attendances.GetAttendanceByStudent(id);
+            var attendances=await dal.Attendances.GetAttendanceByStudent(id);
             foreach (var item in attendances)
             {
                 dal.Attendances.Delete(item.AttendanceId);
@@ -180,7 +180,15 @@ namespace BLL.Services
                 var group = dal.Groups.GetById(item.GroupId);
                 group.MaxStudents = (group.MaxStudents ?? 0) + 1;
                 dal.Groups.Update(group);
+
+                var branch = dal.Branches.Get().ToList().Find(x => x.BranchId == group?.BranchId);
+                if (branch != null)
+                {
+                    branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) - 1;
+                    dal.Branches.Update(branch);
+                }
             }
+
            
             dal.Students.Delete(id);
         }

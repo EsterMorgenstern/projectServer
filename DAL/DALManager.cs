@@ -26,6 +26,10 @@ namespace DAL
             PaymentMethods = new DALPaymentMethodService(data);
             Payments = new DALPaymentService(data);
             PaymentGrow = new DALGrowPaymentService(httpClient); // העברת HttpClient ל-DALGrowPaymentService
+            HealthFunds = new DALHealthFundService(data);
+            StudentHealthFunds = new DALStudentHealthFundService(data);
+            ReportedDates = new DALReportedDateService(data);
+            UnreportedDates = new DALUnreportedDateService(data);
         }
 
         public IDALStudent Students { get; }
@@ -41,5 +45,9 @@ namespace DAL
         public IDALPaymentMethod PaymentMethods { get; }
         public IDALPayment Payments { get; }
         public IDALGrowPayment PaymentGrow { get; }
+        public IDALHealthFund HealthFunds { get; }
+        public IDALStudentHealthFund StudentHealthFunds { get; }
+        public IDALReportedDate ReportedDates { get; }
+        public IDALUnreportedDate UnreportedDates { get; }
     }
 }

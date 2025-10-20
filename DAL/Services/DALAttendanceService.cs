@@ -83,7 +83,7 @@ namespace DAL.Services
                                                    x.Date <= endDate).ToList();
         }
 
-        public List<Attendance> GetAttendanceByStudent(int studentId)
+        public async Task<List<Attendance>> GetAttendanceByStudent(int studentId)
         {
             return dbcontext.Attendances.Where(x => x.StudentId == studentId).ToList();
         }

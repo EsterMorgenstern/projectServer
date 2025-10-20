@@ -28,10 +28,10 @@ public class DailyAttendanceMarker : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             var now = DateTime.Now;
-            var nextRun = now.Date.AddHours(18).AddMinutes(20);
+            var nextRun = now.Date.AddHours(18).AddMinutes(00);
             if (now > nextRun)
             {
-                nextRun = nextRun.AddDays(1).AddHours(18).AddMinutes(20);
+                nextRun = nextRun.AddDays(1).AddHours(18).AddMinutes(00);
             }
 
 

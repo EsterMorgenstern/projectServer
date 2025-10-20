@@ -35,7 +35,7 @@ namespace BLL.Services
         /// <param name="attendance"></param>
         public void Delete(int attendanceId)
         {
-           
+
             dal.Attendances.Delete(attendanceId);
         }
         /// <summary>
@@ -138,7 +138,7 @@ namespace BLL.Services
         }
         /// <summary>
         /// בדיקה אם קיימת נוכחות עבור הקבוצה בתאריך המסוים
-                /// </summary>
+        /// </summary>
         /// <param name="groupId"></param>
         /// <param name="date"></param>
         /// <returns></returns>
@@ -191,7 +191,7 @@ namespace BLL.Services
                 if (groups == null || !groups.Any())
                 {
                     Console.WriteLine($"No groups found for date {date}");
-                    return true; 
+                    return true;
                 }
 
                 // בדיקה עבור כל קבוצה
@@ -271,11 +271,11 @@ namespace BLL.Services
             }
         }
 
-        public List<BLLAttendance> GetAttendanceByStudent(int studentId)
+        public async Task<List<BLLAttendance>> GetAttendanceByStudent(int studentId)
         {
             try
             {
-                var attendanceRecords = dal.Attendances.GetAttendanceByStudent(studentId);
+                var attendanceRecords = await dal.Attendances.GetAttendanceByStudent(studentId);
                 if (attendanceRecords == null || !attendanceRecords.Any())
                 {
                     Console.WriteLine($"No attendance records found for student {studentId}");
@@ -420,10 +420,10 @@ namespace BLL.Services
             }
         }
 
-        public BLLStudentAttendanceSummary GetStudentAttendanceSummary(int studentId, int? month = null, int? year = null)
+        public async Task<BLLStudentAttendanceSummary> GetStudentAttendanceSummary(int studentId, int? month = null, int? year = null)
         {
             var student = dal.Students.GetById(studentId);
-            var attendanceRecords = dal.Attendances.GetAttendanceByStudent(studentId);
+            var attendanceRecords = await dal.Attendances.GetAttendanceByStudent(studentId);
 
             if (month.HasValue && year.HasValue)
             {
@@ -451,9 +451,9 @@ namespace BLL.Services
             };
         }
 
-        public List<BLLStudentAttendanceHistory> GetStudentAttendanceHistory(int studentId, int? month = null, int? year = null)
+        public async Task<List<BLLStudentAttendanceHistory>> GetStudentAttendanceHistory(int studentId, int? month = null, int? year = null)
         {
-            var attendanceRecords = dal.Attendances.GetAttendanceByStudent(studentId);
+            var attendanceRecords =await dal.Attendances.GetAttendanceByStudent(studentId);
 
             if (month.HasValue && year.HasValue)
             {
@@ -470,9 +470,9 @@ namespace BLL.Services
                 try
                 {
                     var group = dal.Groups.GetById(record.GroupId ?? 0);
-                    var course = dal.Courses.GetById(group.CourseId );
-                    var branch = dal.Branches.GetById(group.BranchId );
-                    var instructor = dal.Instructors.GetById(group.InstructorId );
+                    var course = dal.Courses.GetById(group.CourseId);
+                    var branch = dal.Branches.GetById(group.BranchId);
+                    var instructor = dal.Instructors.GetById(group.InstructorId);
 
                     result.Add(new BLLStudentAttendanceHistory
                     {
@@ -487,7 +487,7 @@ namespace BLL.Services
                         Date = record.Date ?? DateOnly.MinValue,
                         LessonTime = group.Hour,
                         IsPresent = record.WasPresent ?? false,
-                        
+
                     });
                 }
                 catch (Exception ex)
@@ -521,8 +521,8 @@ namespace BLL.Services
                 {
                     var attendanceRecords = dal.Attendances.GetByGroupAndDateRange(group.GroupId, startDate, endDate);
                     var groupStudents = dal.Groups.GetStudentsByGroupId(group.GroupId);
-                    var course = dal.Courses.GetById(group.CourseId );
-                    var branch = dal.Branches.GetById(group.BranchId );
+                    var course = dal.Courses.GetById(group.CourseId);
+                    var branch = dal.Branches.GetById(group.BranchId);
 
                     var groupTotalLessons = attendanceRecords.GroupBy(a => a.Date).Count();
                     var groupTotalAttendance = attendanceRecords.Count;
@@ -583,71 +583,7 @@ namespace BLL.Services
         {
             throw new NotImplementedException();
         }
-        /// <summary>
-        /// סימון נוכחות אוטומטי
-        /// </summary>
-        public void AutoMarkDailyAttendance()
-        {
-            var today = DateOnly.FromDateTime(DateTime.Now);
-            Console.WriteLine($"AutoMarkDailyAttendance started for {today}");
-
-            try
-            {
-                var dayName = GetHebrewDayName(today);
-                Console.WriteLine($"Day name for today: {dayName}");
-
-                var groupsWithoutAttendance = dal.Groups.GetGroupsByDayOfWeek(dayName)
-                    .Where(group => !IsAttendanceMarkedForGroup(group.GroupId, today) &&
-                                    !IsGroupCanceledForDay(group.GroupId, today))
-                    .ToList();
-
-                if (!groupsWithoutAttendance.Any())
-                {
-                    Console.WriteLine($"No groups require attendance marking for {today}.");
-                    return;
-                }
-
-                foreach (var group in groupsWithoutAttendance)
-                {
-                    // בדיקה אם תאריך ההתחלה אינו אחרי התאריך הנוכחי
-                    if (group.StartDate.HasValue && group.StartDate > today)
-                    {
-                        Console.WriteLine($"Group {group.GroupId} has not started yet (StartDate: {group.StartDate}). Skipping.");
-                        continue; // דלג על קבוצה זו
-                    }
-
-                    // בדיקה אם כל השיעורים כבר הושלמו
-                    if (group.NumOfLessons.HasValue && group.LessonsCompleted.HasValue &&
-                        group.LessonsCompleted >= group.NumOfLessons)
-                    {
-                        Console.WriteLine($"Group {group.GroupId} has completed all lessons (LessonsCompleted: {group.LessonsCompleted}, NumOfLessons: {group.NumOfLessons}). Skipping.");
-                        continue; // דלג על קבוצה זו
-                    }
-
-                    var students = dal.Groups.GetStudentsByGroupId(group.GroupId);
-
-                    var attendanceRecords = students
-                        .Where(student => !IsAttendanceMarkedForStudent(student.StudentId, group.GroupId, today))
-                        .Select(student => new BLLAttendanceRecord
-                        {
-                            StudentId = student.StudentId,
-                            WasPresent = true
-                        })
-                        .ToList();
-
-                    if (attendanceRecords.Any())
-                    {
-                        SaveAttendanceForDate(group.GroupId, today, attendanceRecords);
-                    }
-                }
-
-                Console.WriteLine($"Successfully marked attendance for {groupsWithoutAttendance.Count} groups on {today}.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in AutoMarkDailyAttendance: {ex.Message}");
-            }
-        }
+      
 
         /// <summary>
         /// בדיקה אם יש ביטול לקבוצה ביום מסוים
@@ -690,16 +626,97 @@ namespace BLL.Services
             }
         }
 
+
+        /// <summary>
+        /// סימון נוכחות אוטומטי
+        /// </summary>
+        public void AutoMarkDailyAttendance()
+        {
+            var today = DateOnly.FromDateTime(DateTime.Now);
+            Console.WriteLine($"AutoMarkDailyAttendance started for {today}");
+
+            try
+            {
+                // בדיקה אם היום חג
+                if (JewishHolidayUtils.IsJewishHoliday(today.ToDateTime(TimeOnly.MinValue)))
+                {
+                    Console.WriteLine($"היום {today} הוא חג/חופש – לא מבצעים נוכחות.");
+                    return;
+                }
+
+                var dayName = GetHebrewDayName(today);
+                Console.WriteLine($"Day name for today: {dayName}");
+
+                var groupsWithoutAttendance = dal.Groups.GetGroupsByDayOfWeek(dayName)
+                    .Where(group => !IsAttendanceMarkedForGroup(group.GroupId, today) &&
+                                    !IsGroupCanceledForDay(group.GroupId, today))
+                    .ToList();
+
+                if (!groupsWithoutAttendance.Any())
+                {
+                    Console.WriteLine($"No groups require attendance marking for {today}.");
+                    return;
+                }
+
+                foreach (var group in groupsWithoutAttendance)
+                {
+                    // בדיקה אם תאריך ההתחלה אינו אחרי התאריך הנוכחי
+                    if (group.StartDate.HasValue && group.StartDate > today)
+                    {
+                        Console.WriteLine($"Group {group.GroupId} has not started yet (StartDate: {group.StartDate}). Skipping.");
+                        continue;
+                    }
+
+                    // בדיקה אם כל השיעורים כבר הושלמו
+                    if (group.NumOfLessons.HasValue && group.LessonsCompleted.HasValue &&
+                        group.LessonsCompleted >= group.NumOfLessons)
+                    {
+                        Console.WriteLine($"Group {group.GroupId} has completed all lessons (LessonsCompleted: {group.LessonsCompleted}, NumOfLessons: {group.NumOfLessons}). Skipping.");
+                        continue;
+                    }
+
+                    var students = dal.Groups.GetStudentsByGroupId(group.GroupId);
+
+                    var attendanceRecords = students
+                        .Where(student => !IsAttendanceMarkedForStudent(student.StudentId, group.GroupId, today) &&
+                                          student.EnrollmentDate.HasValue && student.EnrollmentDate <= today)
+                        .Select(student => new BLLAttendanceRecord
+                        {
+                            StudentId = student.StudentId,
+                            WasPresent = true
+                        })
+                        .ToList();
+
+                    if (attendanceRecords.Any())
+                    {
+                        SaveAttendanceForDate(group.GroupId, today, attendanceRecords);
+                    }
+                }
+
+                Console.WriteLine($"Successfully marked attendance for {groupsWithoutAttendance.Count} groups on {today}.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in AutoMarkDailyAttendance: {ex.Message}");
+            }
+        }
+
         /// <summary>
         /// סימון נוכחות עבור תאריך מסוים
         /// </summary>
-        /// <param name="date">התאריך לסימון הנוכחות</param>
         public void MarkAttendanceForDate(DateOnly date)
         {
             Console.WriteLine($"MarkAttendanceForDate started for {date}");
 
             try
             {
+                // בדיקה אם התאריך חג
+                if (JewishHolidayUtils.IsJewishHoliday(date.ToDateTime(TimeOnly.MinValue)))
+                {
+                    Console.WriteLine($"התאריך {date} הוא חג/חופש – לא מבצעים נוכחות.");
+                    return;
+                }
+
                 var dayName = GetHebrewDayName(date);
                 Console.WriteLine($"Day name for the given date: {dayName}");
 
@@ -716,11 +733,11 @@ namespace BLL.Services
 
                 foreach (var group in groupsWithoutAttendance)
                 {
-                    // בדיקה אם תאריך ההתחלה אינו אחרי התאריך שניתן
+                    // בדיקה אם תאריך ההתחלה אינו אחרי התאריך
                     if (group.StartDate.HasValue && group.StartDate > date)
                     {
                         Console.WriteLine($"Group {group.GroupId} has not started yet (StartDate: {group.StartDate}). Skipping.");
-                        continue; // דלג על קבוצה זו
+                        continue;
                     }
 
                     // בדיקה אם כל השיעורים כבר הושלמו
@@ -728,7 +745,7 @@ namespace BLL.Services
                         group.LessonsCompleted >= group.NumOfLessons)
                     {
                         Console.WriteLine($"Group {group.GroupId} has completed all lessons (LessonsCompleted: {group.LessonsCompleted}, NumOfLessons: {group.NumOfLessons}). Skipping.");
-                        continue; // דלג על קבוצה זו
+                        continue;
                     }
 
                     var students = dal.Groups.GetStudentsByGroupId(group.GroupId);
@@ -755,6 +772,10 @@ namespace BLL.Services
                 Console.WriteLine($"Error in MarkAttendanceForDate: {ex.Message}");
             }
         }
+
+      
+
+
 
 
 
