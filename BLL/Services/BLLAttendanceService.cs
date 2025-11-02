@@ -2,6 +2,7 @@
 using BLL.Models;
 using DAL.Api;
 using DAL.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BLL.Services
 {
@@ -115,14 +116,19 @@ namespace BLL.Services
 
                 foreach (var record in attendanceRecords)
                 {
-                    dal.Attendances.Create(new Attendance
+                    var student = dal.Students.GetById(record.StudentId);
+                    if (student.Status == "פעיל") // בדיקה אם התלמיד פעיל
                     {
-                        GroupId = groupId,
-                        StudentId = record.StudentId,
-                        Date = date,
-                        WasPresent = record.WasPresent
-                    });
+                        dal.Attendances.Create(new Attendance
+                        {
+                            GroupId = groupId,
+                            StudentId = record.StudentId,
+                            Date = date,
+                            WasPresent = record.WasPresent
+                        });
+                    }
                 }
+
                 var group = dal.Groups.GetById(groupId);
                 if (group != null)
                 {
@@ -453,7 +459,7 @@ namespace BLL.Services
 
         public async Task<List<BLLStudentAttendanceHistory>> GetStudentAttendanceHistory(int studentId, int? month = null, int? year = null)
         {
-            var attendanceRecords =await dal.Attendances.GetAttendanceByStudent(studentId);
+            var attendanceRecords = await dal.Attendances.GetAttendanceByStudent(studentId);
 
             if (month.HasValue && year.HasValue)
             {
@@ -583,7 +589,7 @@ namespace BLL.Services
         {
             throw new NotImplementedException();
         }
-      
+
 
         /// <summary>
         /// בדיקה אם יש ביטול לקבוצה ביום מסוים
@@ -626,11 +632,36 @@ namespace BLL.Services
             }
         }
 
+        public async Task AddUnreportedDateByAttendance(DateOnly attendanceDate, int studentId)
+        {
+            var sth = await dal.StudentHealthFunds.GetAll();
+           
+
+            var hf = sth.FirstOrDefault(x => x.StudentId == studentId);
+            if (hf != null)
+            {
+                var unreportedDate = new UnreportedDate
+                {
+                    StudentHealthFundId = hf.HealthFundId,
+                    DateUnreported = attendanceDate.ToDateTime(TimeOnly.MinValue)
+                };
+
+                await dal.UnreportedDates.Create(unreportedDate);
+              
+                // עדכון TreatmentsUsed במספר הרשומות שנוצרו
+                hf.TreatmentsUsed = hf.TreatmentsUsed++;
+                await dal.StudentHealthFunds.Update(hf);
+            }
+
+         
+
+        }
+
 
         /// <summary>
         /// סימון נוכחות אוטומטי
         /// </summary>
-        public void AutoMarkDailyAttendance()
+        public async Task AutoMarkDailyAttendance()
         {
             var today = DateOnly.FromDateTime(DateTime.Now);
             Console.WriteLine($"AutoMarkDailyAttendance started for {today}");
@@ -678,19 +709,26 @@ namespace BLL.Services
                     var students = dal.Groups.GetStudentsByGroupId(group.GroupId);
 
                     var attendanceRecords = students
-                        .Where(student => !IsAttendanceMarkedForStudent(student.StudentId, group.GroupId, today) &&
-                                          student.EnrollmentDate.HasValue && student.EnrollmentDate <= today)
-                        .Select(student => new BLLAttendanceRecord
-                        {
-                            StudentId = student.StudentId,
-                            WasPresent = true
-                        })
-                        .ToList();
+     .Where(student => student.IsActive == true && student.EnrollmentDate <= today &&
+                       !IsAttendanceMarkedForStudent(student.StudentId, group.GroupId, today) &&
+                       student.EnrollmentDate.HasValue && student.EnrollmentDate <= today)
+     .Select(student => new BLLAttendanceRecord
+     {
+         StudentId = student.StudentId,
+         WasPresent = true
+     })
+     .ToList();
+
 
                     if (attendanceRecords.Any())
                     {
                         SaveAttendanceForDate(group.GroupId, today, attendanceRecords);
                     }
+                    foreach (var item in students)
+                    {
+                        await AddUnreportedDateByAttendance(today, item.StudentId);
+                    }
+
                 }
 
                 Console.WriteLine($"Successfully marked attendance for {groupsWithoutAttendance.Count} groups on {today}.");
@@ -700,11 +738,10 @@ namespace BLL.Services
                 Console.WriteLine($"Error in AutoMarkDailyAttendance: {ex.Message}");
             }
         }
-
         /// <summary>
         /// סימון נוכחות עבור תאריך מסוים
         /// </summary>
-        public void MarkAttendanceForDate(DateOnly date)
+        public async Task  MarkAttendanceForDate(DateOnly date)
         {
             Console.WriteLine($"MarkAttendanceForDate started for {date}");
 
@@ -751,18 +788,26 @@ namespace BLL.Services
                     var students = dal.Groups.GetStudentsByGroupId(group.GroupId);
 
                     var attendanceRecords = students
-                        .Where(student => !IsAttendanceMarkedForStudent(student.StudentId, group.GroupId, date))
-                        .Select(student => new BLLAttendanceRecord
-                        {
-                            StudentId = student.StudentId,
-                            WasPresent = true
-                        })
-                        .ToList();
+     .Where(student => student.IsActive == true && student.EnrollmentDate <= date &&
+                       !IsAttendanceMarkedForStudent(student.StudentId, group.GroupId, date))
+     .Select(student => new BLLAttendanceRecord
+     {
+         StudentId = student.StudentId,
+         WasPresent = true
+     })
+     .ToList();
+
 
                     if (attendanceRecords.Any())
                     {
                         SaveAttendanceForDate(group.GroupId, date, attendanceRecords);
+                      
                     }
+                    foreach (var item in students)
+                    {
+                      await  AddUnreportedDateByAttendance(date, item.StudentId);
+                    }
+
                 }
 
                 Console.WriteLine($"Successfully marked attendance for {groupsWithoutAttendance.Count} groups on {date}.");
@@ -772,8 +817,8 @@ namespace BLL.Services
                 Console.WriteLine($"Error in MarkAttendanceForDate: {ex.Message}");
             }
         }
+        
 
-      
 
 
 

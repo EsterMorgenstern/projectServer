@@ -9,6 +9,7 @@ namespace DAL.Api
         List<StudentNote> GetById(int id);
         List<StudentNote> GetByUserId(int userId);
         List<StudentNote> GetByRegistrationTracking();
+        public List<StudentNote> GetByPaymentsNotes();
         StudentNote GetByNoteId(int id);
         void Delete(int noteId);
         void Update(StudentNote studentNote);

@@ -25,8 +25,8 @@ namespace BLL.Api
         bool DeleteAttendanceByGroupAndDate(int groupId, DateOnly date);
         bool IsAttendanceMarkedForGroup(int groupId, DateOnly date);
         bool IsAttendanceMarkedForDay(DateOnly date);
-        void AutoMarkDailyAttendance();
-        void MarkAttendanceForDate(DateOnly date);
+        Task AutoMarkDailyAttendance();
+        Task MarkAttendanceForDate(DateOnly date);
 
 
 

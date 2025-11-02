@@ -77,6 +77,30 @@ namespace DAL.Services
                 dbcontext.SaveChanges();
             }
         }
+        public void SaveFilePath(int studentHealthFundId, string filePath, string fileType)
+        {
+            var studentHealthFund = dbcontext.StudentHealthFunds.SingleOrDefault(x => x.Id == studentHealthFundId);
+            if (studentHealthFund == null)
+            {
+                throw new KeyNotFoundException($"StudentHealthFund with ID {studentHealthFundId} not found.");
+            }
+
+            if (fileType == "Referral")
+            {
+                studentHealthFund.ReferralFilePath = filePath;
+            }
+            else if (fileType == "Commitment")
+            {
+                studentHealthFund.CommitmentFilePath = filePath;
+            }
+            else
+            {
+                throw new ArgumentException("Invalid file type.");
+            }
+
+            dbcontext.SaveChanges();
+        }
+
 
     }
 }

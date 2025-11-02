@@ -1,4 +1,5 @@
 ﻿using BLL.Models;
+using BLL.Services;
 
 namespace BLL.Api
 {
@@ -17,6 +18,11 @@ namespace BLL.Api
 
         // שליפת רשימת תאריכים שלא דווחו
         List<DateTime> GetUnreportedDates(int studentHealthFundId);
+        // העברת תאריך מרשימת התאריכים שלא דווחו לרשימת התאריכים שדווחו
+        Task ReportUnreportedDate(int studentHealthFundId, DateTime date);
+
+        void UploadFile(int studentHealthFundId, string filePath, string fileType);
+        Task<UnreportedTreatmentsSyncResult> ValidateAndFixUnreportedTreatments();
 
     }
 }

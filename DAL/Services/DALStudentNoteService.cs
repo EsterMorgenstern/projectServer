@@ -76,6 +76,15 @@ namespace DAL.Services
             }
             return sNote;
         }
+        public List<StudentNote> GetByPaymentsNotes()
+        {
+            var sNote = dbcontext.StudentNotes.Where(x => x.NoteType == "הערת גביה").ToList();
+            if (sNote == null)
+            {
+                throw new KeyNotFoundException($"StudentNote with מעקב רישום not found.");
+            }
+            return sNote;
+        }
 
         public StudentNote GetByNoteId(int id)
         {

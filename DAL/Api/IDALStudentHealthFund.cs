@@ -12,6 +12,7 @@ namespace DAL.Api
         StudentHealthFund GetById(int id);
         List<ReportedDate> GetReportedDates(int studentHealthFundId);
         List<UnreportedDate> GetUnreportedDates(int studentHealthFundId);
+        void SaveFilePath(int studentHealthFundId, string filePath, string fileType);
 
 
     }

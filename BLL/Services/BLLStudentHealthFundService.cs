@@ -194,6 +194,226 @@ namespace BLL.Services
             var unreportedDates = dal.UnreportedDates.GetByStudentHealthFundId(studentHealthFundId);
             return unreportedDates?.Select(ud => ud.DateUnreported).ToList() ?? new List<DateTime>();
         }
+        public async Task ReportUnreportedDate(int studentHealthFundId, DateTime date)
+        {
+            // שליפת התאריך מרשימת התאריכים שלא דווחו
+            var unreportedDate = dal.UnreportedDates.GetByStudentHealthFundId(studentHealthFundId)
+                .FirstOrDefault(ud => ud.DateUnreported == date);
 
+            if (unreportedDate == null)
+            {
+                throw new InvalidOperationException("The specified date is not in the unreported dates list.");
+            }
+
+            // מחיקת התאריך מרשימת התאריכים שלא דווחו
+            await dal.UnreportedDates.Delete(unreportedDate.Id);
+
+            // הוספת התאריך לרשימת התאריכים שדווחו
+            var reportedDate = new ReportedDate
+            {
+                StudentHealthFundId = studentHealthFundId,
+                DateReported = date
+            };
+            await dal.ReportedDates.Create(reportedDate);
+
+            // עדכון מספר הטיפולים שדווחו
+            var studentHealthFund = dal.StudentHealthFunds.GetById(studentHealthFundId);
+            studentHealthFund.ReportedTreatments++;
+            studentHealthFund.TreatmentsUsed--;
+            await dal.StudentHealthFunds.Update(studentHealthFund);
+        }
+
+
+        public void UploadFile(int studentHealthFundId, string filePath, string fileType)
+        {
+            dal.StudentHealthFunds.SaveFilePath(studentHealthFundId, filePath, fileType);
+        }
+
+
+
+            public async Task SynchronizeUnreportedTreatmentsWithAttendance()
+            {
+                Console.WriteLine("Starting synchronization of unreported treatments with attendance data");
+
+                try
+                {
+                    var studentsWithHealthFunds = await dal.StudentHealthFunds.GetAll();
+
+                    if (studentsWithHealthFunds == null || !studentsWithHealthFunds.Any())
+                    {
+                        Console.WriteLine("No students with health funds found");
+                        return;
+                    }
+
+                    foreach (var studentHealthFund in studentsWithHealthFunds)
+                    {
+                        await SynchronizeStudentUnreportedTreatments(studentHealthFund);
+                    }
+
+                    Console.WriteLine("Synchronization completed successfully");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in SynchronizeUnreportedTreatmentsWithAttendance: {ex.Message}");
+                }
+            }
+
+            private async Task SynchronizeStudentUnreportedTreatments(StudentHealthFund studentHealthFund)
+            {
+                try
+                {
+                    Console.WriteLine($"Processing student {studentHealthFund.StudentId}");
+
+                    // קבלת תאריכים קיימים (בדרך המתאימה למערכת שלך)
+                    var allUnreportedDates = dal.UnreportedDates.GetByStudentHealthFundId(studentHealthFund.Id);
+                    var existingUnreportedDates = allUnreportedDates.ToList();
+
+                    // קבלת נתוני נוכחות
+                    var studentAttendance = await dal.Attendances.GetAttendanceByStudent(studentHealthFund.StudentId);
+                // Fix for CS0019: Convert DateOnly? to DateTime before comparison
+                var validAttendanceDates = studentAttendance
+                    .Where(a => a.Date.HasValue &&
+                               a.Date.Value.ToDateTime(TimeOnly.MinValue) >= studentHealthFund.StartDate &&
+                               a.WasPresent == true)
+                    .Select(a => a.Date.Value)
+                    .Distinct()
+                    .ToList();
+
+                    Console.WriteLine($"Student {studentHealthFund.StudentId} has {validAttendanceDates.Count} valid attendance dates");
+
+                    // מציאת תאריכים חדשים להוספה
+                    var existingDates = existingUnreportedDates.Select(u => DateOnly.FromDateTime(u.DateUnreported)).ToHashSet();
+                    var newDatesToAdd = validAttendanceDates.Where(date => !existingDates.Contains(date)).ToList();
+
+                    // הוספת תאריכים חדשים
+                    foreach (var newDate in newDatesToAdd)
+                    {
+                        var unreportedDate = new UnreportedDate
+                        {
+                            StudentHealthFundId = studentHealthFund.Id,
+                            DateUnreported = newDate.ToDateTime(TimeOnly.MinValue)
+                        };
+
+                        await dal.UnreportedDates.Create(unreportedDate);
+                        Console.WriteLine($"Added new unreported date {newDate} for student {studentHealthFund.StudentId}");
+                    }
+
+                    // מציאת תאריכים למחיקה
+                    var validDateSet = validAttendanceDates.ToHashSet();
+                    var datesToRemove = existingUnreportedDates
+                        .Where(u => !validDateSet.Contains(DateOnly.FromDateTime(u.DateUnreported)))
+                        .ToList();
+
+                    // מחיקת תאריכים לא תקפים
+                    foreach (var dateToRemove in datesToRemove)
+                    {
+                        await dal.UnreportedDates.Delete(dateToRemove.Id);
+                        Console.WriteLine($"Removed invalid unreported date {DateOnly.FromDateTime(dateToRemove.DateUnreported)} for student {studentHealthFund.StudentId}");
+                    }
+
+                    // עדכון סך הטיפולים
+                    var finalUnreportedDates = dal.UnreportedDates.GetByStudentHealthFundId(studentHealthFund.Id);
+                    var updatedTreatmentsUsed = finalUnreportedDates.Count();
+
+                    if (studentHealthFund.TreatmentsUsed != updatedTreatmentsUsed)
+                    {
+                        studentHealthFund.TreatmentsUsed = updatedTreatmentsUsed;
+                        await dal.StudentHealthFunds.Update(studentHealthFund);
+                        Console.WriteLine($"Updated TreatmentsUsed for student {studentHealthFund.StudentId} to {updatedTreatmentsUsed}");
+                    }
+
+                    Console.WriteLine($"Synchronization completed for student {studentHealthFund.StudentId}. " +
+                                     $"Added: {newDatesToAdd.Count}, Removed: {datesToRemove.Count}, " +
+                                     $"Total unreported: {updatedTreatmentsUsed}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error processing student {studentHealthFund.StudentId}: {ex.Message}");
+                }
+            }
+
+            public async Task SynchronizeStudentUnreportedTreatments(int studentId)
+            {
+                try
+                {
+                    var studentHealthFunds = await dal.StudentHealthFunds.GetAll();
+                    var studentHealthFund = studentHealthFunds.FirstOrDefault(s => s.StudentId == studentId);
+
+                    if (studentHealthFund == null)
+                    {
+                        Console.WriteLine($"No health fund data found for student {studentId}");
+                        return;
+                    }
+
+                    await SynchronizeStudentUnreportedTreatments(studentHealthFund);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in SynchronizeStudentUnreportedTreatments for student {studentId}: {ex.Message}");
+                }
+            }
+
+            public async Task<UnreportedTreatmentsSyncResult> ValidateAndFixUnreportedTreatments()
+            {
+                var result = new UnreportedTreatmentsSyncResult();
+
+                try
+                {
+                    var studentsWithHealthFunds = await dal.StudentHealthFunds.GetAll();
+                    result.TotalStudentsProcessed = studentsWithHealthFunds.Count();
+
+                    foreach (var studentHealthFund in studentsWithHealthFunds)
+                    {
+                        var beforeSync = dal.UnreportedDates.GetByStudentHealthFundId(studentHealthFund.Id);
+                        var beforeCount = beforeSync.Count();
+
+                        await SynchronizeStudentUnreportedTreatments(studentHealthFund);
+
+                        var afterSync = dal.UnreportedDates.GetByStudentHealthFundId(studentHealthFund.Id);
+                        var afterCount = afterSync.Count();
+
+                        if (afterCount > beforeCount)
+                            result.TotalDatesAdded += (afterCount - beforeCount);
+                        else if (beforeCount > afterCount)
+                            result.TotalDatesRemoved += (beforeCount - afterCount);
+
+                        if (beforeCount != afterCount)
+                            result.StudentsUpdated++;
+                    }
+
+                    result.IsSuccess = true;
+                    Console.WriteLine($"Validation completed: {result.StudentsUpdated} students updated, " +
+                                     $"{result.TotalDatesAdded} dates added, {result.TotalDatesRemoved} dates removed");
+                }
+                catch (Exception ex)
+                {
+                    result.IsSuccess = false;
+                    result.ErrorMessage = ex.Message;
+                    Console.WriteLine($"Error in ValidateAndFixUnreportedTreatments: {ex.Message}");
+                }
+
+                return result;
+            }
+        }
+
+        public class UnreportedTreatmentsSyncResult
+        {
+            public bool IsSuccess { get; set; }
+            public int TotalStudentsProcessed { get; set; }
+            public int StudentsUpdated { get; set; }
+            public int TotalDatesAdded { get; set; }
+            public int TotalDatesRemoved { get; set; }
+            public string ErrorMessage { get; set; } = string.Empty;
+
+            public override string ToString()
+            {
+                if (!IsSuccess)
+                    return $"Sync failed: {ErrorMessage}";
+
+                return $"Sync completed successfully: {StudentsUpdated}/{TotalStudentsProcessed} students updated, " +
+                       $"{TotalDatesAdded} dates added, {TotalDatesRemoved} dates removed";
+            }
+        }
     }
-}
+
+

@@ -9,6 +9,7 @@ namespace BLL.Api
         public List<BLLStudentNote> GetById(int id);
         public List<BLLStudentNote> GetByUserId(int userId);
         public List<BLLStudentNote> GetByRegistrationTracking();
+        public List<BLLStudentNote> GetByPaymentsNotes();
         public void Delete(int id);
         public void Update(BLLStudentNote studentNote);
     }

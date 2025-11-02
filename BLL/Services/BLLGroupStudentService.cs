@@ -22,7 +22,7 @@ namespace BLL.Services
             { 
                 GroupId = groupStudent.GroupId,
                 StudentId = groupStudent.StudentId,
-                IsActive = dal.Students.GetById(groupStudent.StudentId).Status == "פעיל",
+                IsActive = groupStudent.IsActive == true || dal.Students.GetById(groupStudent.StudentId).Status == "פעיל",
                 EnrollmentDate = groupStudent.EnrollmentDate ?? DateOnly.FromDateTime(DateTime.Now)
             };
             dal.GroupStudents.Create(g);
@@ -39,6 +39,33 @@ namespace BLL.Services
                 branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) + 1;
                 dal.Branches.Update(branch);
             }
+            // הוספת שיעורים לנוכחות אם התלמיד פעיל ותאריך ההתחלה הוא בעבר
+            if (g.IsActive == true && g.EnrollmentDate < DateOnly.FromDateTime(DateTime.Now))
+            {
+                var lessons = dal.Attendances.GetByGroupAndDateRange(
+                    groupStudent.GroupId,
+                    g.EnrollmentDate.Value,
+                    DateOnly.FromDateTime(DateTime.Now)
+                );
+
+                foreach (var lesson in lessons)
+                {
+                    var existingAttendance = dal.Attendances.GetAttendanceByGroupAndDate(groupStudent.GroupId, (DateOnly)lesson.Date)
+                        .FirstOrDefault(a => a.StudentId == groupStudent.StudentId);
+
+                    if (existingAttendance == null)
+                    {
+                        dal.Attendances.Create(new Attendance
+                        {
+                            GroupId = groupStudent.GroupId,
+                            StudentId = groupStudent.StudentId,
+                            Date = lesson.Date,
+                            WasPresent = true
+                        });
+                    }
+                }
+            }
+
         }
 
         public void Delete(int id)
