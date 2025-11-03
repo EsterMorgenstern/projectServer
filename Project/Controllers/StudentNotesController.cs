@@ -36,6 +36,11 @@ namespace server.controllers
         {
             return studentNote.GetByRegistrationTracking();
         }
+        [HttpGet("getByPaymentsNotes")]
+        public List<BLLStudentNote> GetByPaymentsNotes()
+        {
+            return studentNote.GetByPaymentsNotes();
+        }
 
         [HttpPost("Add")]
         public void Create([FromBody] BLLStudentNote sNote)
