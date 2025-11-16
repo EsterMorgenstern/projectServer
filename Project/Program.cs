@@ -27,7 +27,6 @@ builder.Services.AddScoped<IDAL, DALManager>();
 builder.Services.AddScoped<IDALAttendance, DALAttendanceService>();
 
 // Register BLL services
-builder.Services.AddScoped<IBLLAttendance, BLLAttendanceService>();
 builder.Services.AddScoped<IBLL, BLLManager>();
 builder.Services.AddScoped<IBLLAttendance, BLLAttendanceService>();
 

@@ -206,7 +206,11 @@ namespace BLL.Services
                         GroupName = d.GroupName,
                         BranchName = dal.Branches.GetById(d.BranchId).Name,
                         InstructorName = $"{dal.Instructors.GetById(d.InstructorId).FirstName} {dal.Instructors.GetById(d.InstructorId).LastName}",
-                        CourseName = dal.Courses.GetById(d.CourseId).CouresName
+                        CourseName = dal.Courses.GetById(d.CourseId).CouresName,
+                        AgeRange = d?.AgeRange ?? string.Empty,
+                        LessonsCompleted = d?.LessonsCompleted,
+                        MaxStudents = d?.MaxStudents,
+                        NumOfLessons = d?.NumOfLessons
                     };
                 }).ToList();
             }
@@ -217,8 +221,86 @@ namespace BLL.Services
             }
         }
 
+        public List<BLLGroupStudentPerfect> GetByStudentName(string firstName, string lastName)
+        {
+            try
+            {
+                Console.WriteLine("=== Starting simple database test ===");
 
+                // בדיקה אם המסד זמין בכלל
+                try
+                {
+                    var connectionTest = dal.Students.Get().Count();
+                    Console.WriteLine($"Database accessible - {connectionTest} students total");
+                }
+                catch (Exception dbEx)
+                {
+                    Console.WriteLine($"Database connection failed: {dbEx.Message}");
+                    return new List<BLLGroupStudentPerfect>();
+                }
 
+                firstName = firstName?.Trim() ?? "";
+                lastName = lastName?.Trim() ?? "";
+
+                // נסה חיפוש קטן יותר - רק students מסוימים
+                var relevantStudents = dal.Students.Get()
+                    .Where(s => !string.IsNullOrEmpty(s.FirstName) &&
+                               !string.IsNullOrEmpty(s.LastName) &&
+                               s.FirstName.Contains(firstName) &&
+                               s.LastName.Contains(lastName))
+                    .Take(10) // מגביל ל-10 רשומות
+                    .ToList();
+
+                Console.WriteLine($"Found {relevantStudents.Count} matching students");
+
+                if (!relevantStudents.Any())
+                {
+                    return new List<BLLGroupStudentPerfect>();
+                }
+
+                // עכשיו חפש GroupStudents רק עבור הסטודנטים האלה
+                var studentIds = relevantStudents.Select(s => s.Id).ToList();
+                var relevantGroupStudents = dal.GroupStudents.Get()
+                    .Where(gs => studentIds.Contains(gs.StudentId))
+                    .ToList();
+
+                Console.WriteLine($"Found {relevantGroupStudents.Count} group students");
+
+                // מיפוי פשוט
+                return relevantGroupStudents.Select(gs =>
+                {
+                    var student = relevantStudents.First(s => s.Id == gs.StudentId);
+                    var group = dal.Groups.GetById(gs.GroupId);
+
+                    return new BLLGroupStudentPerfect
+                    {
+                        GroupStudentId = gs.GroupStudentId,
+                        GroupId = gs.GroupId,
+                        StudentId = gs.StudentId,
+                        StudentName = $"{student.FirstName} {student.LastName}",
+                        Student = student,
+                        EnrollmentDate = gs.EnrollmentDate,
+                        IsActive = gs.IsActive,
+                        DayOfWeek = group?.DayOfWeek??string.Empty,
+                        Hour = group?.Hour,
+                        GroupName = group?.GroupName?? string.Empty,
+                        BranchName = group != null ? dal.Branches.GetById(group.BranchId)?.Name : "",
+                        InstructorName = group != null ? $"{dal.Instructors.GetById(group.InstructorId)?.FirstName} {dal.Instructors.GetById(group.InstructorId)?.LastName}" : "",
+                        CourseName = group != null ? dal.Courses.GetById(group.CourseId)?.CouresName : "",
+                        AgeRange=group?.AgeRange??string.Empty,
+                        LessonsCompleted=group?.LessonsCompleted,
+                        MaxStudents=group?.MaxStudents,
+                        NumOfLessons=group?.NumOfLessons
+                   
+                    };
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return new List<BLLGroupStudentPerfect>();
+            }
+        }
         public List<BLLInstructor> GetInstructorsByGroupId(int groupId)
         {
             var group = dal.Groups.GetById(groupId);

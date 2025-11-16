@@ -70,6 +70,13 @@ namespace server.controllers
         {
             return groups.GetGroupWithStudentsById(groupId);
         }
+        [HttpGet("GetGroupsByBranch/{branchId}")]
+        public List<BLLGroupWithStudentsDto> GetGroupsByBranch(int branchId)
+        {
+            return groups.GetGroupsWithStudentsByBranchId(branchId);
+           
+        }
+
 
         [HttpPost("Add")]
         public void Create(BLLGroup group)

@@ -17,7 +17,7 @@ public class DailyAttendanceMarker : BackgroundService
     }
 
     /// <summary>
-    /// Executes the background task to mark daily attendance at 17:15 every day.
+    /// Executes the background task to mark daily attendance at 18:00 every day.
     /// </summary>
     /// <param name="stoppingToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the background operation.</returns>
@@ -27,33 +27,70 @@ public class DailyAttendanceMarker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var now = DateTime.Now;
-            var nextRun = now.Date.AddHours(18).AddMinutes(00);
-            if (now > nextRun)
+            try
             {
-                nextRun = nextRun.AddDays(1).AddHours(18).AddMinutes(00);
+                var now = DateTime.Now;
+                var nextRun = now.Date.AddHours(18).AddMinutes(0);
+
+                // אם כבר עברנו את השעה היום, קבע למחר
+                if (now > nextRun)
+                {
+                    nextRun = nextRun.AddDays(1);
+                }
+
+                var delay = nextRun - now;
+                Console.WriteLine($"DailyAttendanceMarker: Next run scheduled for {nextRun}");
+
+                // המתן עד השעה הקבועה
+                await Task.Delay(delay, stoppingToken);
+
+                // אם נבקש לעצור במהלך ההמתנה
+                if (stoppingToken.IsCancellationRequested)
+                    break;
+
+                // הפעל את סימון הנוכחות
+                await ExecuteDailyAttendanceMarking();
             }
-
-
-            var delay = nextRun - now;
-
-            Console.WriteLine($"DailyAttendanceMarker: Next run scheduled for {nextRun}");
-            await Task.Delay(delay, stoppingToken);
-
-            using (var scope = _serviceProvider.CreateScope())
+            catch (OperationCanceledException)
             {
-                try
-                {
-                    var attendanceService = scope.ServiceProvider.GetRequiredService<IBLLAttendance>();
-                    Console.WriteLine("DailyAttendanceMarker: Invoking AutoMarkDailyAttendance...");
-                    attendanceService.AutoMarkDailyAttendance();
-                    Console.WriteLine("DailyAttendanceMarker: AutoMarkDailyAttendance completed successfully.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"DailyAttendanceMarker: Error during AutoMarkDailyAttendance execution: {ex.Message}");
-                }
+                Console.WriteLine("DailyAttendanceMarker: Service stopped gracefully.");
+                break;
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"DailyAttendanceMarker: Unexpected error in main loop: {ex.Message}");
+                // המתן 5 דקות לפני ניסיון נוסף במקרה של שגיאה
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+            }
+        }
+    }
+
+    /// <summary>
+    /// מבצע את פעולת סימון הנוכחות היומית
+    /// </summary>
+    private async Task ExecuteDailyAttendanceMarking()
+    {
+        using var scope = _serviceProvider.CreateScope();
+
+        try
+        {
+            var attendanceService = scope.ServiceProvider.GetRequiredService<IBLLAttendance>();
+
+            Console.WriteLine($"DailyAttendanceMarker: Starting daily attendance marking at {DateTime.Now}");
+
+            // ?? כאן התיקון החשוב - הוסף await!
+            await attendanceService.AutoMarkDailyAttendance();
+
+            Console.WriteLine($"DailyAttendanceMarker: Daily attendance marking completed successfully at {DateTime.Now}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DailyAttendanceMarker: Error during AutoMarkDailyAttendance execution:");
+            Console.WriteLine($"  Message: {ex.Message}");
+            Console.WriteLine($"  StackTrace: {ex.StackTrace}");
+
+            // אפשר לשלוח התראה או לנסות שוב
+            Console.WriteLine("DailyAttendanceMarker: Will retry tomorrow at scheduled time.");
         }
     }
 }

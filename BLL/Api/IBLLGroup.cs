@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BLL.Models;
 using BLL.Services;
+using DAL.Api;
 
 namespace BLL.Api
 {
@@ -24,6 +25,8 @@ namespace BLL.Api
         public List<BLLGroupDetailsPerfect> FindBestGroupsForStudent(int studentId, int maxResults = 5);
         public List<BLLGroupWithStudentsDto> GetAllGroupsWithStudentsSortedByCourse();
         public BLLGroupWithStudentsDto GetGroupWithStudentsById(int groupId);
+        public List<BLLGroupWithStudentsDto> GetGroupsWithStudentsByBranchId(int branchId);
+             
 
     }
 }

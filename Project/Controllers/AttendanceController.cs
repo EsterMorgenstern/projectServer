@@ -1,6 +1,7 @@
 ﻿using BLL.Api;
 using BLL.Models;
 using Microsoft.AspNetCore.Mvc;
+using static System.Net.WebRequestMethods;
 
 namespace server.controllers
 {
@@ -310,11 +311,168 @@ namespace server.controllers
                 return BadRequest($"שגיאה בסימון נוכחות יומית: {ex.Message}");
             }
         }
+        /// <summary>
+        /// בדיקת התאריך הראשון שבו נרשמה נוכחות במערכת
+        /// </summary>
+        [HttpGet]
+        [Route("first-attendance-date")]
+        public IActionResult GetFirstAttendanceDate()
+        {
+            try
+            {
+                var firstDate = attendances.GetFirstAttendanceDate();
 
+                if (!firstDate.HasValue)
+                {
+                    return Ok(new
+                    {
+                        success = false,
+                        message = "לא נמצאו רשומות נוכחות במערכת",
+                        firstDate = (DateOnly?)null
+                    });
+                }
 
+                return Ok(new
+                {
+                    success = true,
+                    message = $"התאריך הראשון של נוכחות: {firstDate.Value}",
+                    firstDate = firstDate.Value,
+                    firstDateString = firstDate.Value.ToString("dd/MM/yyyy")
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"שגיאה בחיפוש התאריך הראשון: {ex.Message}"
+                });
+            }
+        }
+
+        /// <summary>
+        /// סימון נוכחות היסטורי מהתאריך הראשון עד היום
+        /// </summary>
+        [HttpPost]
+        [Route("mark-historical-attendance")]
+        public async Task<IActionResult> MarkHistoricalAttendance()
+        {
+            try
+            {
+                // מציאת התאריך הראשון
+                var firstDate = attendances.GetFirstAttendanceDate();
+
+                if (!firstDate.HasValue)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "לא נמצאו רשומות נוכחות במערכת - אין מה לעדכן"
+                    });
+                }
+
+                var today = DateOnly.FromDateTime(DateTime.Now);
+
+                Console.WriteLine($"🚀 Starting historical attendance marking from: {firstDate.Value} to: {today}");
+
+                // הרצת הסימון ההיסטורי
+                bool result = await attendances.MarkHistoricalAttendance(firstDate.Value);
+
+                if (result)
+                {
+                    return Ok(new
+                    {
+                        success = true,
+                        message = $"סימון נוכחות היסטורי הושלם בהצלחה מ-{firstDate.Value} עד {today}",
+                        startDate = firstDate.Value.ToString("dd/MM/yyyy"),
+                        endDate = today.ToString("dd/MM/yyyy"),
+                        totalDays = (today.ToDateTime(TimeOnly.MinValue) - firstDate.Value.ToDateTime(TimeOnly.MinValue)).Days + 1
+                    });
+                }
+                else
+                {
+                    return StatusCode(500, new
+                    {
+                        success = false,
+                        message = "סימון נוכחות היסטורי הושלם עם שגיאות - בדוק את הלוגים",
+                        startDate = firstDate.Value.ToString("dd/MM/yyyy"),
+                        endDate = today.ToString("dd/MM/yyyy")
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"שגיאה בסימון נוכחות היסטורי: {ex.Message}"
+                });
+            }
+        }
+
+        /// <summary>
+        /// סימון נוכחות היסטורי עם טווח תאריכים מותאם אישית
+        /// </summary>
+        [HttpPost]
+        [Route("mark-historical-attendance-range")]
+        public async Task<IActionResult> MarkHistoricalAttendanceRange([FromBody] HistoricalAttendanceRequest request)
+        {
+            try
+            {
+                if (request.StartDate > request.EndDate)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "תאריך התחלה חייב להיות לפני תאריך הסיום"
+                    });
+                }
+
+                Console.WriteLine($"🚀 Starting custom historical attendance marking from: {request.StartDate} to: {request.EndDate}");
+
+                bool result = await attendances.MarkHistoricalAttendance(request.StartDate, request.EndDate);
+
+                if (result)
+                {
+                    return Ok(new
+                    {
+                        success = true,
+                        message = $"סימון נוכחות היסטורי הושלם בהצלחה מ-{request.StartDate} עד {request.EndDate}",
+                        startDate = request.StartDate.ToString("dd/MM/yyyy"),
+                        endDate = request.EndDate.ToString("dd/MM/yyyy"),
+                        totalDays = (request.EndDate.ToDateTime(TimeOnly.MinValue) - request.StartDate.ToDateTime(TimeOnly.MinValue)).Days + 1
+                    });
+                }
+                else
+                {
+                    return StatusCode(500, new
+                    {
+                        success = false,
+                        message = "סימון נוכחות היסטורי הושלם עם שגיאות - בדוק את הלוגים"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"שגיאה בסימון נוכחות היסטורי: {ex.Message}"
+                });
+            }
+        }
     }
 
     // מודלים לבקשות
+
+    /// <summary>
+    /// בקשה לסימון נוכחות היסטורי עם טווח תאריכים
+    /// </summary>
+    public class HistoricalAttendanceRequest
+    {
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+    }
     public class SaveAttendanceRequest
     {
         public int GroupId { get; set; }

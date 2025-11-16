@@ -31,6 +31,11 @@ namespace server.controllers
         {
             return groupStudents.GetByStudentId(id);
         }
+        [HttpGet("GetByStudentName/{firstName}/{lastName}")]
+        public List<BLLGroupStudentPerfect> GetByStudentName(string firstName, string lastName)
+        {
+            return groupStudents.GetByStudentName(firstName, lastName);
+        }
         [HttpPost("Add")]
         public void Create([FromBody]BLLGroupStudent groupStudent)
         {

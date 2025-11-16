@@ -27,6 +27,10 @@ namespace BLL.Api
         bool IsAttendanceMarkedForDay(DateOnly date);
         Task AutoMarkDailyAttendance();
         Task MarkAttendanceForDate(DateOnly date);
+        Task<bool> MarkHistoricalAttendance(DateOnly startDate, DateOnly? endDate = null);
+        DateOnly? GetFirstAttendanceDate();
+
+
 
 
 

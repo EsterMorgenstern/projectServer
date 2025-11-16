@@ -17,6 +17,10 @@ namespace BLL.Models
         public string BranchName { get; set; } = string.Empty;
         public string GroupName { get; set; } = string.Empty;
         public string InstructorName { get; set; } = string.Empty;
+        public int? NumOfLessons { get; set; }
+        public int? LessonsCompleted { get; set; }
+        public string? AgeRange { get; set; }
+        public int? MaxStudents { get; set; }
 
     }
     public class BLLGroupStudentSecondly
