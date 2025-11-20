@@ -68,6 +68,13 @@ namespace server.controllers
         {
             studentHealthFunds.ReportUnreportedDate(id, date);
         }
+        [HttpPost("ValidateAndFixUnreportedTreatments")]
+        public async Task<IActionResult> SyncUnreportedTreatments()
+        {
+            var result = await studentHealthFunds.ValidateAndFixUnreportedTreatments();
+            return Ok(result);
+        }
+
 
         [HttpPost("UploadFile")]
         public async Task<IActionResult> UploadFile(IFormFile file, int studentHealthFundId, string fileType)

@@ -1,4 +1,5 @@
-﻿using DAL.Api;
+﻿using System.Text.Json;
+using DAL.Api;
 using DAL.Models;
 
 namespace DAL.Services
@@ -14,8 +15,16 @@ namespace DAL.Services
 
         public void Create(Attendance attendance)
         {
+            try { 
             dbcontext.Attendances.Add(attendance);
             dbcontext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[{DateTime.UtcNow:O}] ERROR DAL.Attendances.Create — entity: {ex}");
+                Console.WriteLine(ex.ToString());
+                throw;
+            }
         }
 
         public void Delete(int attendanceId)

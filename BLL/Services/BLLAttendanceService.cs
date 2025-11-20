@@ -137,8 +137,10 @@ namespace BLL.Services
                 }
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                LogExceptionWithContext(ex, $"SaveAttendanceForDate(groupId={groupId}, date={date})",
+                    new { groupId, date, attendanceCount = attendanceRecords?.Count ?? 0 });
                 return false;
             }
         }
@@ -826,6 +828,17 @@ namespace BLL.Services
                     catch (Exception groupEx)
                     {
                         failedGroups++;
+                        LogExceptionWithContext(groupEx, $"Processing group {group.GroupId} on {date}",
+                            new
+                            {
+                                groupId = group.GroupId,
+                                groupName = group.GroupName,
+                                startDate = group.StartDate,
+                                numOfLessons = group.NumOfLessons,
+                                lessonsCompleted = group.LessonsCompleted,
+                               // studentsCount = students?.Count ?? 0,
+                               // studentIds = students?.Take(10).Select(s => s.StudentId).ToArray()
+                            });
                         Console.WriteLine($"❌ Error processing group {group.GroupId}: {groupEx.Message}");
                     }
                 }
@@ -885,7 +898,14 @@ namespace BLL.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in SaveAttendanceForDateWithLessonCount: {ex.Message}");
+                Console.WriteLine($"Error in SaveAttendanceForDateWithLessonCount: {ex.ToString()}");
+                if (ex is Microsoft.EntityFrameworkCore.DbUpdateException dbEx && dbEx.Entries != null)
+                {
+                    foreach (var e in dbEx.Entries)
+                    {
+                        Console.WriteLine($"Entry type: {e.Entity.GetType().FullName}, State: {e.State}");
+                    }
+                }
                 return false;
             }
         }
@@ -899,32 +919,47 @@ namespace BLL.Services
             {
                 var sth = await dal.StudentHealthFunds.GetAll();
                 var hf = sth.FirstOrDefault(x => x.StudentId == studentId);
-
                 if (hf != null)
-                {
-                    var existingUnreportedDate = await dal.UnreportedDates.GetAll();
-                    var alreadyExists = existingUnreportedDate.Any(x =>
-                        x.StudentHealthFundId == hf.HealthFundId &&
-                        x.DateUnreported != null &&
-                        DateOnly.FromDateTime(x.DateUnreported) == attendanceDate);
-
-                    if (!alreadyExists)
+                
                     {
-                        var unreportedDate = new UnreportedDate
-                        {
-                            StudentHealthFundId = hf.HealthFundId,
-                            DateUnreported = attendanceDate.ToDateTime(TimeOnly.MinValue)
-                        };
+                    var validFund = sth.Any(x => x.Id == hf.HealthFundId);
+                    if (validFund)
+                    {
+                        var existingUnreportedDate = await dal.UnreportedDates.GetAll();
+                        var alreadyExists = existingUnreportedDate.Any(x =>
+                            x.StudentHealthFundId == hf.HealthFundId &&
+                            x.DateUnreported != null &&
+                            DateOnly.FromDateTime(x.DateUnreported) == attendanceDate);
 
-                        await dal.UnreportedDates.Create(unreportedDate);
-                        hf.TreatmentsUsed += 1;
-                        await dal.StudentHealthFunds.Update(hf);
+                        if (!alreadyExists)
+                        {
+                            var unreportedDate = new UnreportedDate
+                            {
+                                StudentHealthFundId = hf.HealthFundId,
+                                DateUnreported = attendanceDate.ToDateTime(TimeOnly.MinValue)
+                            };
+
+                            await dal.UnreportedDates.Create(unreportedDate);
+                            hf.TreatmentsUsed += 1;
+                            await dal.StudentHealthFunds.Update(hf);
+                        }
                     }
+
+                    else
+                    {
+                        Console.WriteLine($"HealthFundId לא תקין לסטודנט {studentId}");
+                    }
+
+               
+                 
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error adding unreported date for student {studentId} on {attendanceDate}: {ex.Message}");
+                Console.WriteLine($"לא קיימת רשומת StudentHealthFund תקינה לסטודנט {studentId} – דילוג על יצירת UnreportedDate");
+
+                // LogExceptionWithContext(ex, $"AddUnreportedDateByAttendanceWithDuplicateCheck(attendanceDate={attendanceDate}, studentId={studentId})",
+                //     new { attendanceDate, studentId });
             }
         }
         /// <summary>
@@ -1040,28 +1075,25 @@ namespace BLL.Services
                             continue;
                         }
 
-                        bool hasAnyAttendanceForDay = allGroups.Any(g => IsAttendanceMarkedForGroup(g.GroupId, currentDate));
+                        // שינוי חשוב: דולג רק אם כל הקבוצות כבר מסומנות (All),
+                        // ולא כפי שהיה קודם - שדלג אם יש אפילו קבוצה אחת (Any).
+                        bool allGroupsHaveAttendance = allGroups.All(g => IsAttendanceMarkedForGroup(g.GroupId, currentDate));
 
-                        if (hasAnyAttendanceForDay)
+                        if (allGroupsHaveAttendance)
                         {
-                            Console.WriteLine($"Skipping {currentDate} - Already has attendance records");
+                            Console.WriteLine($"Skipping {currentDate} - All groups already have attendance records");
                             skippedDays++;
                             continue;
                         }
 
-                        // 🎯 כאן משתמשים בפונקציה המרכזית!
-                        bool dayResult = await MarkAttendanceForDateInternal(currentDate, $"HistoricalAttendance");
+                        
+                         await MarkAttendanceForDate(currentDate);
 
-                        if (dayResult)
-                        {
+                       
                             processedDays++;
                             Console.WriteLine($"✅ Successfully processed {currentDate}");
-                        }
-                        else
-                        {
-                            errorDays++;
-                            Console.WriteLine($"❌ Failed to process {currentDate}");
-                        }
+                       
+                       
                     }
                     catch (Exception dayEx)
                     {
@@ -1089,10 +1121,10 @@ namespace BLL.Services
             }
         }
 
-/// <summary>
-/// סימון נוכחות אוטומטי יומי
-/// </summary>
-public async Task AutoMarkDailyAttendance()
+        /// <summary>
+        /// סימון נוכחות אוטומטי יומי
+        /// </summary>
+        public async Task AutoMarkDailyAttendance()
         {
             var today = DateOnly.FromDateTime(DateTime.Now);
             bool result = await MarkAttendanceForDateInternal(today, "AutoMarkDailyAttendance");
@@ -1113,7 +1145,51 @@ public async Task AutoMarkDailyAttendance()
         {
             await MarkAttendanceForDateInternal(date, "MarkAttendanceForDate");
         }
-        
+
+        private void LogExceptionWithContext(Exception ex, string context, object? meta = null)
+        {
+            Console.WriteLine($"[{DateTime.UtcNow:O}] ERROR in {context}");
+            Console.WriteLine(ex.ToString()); // includes InnerException and StackTrace
+
+            if (ex is Microsoft.EntityFrameworkCore.DbUpdateException dbEx && dbEx.Entries != null)
+            {
+                foreach (var entry in dbEx.Entries)
+                {
+                    try
+                    {
+                        var type = entry.Entity?.GetType().FullName ?? "Unknown";
+                        Console.WriteLine($"   EF Entry Type: {type}, State: {entry.State}");
+                        // attempt to print properties
+                        var props = entry.CurrentValues;
+                        if (props != null)
+                        {
+                            foreach (var propName in props.Properties.Select(p => p.Name))
+                            {
+                                Console.WriteLine($"      {propName}: {props[propName]}");
+                            }
+                        }
+                    }
+                    catch (Exception inner)
+                    {
+                        Console.WriteLine($"   Failed to read EF entry properties: {inner.Message}");
+                    }
+                }
+            }
+
+            if (meta != null)
+            {
+                try
+                {
+                    var metaJson = System.Text.Json.JsonSerializer.Serialize(meta);
+                    Console.WriteLine($"   Context meta: {metaJson}");
+                }
+                catch
+                {
+                    Console.WriteLine("   (Could not serialize meta)");
+                }
+            }
+        }
+
 
     }
 }
