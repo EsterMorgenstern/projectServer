@@ -343,6 +343,8 @@ namespace BLL.Services
                 throw new KeyNotFoundException($"GroupStudent with ID {groupStudent.GroupStudentId} not found.");
             }
 
+            var oldEnrollmentDate = existingGroupStudent.EnrollmentDate;
+
             existingGroupStudent.GroupId = dal.Groups.Get()
                 .Where(x => x.GroupName == groupStudent.GroupName)
                 .Select(x => x.GroupId)
@@ -352,6 +354,49 @@ namespace BLL.Services
             existingGroupStudent.IsActive = groupStudent.IsActive;
 
             dal.GroupStudents.Update(existingGroupStudent);
+
+            // מחיקת נוכחויות וישנות ו-UnreportedDate אם תאריך ההתחלה השתנה
+            if (oldEnrollmentDate.HasValue && groupStudent.EnrollmentDate.HasValue &&
+                groupStudent.EnrollmentDate.Value > oldEnrollmentDate.Value)
+            {
+                // שליפת כל רשומות הנוכחות של התלמיד בקבוצה עד התאריך החדש
+                var attendances = dal.Attendances.GetAttendanceByStudentAndDateRange(
+                    groupStudent.StudentId,
+                    DateOnly.MinValue,
+                    groupStudent.EnrollmentDate.Value.AddDays(-1)
+                );
+
+                // שמור את התאריכים שנמחקו
+                var deletedDates = new List<DateOnly>();
+
+                foreach (var attendance in attendances.Where(a => a.GroupId == existingGroupStudent.GroupId))
+                {
+                    if (attendance.Date.HasValue)
+                    {
+                        deletedDates.Add(attendance.Date.Value);
+                    }
+                    dal.Attendances.Delete(attendance.AttendanceId);
+                }
+
+                // מחיקת UnreportedDate עבור אותם תאריכים
+                var studentHealthFunds = dal.StudentHealthFunds.GetAll().Result
+                    .Where(shf => shf.StudentId == groupStudent.StudentId)
+                    .ToList();
+
+                foreach (var shf in studentHealthFunds)
+                {
+                    var unreportedDates = dal.UnreportedDates.GetByStudentHealthFundId(shf.Id);
+                    foreach (var unreported in unreportedDates)
+                    {
+                        if (unreported.DateUnreported != null &&
+                            deletedDates.Contains(DateOnly.FromDateTime(unreported.DateUnreported)))
+                        {
+                            dal.UnreportedDates.Delete(unreported.Id);
+                        }
+                    }
+                }
+            }
         }
+
     }
 }

@@ -36,9 +36,36 @@ namespace BLL.Services
         /// <param name="attendance"></param>
         public void Delete(int attendanceId)
         {
+            // שליפת רשומת הנוכחות למחיקה
+            var attendance = dal.Attendances.GetById(attendanceId);
+            if (attendance == null)
+                return;
 
+            // מחיקת הנוכחות
             dal.Attendances.Delete(attendanceId);
+
+            // בדיקה ומחיקה של UnreportedDate עבור אותו תלמיד ואותו תאריך
+            if (attendance.StudentId.HasValue && attendance.Date.HasValue)
+            {
+                var studentHealthFunds = dal.StudentHealthFunds.GetAll().Result
+                    .Where(shf => shf.StudentId == attendance.StudentId.Value)
+                    .ToList();
+
+                foreach (var shf in studentHealthFunds)
+                {
+                    var unreportedDates = dal.UnreportedDates.GetByStudentHealthFundId(shf.Id);
+                    foreach (var unreported in unreportedDates)
+                    {
+                        if (unreported.DateUnreported != null &&
+                            DateOnly.FromDateTime(unreported.DateUnreported) == attendance.Date.Value)
+                        {
+                            dal.UnreportedDates.Delete(unreported.Id);
+                        }
+                    }
+                }
+            }
         }
+
         /// <summary>
         /// Get לכל הנוכחות
         /// </summary>
@@ -918,50 +945,59 @@ namespace BLL.Services
             try
             {
                 var sth = await dal.StudentHealthFunds.GetAll();
+                if (sth == null)
+                {
+                    Console.WriteLine($"No StudentHealthFunds records at all – skipping student {studentId}");
+                    return;
+                }
+
                 var hf = sth.FirstOrDefault(x => x.StudentId == studentId);
-                if (hf != null)
-                
+                if (hf == null)
+                {
+                    // אין רשימת StudentHealthFund עבור הסטודנט — לא טעות, מדלגים
+                    Console.WriteLine($"HealthFundId לא תקין לסטודנט {studentId} — דילוג");
+                    return;
+                }
+
+                // קבלת תאריכי Unreported רק לאותו StudentHealthFund (מניעת קריאת כל הטבלה)
+                var existingUnreportedDates = await dal.UnreportedDates.GetAll();
+                if (existingUnreportedDates == null)
+                {
+                    // אין רשומות כלל בטבלה — נמשיך ליצור
+                    existingUnreportedDates = (List<UnreportedDate>?)Enumerable.Empty<UnreportedDate>();
+                }
+
+                // Fix for the CS1061 error: 'DateTime' does not contain a definition for 'Value'.
+                // The issue arises because 'DateTime' is a value type and does not have a 'Value' property.
+                // The correct approach is to directly use the 'DateTime' instance.
+
+                var alreadyExists = existingUnreportedDates.Any(x =>
+                    x.StudentHealthFundId == hf.Id &&
+                    x.DateUnreported != null && // Ensure DateUnreported is not null
+                    DateOnly.FromDateTime(x.DateUnreported) == attendanceDate); // Directly use x.DateUnreported without '.Value'
+
+                if (!alreadyExists)
+                {
+                    var unreportedDate = new UnreportedDate
                     {
-                    var validFund = sth.Any(x => x.Id == hf.HealthFundId);
-                    if (validFund)
-                    {
-                        var existingUnreportedDate = await dal.UnreportedDates.GetAll();
-                        var alreadyExists = existingUnreportedDate.Any(x =>
-                            x.StudentHealthFundId == hf.HealthFundId &&
-                            x.DateUnreported != null &&
-                            DateOnly.FromDateTime(x.DateUnreported) == attendanceDate);
+                        StudentHealthFundId = hf.Id,
+                        DateUnreported = attendanceDate.ToDateTime(TimeOnly.MinValue)
+                    };
 
-                        if (!alreadyExists)
-                        {
-                            var unreportedDate = new UnreportedDate
-                            {
-                                StudentHealthFundId = hf.HealthFundId,
-                                DateUnreported = attendanceDate.ToDateTime(TimeOnly.MinValue)
-                            };
+                    await dal.UnreportedDates.Create(unreportedDate);
 
-                            await dal.UnreportedDates.Create(unreportedDate);
-                            hf.TreatmentsUsed += 1;
-                            await dal.StudentHealthFunds.Update(hf);
-                        }
-                    }
-
-                    else
-                    {
-                        Console.WriteLine($"HealthFundId לא תקין לסטודנט {studentId}");
-                    }
-
-               
-                 
+                    hf.TreatmentsUsed = hf.TreatmentsUsed  + 1;
+                    await dal.StudentHealthFunds.Update(hf);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"לא קיימת רשומת StudentHealthFund תקינה לסטודנט {studentId} – דילוג על יצירת UnreportedDate");
-
-                // LogExceptionWithContext(ex, $"AddUnreportedDateByAttendanceWithDuplicateCheck(attendanceDate={attendanceDate}, studentId={studentId})",
-                //     new { attendanceDate, studentId });
+                // לוג כללי — לא זורקים הלאה כך שהתהליך הכולל ימשיך
+                Console.WriteLine($"שגיאה בזמן ניסיון להוסיף UnreportedDate לסטודנט {studentId}: {ex.Message}");
+                // במידת הצורך ניתן להוסיף לוג מפורט יותר פה
             }
         }
+
         /// <summary>
         /// מחזיר את התאריך הראשון שבו נרשמה נוכחות במערכת - עם error handling מפורט
         /// </summary>
