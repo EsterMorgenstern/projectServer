@@ -30,6 +30,7 @@ namespace DAL
             StudentHealthFunds = new DALStudentHealthFundService(data);
             ReportedDates = new DALReportedDateService(data);
             UnreportedDates = new DALUnreportedDateService(data);
+            Lessons = new DALLessonService(data);
         }
 
         public IDALStudent Students { get; }
@@ -49,5 +50,6 @@ namespace DAL
         public IDALStudentHealthFund StudentHealthFunds { get; }
         public IDALReportedDate ReportedDates { get; }
         public IDALUnreportedDate UnreportedDates { get; }
+        public IDALLesson Lessons { get; }
     }
 }

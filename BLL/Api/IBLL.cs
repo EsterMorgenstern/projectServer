@@ -16,6 +16,7 @@
         public IBLLPayment Payments { get; }
         public IBLLHealthFund HealthFunds { get; }
         public IBLLStudentHealthFund StudentHealthFunds { get; }
+        public IBLLLesson Lessons { get; }
 
     }
 }

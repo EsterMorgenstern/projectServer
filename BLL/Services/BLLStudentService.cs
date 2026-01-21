@@ -27,7 +27,6 @@ namespace BLL.Services
                 Age = student.Age,
                 City = student.City,
                 School = student.School,
-                HealthFund = student.HealthFund,
                 Phone = student.Phone,
                 SecondaryPhone = student.SecondaryPhone,
                 Class = student.Class,
@@ -36,7 +35,9 @@ namespace BLL.Services
                 Status=student.Status,
                 Email=student.Email,
                 CreatedBy=student.CreatedBy,
-                IdentityCard = student.IdentityCard
+                IdentityCard = student.IdentityCard,
+                HealthFundId = student.HealthFundId,
+
             };
             dal.Students.Create(p);
         }
@@ -67,14 +68,16 @@ namespace BLL.Services
                     Age = p.Age,
                     City = p.City ?? "",
                     School = p.School ?? "",
-                    HealthFund = p.HealthFund ?? "",
                     Class = p.Class ?? "",
                     Sector = p.Sector ?? "",
                     LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
                     Status=p.Status?? "",
                     Email=p.Email ?? "",
                     CreatedBy=p.CreatedBy ?? "",
-                    IdentityCard = p.IdentityCard ?? ""
+                    IdentityCard = p.IdentityCard ?? "",
+                    HealthFundId = p.HealthFundId ,
+                    HealthFundName = p.HealthFundForStudent != null ? p.HealthFundForStudent.Name : "",
+                    HealthFundPlan = p.HealthFundForStudent != null ? p.HealthFundForStudent.FundType : ""
                 }));
                 return list;
             }
@@ -102,14 +105,15 @@ namespace BLL.Services
                         Age = p.Age,
                         City = p.City ?? "",
                         School = p.School ?? "",
-                        HealthFund = p.HealthFund ?? "",
                         Class = p.Class ?? "",
                         Sector = p.Sector ?? "",
                         LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
                         Status=p.Status ?? "",
                         Email=p.Email ?? "",
                         CreatedBy=p.CreatedBy??"",
-                        IdentityCard = p.IdentityCard ?? ""
+                        IdentityCard = p.IdentityCard ?? "",
+                        HealthFundId = p.HealthFundId ,
+
                     };
                 }
 
@@ -124,14 +128,15 @@ namespace BLL.Services
                     Age = 0,
                     City = "",
                     School = "",
-                    HealthFund = "",
                     Class = "",
                     Sector = "",
                     LastActivityDate = DateTime.MinValue,
                     Status="",
                     Email="",
                     CreatedBy="",
-                    IdentityCard = ""
+                    IdentityCard = "",
+                    HealthFundId = 0,
+
                 };
             }
             catch (Exception ex)
@@ -147,14 +152,14 @@ namespace BLL.Services
                     Age = 0,
                     City = "",
                     School = "",
-                    HealthFund = "",
                     Class = "",
                     Sector = "",
                     LastActivityDate = DateTime.MinValue,
                     Status="",
                     Email="",
                     CreatedBy="",
-                    IdentityCard = ""
+                    IdentityCard = "",
+                    HealthFundId =0,
 
                 };
             }
@@ -204,7 +209,6 @@ namespace BLL.Services
             m.Age = student.Age; 
             m.City = student.City;
             m.School = student.School;
-            m.HealthFund = student.HealthFund;
             m.Class = student.Class;
             m.Sector = student.Sector;
             m.LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate);
@@ -212,6 +216,8 @@ namespace BLL.Services
             m.Email = student.Email;
             m.CreatedBy = student.CreatedBy;
             m.IdentityCard = student.IdentityCard;
+            m.HealthFundId = student.HealthFundId;
+
 
             dal.Students.Update(m);
         }

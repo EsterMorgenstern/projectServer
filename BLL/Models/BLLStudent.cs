@@ -10,7 +10,6 @@
         public int Age { get; set; }
         public string City { get; set; } = string.Empty;
         public string School { get; set; } = string.Empty;
-        public string HealthFund { get; set; } = string.Empty;
         public string Class { get; set; } = string.Empty;
         public string Sector { get; set; } = string.Empty;
         public DateTime LastActivityDate { get; set; }
@@ -18,6 +17,11 @@
         public string Email { get; set; } = string.Empty;
         public string CreatedBy { get; set; } = string.Empty;
         public string IdentityCard { get; set; } = string.Empty;
+        public int HealthFundId { get; set; }
+        public string HealthFundName { get; set; } = string.Empty;
+        public string HealthFundPlan { get; set; } = string.Empty;
+        
+
 
     }
 }

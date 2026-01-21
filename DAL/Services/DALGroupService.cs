@@ -1,21 +1,22 @@
 ﻿using DAL.Api;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Services
 {
     public class DALGroupService : IDALGroup
     {
-       private readonly dbcontext dbcontext;
+        private readonly dbcontext dbcontext;
         public DALGroupService(dbcontext data)
         {
             dbcontext = data;
         }
 
-        public void Create(Group group)
+        public int Create(Group group)
         {
             dbcontext.Groups.Add(group);
             dbcontext.SaveChanges();
-
+            return group.GroupId;
         }
 
         public void Delete(int id)
@@ -48,6 +49,21 @@ namespace DAL.Services
             }
             return group;
         }
+
+        public Group GetByIdWithIncludes(int id)
+        {
+#pragma warning disable CS8603 // Possible null reference return.
+            return dbcontext.Groups
+                .Include(g => g.Branch)
+                .Include(g => g.Course)
+                .Include(g => g.Instructor)
+                .Include(g => g.Lessons)
+                .Include(g => g.GroupStudents)
+                    .ThenInclude(gs => gs.Student)
+                .FirstOrDefault(g => g.GroupId == id);
+#pragma warning restore CS8603 // Possible null reference return.
+        }
+
         public List<Group> GetGroupsByCourseId(int id)
         {
             return dbcontext.Groups.ToList().FindAll(x => x.CourseId == id);
@@ -72,7 +88,7 @@ namespace DAL.Services
 
         public List<GroupStudent> GetStudentsByGroupId(int groupId)
         {
-           var lst= dbcontext.GroupStudents.Where(x => x.GroupId == groupId).ToList();
+            var lst = dbcontext.GroupStudents.Where(x => x.GroupId == groupId).ToList();
             if (lst == null)
             {
                 throw new KeyNotFoundException($"Students with GroupId {groupId} not found.");

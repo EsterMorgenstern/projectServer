@@ -967,9 +967,6 @@ namespace BLL.Services
                     existingUnreportedDates = (List<UnreportedDate>?)Enumerable.Empty<UnreportedDate>();
                 }
 
-                // Fix for the CS1061 error: 'DateTime' does not contain a definition for 'Value'.
-                // The issue arises because 'DateTime' is a value type and does not have a 'Value' property.
-                // The correct approach is to directly use the 'DateTime' instance.
 
                 var alreadyExists = existingUnreportedDates.Any(x =>
                     x.StudentHealthFundId == hf.Id &&

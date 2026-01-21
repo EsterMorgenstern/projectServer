@@ -39,6 +39,7 @@ public partial class Group
     public virtual Instructor Instructor { get; set; } = null!;
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    public virtual ICollection<Lesson> Lessons { get; set; } = null!;
 
 
 

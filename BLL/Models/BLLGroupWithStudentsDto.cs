@@ -23,6 +23,6 @@
         public string? StudentName { get; set; }
         public string? Phone { get; set; }
         public string? City { get; set; }
-        public string? HealthFound { get; set; }
+        public string? HealthFund { get; set; }
     }
 }

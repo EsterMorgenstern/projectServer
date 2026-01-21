@@ -4,19 +4,22 @@ using DAL.Api;
 using DAL.Models;
 
 namespace BLL.Services
+
 {
     public class BLLGroupService : IBLLGroup
     {
         private readonly IDAL dal;
-        public BLLGroupService(IDAL dal)
+        private readonly IBLLLesson lessonService;
+        public BLLGroupService(IDAL dal, IBLLLesson lessonService)
         {
             this.dal = dal;
+            this.lessonService = lessonService;
         }
         /// <summary>
-        /// הוספת קבוצה חדשה
+        /// הוספת קבוצה חדשה כולל הוספת שיעורים
         /// </summary>
         /// <param name="group"></param>
-        public void Create(BLLGroup group)
+        public async Task CreateAsync(BLLGroup group)
         {
             Group g = new Group()
             {
@@ -33,13 +36,36 @@ namespace BLL.Services
                 NumOfLessons = group.NumOfLessons,
                 LessonsCompleted = group.LessonsCompleted,
                 StartDate = group.StartDate
-
             };
-            dal.Groups.Create(g);
+           int groupId = dal.Groups.Create(g);
+
+            if (group.StartDate.HasValue) 
+            {
+                if (group.Hour.HasValue) 
+                {
+                    await lessonService.GenerateLessonsForGroup(
+                        groupId: groupId,
+                        startDate: group.StartDate.Value,
+                        numOfLessons: group.NumOfLessons ?? 0,
+                        dayOfWeek: group.DayOfWeek,
+                        lessonHour: group.Hour.Value, 
+                        instructorId: group.InstructorId,
+                        createdBy: "system"
+                    );
+                }
+                else
+                {
+                    throw new ArgumentException("Hour cannot be null when creating lessons for a group.");
+                }
+            }
+            else
+            {
+                throw new ArgumentException("StartDate cannot be null when creating lessons for a group.");
+            }
         }
 
         /// <summary>
-        /// מחיקת קבוצה
+        /// מחיקת קבוצה 
         /// </summary>
         /// <param name="id"></param>
         public void Delete(int id)
@@ -48,6 +74,11 @@ namespace BLL.Services
             foreach (var item in groupStudents)
             {
                 dal.GroupStudents.Delete(item);
+            }
+            var lessons = dal.Lessons.Get().Where(x => x.GroupId == id);
+            foreach (var item in lessons)
+            {
+                dal.Lessons.Delete(item.LessonId);
             }
             var lessonCancel = dal.LessonCancellations.Get().Where(x => x.GroupId == id);
             foreach (var item in lessonCancel)
@@ -78,23 +109,28 @@ namespace BLL.Services
                     return new List<BLLGroupDetailsPerfect>(); // מחזיר מערך ריק
                 }
 
-                return groups.Select(c => new BLLGroupDetailsPerfect()
+                return groups.Select(c =>
                 {
-                    GroupId = c.GroupId,
-                    CourseId = c.CourseId,
-                    AgeRange = c.AgeRange,
-                    BranchId = c.BranchId,
-                    DayOfWeek = c.DayOfWeek,
-                    GroupName = c.GroupName,
-                    Hour = c.Hour,
-                    InstructorId = c.InstructorId,
-                    MaxStudents = c.MaxStudents,
-                    Sector = c.Sector,
-                    NumOfLessons = c.NumOfLessons,
-                    LessonsCompleted = c.LessonsCompleted,
-                    StartDate = c.StartDate,
-                    BranchName = dal.Branches.GetById(c.BranchId).Name,
-                    CourseName = dal.Courses.GetById(c.CourseId).CouresName
+                    var instructor = dal.Instructors.GetById(c.InstructorId);
+                    return new BLLGroupDetailsPerfect()
+                    {
+                        GroupId = c.GroupId,
+                        CourseId = c.CourseId,
+                        AgeRange = c.AgeRange,
+                        BranchId = c.BranchId,
+                        DayOfWeek = c.DayOfWeek,
+                        GroupName = c.GroupName,
+                        Hour = c.Hour,
+                        InstructorId = c.InstructorId,
+                        MaxStudents = c.MaxStudents,
+                        Sector = c.Sector,
+                        NumOfLessons = c.NumOfLessons,
+                        LessonsCompleted = c.LessonsCompleted,
+                        StartDate = c.StartDate,
+                        InstructorName = instructor != null ? $"{instructor.FirstName} {instructor.LastName}" : string.Empty,
+                        BranchName = dal.Branches.GetById(c.BranchId).Name,
+                        CourseName = dal.Courses.GetById(c.CourseId).CouresName
+                    };
                 }).ToList();
             }
             catch (Exception ex)
@@ -331,9 +367,12 @@ namespace BLL.Services
                         StudentId = s.StudentId,
                         StudentName = student != null ? $"{student.FirstName} {student.LastName}" : string.Empty,
                         Phone = student?.Phone,
-                        City=student?.City,
-                        HealthFound = student?.HealthFund
+                        City = student?.City,
+                        HealthFund = student?.HealthFundForStudent != null
+         ? $"{student.HealthFundForStudent.Name} ({student.HealthFundForStudent.FundType})"
+         : string.Empty
                     };
+
                 })
                 .ToList();
 
@@ -349,17 +388,18 @@ namespace BLL.Services
                 GroupName = group.GroupName,
                 CourseName = course?.CouresName,
                 BranchName = branch?.Name,
-                AgeRange=group.AgeRange,
-                LessonsCompleted=group.LessonsCompleted,
-                MaxStudents=group.MaxStudents,
-                NumOfLessons=group.NumOfLessons,
-                Sector=group.Sector,
-                StartDate=group.StartDate,
+                AgeRange = group.AgeRange,
+                LessonsCompleted = group.LessonsCompleted,
+                MaxStudents = group.MaxStudents,
+                NumOfLessons = group.NumOfLessons,
+                Sector = group.Sector,
+                StartDate = group.StartDate,
                 Schedule = $"{group.DayOfWeek} {group.Hour?.ToString("HH:mm")}",
                 InstructorName = instructor != null ? $"{instructor.FirstName} {instructor.LastName}" : string.Empty,
                 Students = students
             };
         }
+
 
         #region FindBestGroupsForStudent
         public List<BLLGroupDetailsPerfect> FindBestGroupsForStudent(int studentId, int maxResults = 5)
@@ -573,6 +613,12 @@ namespace BLL.Services
         }
         #endregion
 
+
+        /// <summary>
+        /// עדכון פרטי קבוצה
+        /// </summary>
+        /// <param name="group"></param>
+        /// <exception cref="KeyNotFoundException"></exception>
         public void Update(BLLGroup group)
         {
             Group existingGroup = dal.Groups.GetById(group.GroupId);
@@ -630,7 +676,9 @@ namespace BLL.Services
                                 StudentName = student != null ? $"{student.FirstName} {student.LastName}" : string.Empty,
                                 Phone = student?.Phone,
                                 City = student?.City,
-                                HealthFound = student?.HealthFund   
+                                HealthFund = student?.HealthFundForStudent != null
+         ? $"{student.HealthFundForStudent.Name} ({student.HealthFundForStudent.FundType})"
+         : string.Empty
                             };
                         })
                         .ToList();
@@ -697,7 +745,7 @@ namespace BLL.Services
                             StudentName = student != null ? $"{student.FirstName} {student.LastName}" : string.Empty,
                             Phone = student?.Phone,
                             City = student?.City,
-                            HealthFound = student?.HealthFund
+                            HealthFund = student?.HealthFundForStudent != null ? $"{student.HealthFundForStudent.Name} ({student.HealthFundForStudent.FundType})" : string.Empty
                         };
                     })
                     .ToList();
@@ -726,6 +774,88 @@ namespace BLL.Services
             }).ToList();
 
             return result;
+        }
+        /// <summary>
+        /// פונקציה ליצירת שיעורים לכל הקבוצות
+        /// </summary>
+        /// <param name="createdBy"></param>
+        /// <returns></returns>
+        public async Task GenerateLessonsForAllExistingGroups(string createdBy)
+        {
+            try
+            {
+                var groups = dal.Groups.Get(); // קבל את כל הקבוצות
+
+                foreach (var group in groups)
+                {
+                    // דלג על קבוצות שאין להם תאריך התחלה תקין
+                    if (group.StartDate == null || group.StartDate == DateOnly.MinValue)
+                        continue;
+
+                    // בדוק אם לקבוצה כבר יש שיעורים
+                    var existingLessons = dal.Lessons.Get()?.Where(l => l.GroupId == group.GroupId).ToList();
+                    if (existingLessons != null && existingLessons.Any())
+                        continue; // דלג, כבר יש שיעורים
+
+                    // יצור שיעורים
+                    
+                    await lessonService.GenerateLessonsForGroup(
+                        groupId: group.GroupId,
+                    startDate: !group.StartDate.HasValue ? throw new ArgumentException("StartDate cannot be null when generating lessons.") : group.StartDate.Value,
+                        numOfLessons: group.NumOfLessons ?? 0,
+                        dayOfWeek: group.DayOfWeek,
+                        lessonHour: group.Hour ?? throw new ArgumentException("Hour cannot be null when generating lessons."),
+                        instructorId: group.InstructorId,
+                        createdBy: createdBy
+                    );
+
+                    Console.WriteLine($"✅ יוצרו שיעורים לקבוצה: {group.GroupName}");
+                }
+
+                Console.WriteLine("✅ סיום יצירת שיעורים לכל הקבוצות");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ שגיאה: {ex.Message}");
+                throw;
+            }
+        }
+     /// <summary>
+     /// פונקציה שמחזירה פרטים מלאים של קבוצה
+     /// </summary>
+     /// <param name="groupId"></param>
+     /// <returns></returns>
+        public BLLGroupDetailsDto GetGroupDetails(int groupId)
+        {
+            var group = dal.Groups.GetByIdWithIncludes(groupId);
+            if (group == null)
+                return null;
+
+            var students = group.GroupStudents.Select(gs => gs.Student).ToList();
+            var lessons = group.Lessons?.ToList() ?? new List<Lesson>();
+            var instructor = group.Instructor;
+
+            return new BLLGroupDetailsDto
+            {
+                GroupId = group.GroupId,
+                BranchId = group.BranchId,
+                CourseId = group.CourseId,
+                InstructorId = group.InstructorId,
+                GroupName = group.GroupName,
+                DayOfWeek = group.DayOfWeek,
+                Hour = group.Hour,
+                AgeRange = group.AgeRange,
+                MaxStudents = group.MaxStudents,
+                Sector = group.Sector,
+                StartDate = group.StartDate,
+                NumOfLessons = group.NumOfLessons,
+                LessonsCompleted = group.LessonsCompleted,
+                Branch = group.Branch,
+                Course = group.Course,
+                Instructor = instructor,
+                Students = students,
+                Lessons = lessons
+            };
         }
 
 

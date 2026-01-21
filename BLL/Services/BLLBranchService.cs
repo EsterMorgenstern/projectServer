@@ -13,6 +13,10 @@ namespace BLL.Services
         {
             this.dal = dal;
         }
+        /// <summary>
+        /// החזרת כל הסניפים
+        /// </summary>
+        /// <returns></returns>
         public List<BLLBranch> Get()
         {
             try
@@ -40,6 +44,10 @@ namespace BLL.Services
                 return new List<BLLBranch>(); // מחזיר מערך ריק במקרה של שגיאה
             }
         }
+        /// <summary>
+        /// יצירת סניף חדש
+        /// </summary>
+        /// <param name="branch"></param>
         public void Create(BLLBranch branch)
         {
             Branch b = new Branch()
@@ -53,6 +61,11 @@ namespace BLL.Services
             };
             dal.Branches.Create(b);
         }
+        /// <summary>
+        /// החזרת סניף לפי מזהה סניף
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public BLLBranch GetById(int id)
         {
             try
@@ -96,7 +109,10 @@ namespace BLL.Services
                 };
             }
         }
-       
+        /// <summary>
+        /// מחיקת סניף כולל מחיקת התלויות לא מספיק יעיל
+        /// </summary>
+        /// <param name="id"></param>
         public void Delete(int id)
         {
             var groups = dal.Groups.Get().Where(x => x.BranchId == id);
@@ -125,6 +141,11 @@ namespace BLL.Services
             
             dal.Branches.Delete(id);
         }
+        /// <summary>
+        /// עדכון פרטי סניף
+        /// </summary>
+        /// <param name="branch"></param>
+        /// <exception cref="KeyNotFoundException"></exception>
         public void Update(BLLBranch branch)
         {
             Branch b = dal.Branches.GetById(branch.BranchId);

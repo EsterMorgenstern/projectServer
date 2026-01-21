@@ -1,6 +1,7 @@
 ﻿using BLL.Api;
 using BLL.Models;
 using BLL.Services;
+using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace server.controllers
@@ -77,11 +78,10 @@ namespace server.controllers
            
         }
 
-
         [HttpPost("Add")]
         public void Create(BLLGroup group)
         {
-            groups.Create(group);
+            groups.CreateAsync(group);
         }
         [HttpPut("Update")]
         public void Update(BLLGroup group)
@@ -93,5 +93,26 @@ namespace server.controllers
         {
             groups.Delete(groupId);
         }
+
+        [HttpPost("migrate/generate-lessons")]
+        public async void GenerateLessonsForAllGroups()
+        {
+            try
+            {
+                var currentUser = "System";
+                await groups.GenerateLessonsForAllExistingGroups(currentUser);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+        [HttpGet("details/{groupId}")]
+        public BLLGroupDetailsDto GetGroupDetails(int groupId)
+        {
+           return groups.GetGroupDetails(groupId);
+           
+        }
+
     }
 }

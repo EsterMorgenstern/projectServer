@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace DAL.Models;
@@ -23,7 +21,7 @@ public partial class dbcontext : DbContext
     public virtual DbSet<GroupStudent> GroupStudents { get; set; }
     public virtual DbSet<Instructor> Instructors { get; set; }
     public virtual DbSet<Payment> Payments { get; set; }
-    public virtual DbSet<PaymentMethod> PaymentMethods { get; set; } 
+    public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
     public virtual DbSet<Student> Students { get; set; }
     public virtual DbSet<StudentNote> StudentNotes { get; set; }
     public virtual DbSet<User> Users { get; set; }
@@ -31,7 +29,8 @@ public partial class dbcontext : DbContext
     public virtual DbSet<HealthFund> HealthFunds { get; set; }
     public virtual DbSet<StudentHealthFund> StudentHealthFunds { get; set; }
     public virtual DbSet<ReportedDate> ReportedDates { get; set; }
-    public virtual DbSet<UnreportedDate> UnreportedDates {  get; set; }
+    public virtual DbSet<UnreportedDate> UnreportedDates { get; set; }
+    public virtual DbSet<Lesson> Lessons { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -42,7 +41,7 @@ public partial class dbcontext : DbContext
                 .Build();
             var connectionString = configuration.GetConnectionString("DefaultConnection");
             optionsBuilder.UseSqlServer(connectionString);
-        }   
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -214,16 +213,19 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.City).HasMaxLength(20);
             entity.Property(e => e.FirstName).HasMaxLength(20);
             entity.Property(e => e.Class).HasMaxLength(10);
-            entity.Property(e => e.HealthFund).HasMaxLength(50);
             entity.Property(e => e.LastName);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.SecondaryPhone).HasMaxLength(20);
             entity.Property(e => e.School).HasMaxLength(20);
             entity.Property(e => e.Sector).HasMaxLength(50);
-            entity.Property(e => e.Status).HasMaxLength(30); 
+            entity.Property(e => e.Status).HasMaxLength(30);
             entity.Property(e => e.Email);
             entity.Property(e => e.CreatedBy);
             entity.Property(e => e.IdentityCard).HasMaxLength(20);
+            entity.HasOne(s => s.HealthFundForStudent)
+               .WithMany()
+               .HasForeignKey(s => s.HealthFundId)
+               .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<StudentNote>(entity =>
@@ -327,6 +329,46 @@ public partial class dbcontext : DbContext
                 .HasForeignKey(d => d.StudentHealthFundId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+        modelBuilder.Entity<Lesson>(entity =>
+        {
+            entity.HasKey(e => e.LessonId);
+            entity.Property(e => e.LessonDate)
+                .IsRequired()
+                .HasConversion(
+                    v => v.ToDateTime(TimeOnly.MinValue), // המרה מ-DateOnly ל-DateTime
+                    v => DateOnly.FromDateTime(v)
+                )
+                .HasColumnType("date");
+            entity.Property(e => e.LessonHour)
+                .HasConversion(
+                    v => v.HasValue ? v.Value.ToTimeSpan() : (TimeSpan?)null, // TimeOnly? -> TimeSpan?
+                    v => v.HasValue ? TimeOnly.FromTimeSpan(v.Value) : (TimeOnly?)null // TimeSpan? -> TimeOnly?
+                )
+                .HasColumnType("time");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("future");
+            entity.Property(e => e.IsReported)
+                .IsRequired();
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(100);
+
+            // קשר לקבוצה
+            entity.HasOne(e => e.Group)
+                .WithMany(g => g.Lessons)
+                .HasForeignKey(e => e.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // קשר למדריך (יכול להיות null)
+            entity.HasOne(e => e.Instructor)
+                .WithMany()
+                .HasForeignKey(e => e.InstructorId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
 
 
         OnModelCreatingPartial(modelBuilder);

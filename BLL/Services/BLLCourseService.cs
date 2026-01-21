@@ -12,7 +12,10 @@ namespace BLL.Services
         {
             this.dal = dal;
         }
-
+        /// <summary>
+        /// יצירת חוג חדש
+        /// </summary>
+        /// <param name="course"></param>
         public void Create(BLLCourse course)
         {
             Course c = new Course()
@@ -23,7 +26,10 @@ namespace BLL.Services
             };
             dal.Courses.Create(c);
         }
-
+        /// <summary>
+        /// מחיקת חוג עדיין ללא מחיקת התלויות בו!!!!!!
+        /// </summary>
+        /// <param name="courseId"></param>
         public void Delete(int courseId)
         {
             var groups = dal.Groups.Get().Where(x => x.CourseId == courseId);
@@ -33,7 +39,10 @@ namespace BLL.Services
             }
             dal.Courses.Delete(courseId);
         }
-
+        /// <summary>
+        /// החזרת כל החוגים
+        /// </summary>
+        /// <returns></returns>
         public List<BLLCourse> Get()
         {
             try
@@ -58,7 +67,11 @@ namespace BLL.Services
                 return new List<BLLCourse>(); // מחזיר מערך ריק במקרה של שגיאה
             }
         }
-
+        /// <summary>
+        /// החזרת חוג לפי מזהה החוג
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public BLLCourse GetById(int id)
         {
             try
@@ -93,7 +106,11 @@ namespace BLL.Services
                 };
             }
         }
-
+        /// <summary>
+        /// עדכון חוג
+        /// </summary>
+        /// <param name="course"></param>
+        /// <exception cref="KeyNotFoundException"></exception>
         public void Update(BLLCourse course)
         {
             Course c = dal.Courses.GetById(course.CourseId);

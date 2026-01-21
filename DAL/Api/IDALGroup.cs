@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DAL.Models;
+﻿using DAL.Models;
 
 namespace DAL.Api
 {
     public interface IDALGroup
     {
         List<Group> Get();
-        void Create(Group group);
-        public Group GetById(int id);
-        public List<Group> GetGroupsByCourseId(int id);
-        public void Delete(int id);
-        public void Update( Group group);
-        public List<Group> GetGroupsByDayOfWeek(string dayOfWeek);
-        public List<GroupStudent> GetStudentsByGroupId(int groupId);
-        public List<Group> GetGroupsByInstructorId(int instructorId);
+        int Create(Group group);
+        Group GetById(int id);
+        Group GetByIdWithIncludes(int id);
+        List<Group> GetGroupsByCourseId(int id);
+        void Delete(int id);
+        void Update(Group group);
+        List<Group> GetGroupsByDayOfWeek(string dayOfWeek);
+        List<GroupStudent> GetStudentsByGroupId(int groupId);
+        List<Group> GetGroupsByInstructorId(int instructorId);
     }
 }

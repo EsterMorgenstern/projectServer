@@ -1,7 +1,6 @@
 ﻿using BLL.Api;
 using BLL.Services;
 using DAL.Api;
-using DAL.Models;
 
 namespace BLL
 {
@@ -21,13 +20,14 @@ namespace BLL
         public IBLLPayment Payments { get; }
         public IBLLHealthFund HealthFunds { get; }
         public IBLLStudentHealthFund StudentHealthFunds { get; }
-
+        public IBLLLesson Lessons { get; }
         public BLLManager(IDAL dal)
         {
+            Lessons = new BLLLessonService(dal);
             Students = new BLLStudentService(dal);
             Instructors = new BLLInstructorService(dal);
             Courses = new BLLCourseService(dal);
-            Groups = new BLLGroupService(dal);
+            Groups = new BLLGroupService(dal, Lessons);
             Attendances = new BLLAttendanceService(dal);
             Branches = new BLLBranchService(dal);
             GroupStudents = new BLLGroupStudentService(dal);

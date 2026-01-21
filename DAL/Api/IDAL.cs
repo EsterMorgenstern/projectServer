@@ -19,5 +19,6 @@
         IDALStudentHealthFund StudentHealthFunds { get; }
         IDALReportedDate ReportedDates { get; } 
         IDALUnreportedDate UnreportedDates { get; }   
+        IDALLesson Lessons { get; }
     }
 }

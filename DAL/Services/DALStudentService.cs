@@ -1,5 +1,7 @@
 ﻿using DAL.Api;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore; 
+
 
 
 namespace DAL.Services
@@ -27,7 +29,9 @@ namespace DAL.Services
                     throw new Exception("No Student records found.");
                 }
 
-                return dbcontext.Students.ToList();
+                return dbcontext.Students
+                          .Include(s => s.HealthFundForStudent) 
+                          .ToList();
             }
             catch (Exception ex)
             {
@@ -38,7 +42,9 @@ namespace DAL.Services
 
         public Student GetById(int id) 
         {
-            var student = dbcontext.Students.ToList().Find(x => x.Id == id);
+            var student = dbcontext.Students
+                .Include(s => s.HealthFundForStudent)
+                .SingleOrDefault(x => x.Id == id);
             if (student == null)
             {
                 throw new KeyNotFoundException($"Student with ID {id} not found."); 
