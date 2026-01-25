@@ -12,6 +12,7 @@
         public string? Sector { get; set; }
         public DateOnly? StartDate { get; set; }
         public int? NumOfLessons { get; set; }
+        public bool? IsActive { get; set; }
         public int? LessonsCompleted { get; set; }
         public string? InstructorName { get; set; }
         public List<StudentDto>? Students { get; set; }

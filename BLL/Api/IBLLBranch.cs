@@ -9,7 +9,7 @@ namespace BLL.Api
 {
     public interface IBLLBranch
     {
-        List<BLLBranch> Get();
+        List<BLLBranchDetails> Get();
         void Create(BLLBranch branch);
         public BLLBranch GetById(int id);
         public void Delete(int id);

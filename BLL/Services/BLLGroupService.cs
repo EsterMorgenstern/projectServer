@@ -35,20 +35,24 @@ namespace BLL.Services
                 InstructorId = group.InstructorId,
                 NumOfLessons = group.NumOfLessons,
                 LessonsCompleted = group.LessonsCompleted,
-                StartDate = group.StartDate
+                StartDate = group.StartDate,
+                IsActive = group.IsActive
             };
-           int groupId = dal.Groups.Create(g);
-
-            if (group.StartDate.HasValue) 
+            int groupId = dal.Groups.Create(g);
+            if (!(bool)group.IsActive)
             {
-                if (group.Hour.HasValue) 
+                return;
+            }
+            if (group.StartDate.HasValue)
+            {
+                if (group.Hour.HasValue)
                 {
                     await lessonService.GenerateLessonsForGroup(
                         groupId: groupId,
                         startDate: group.StartDate.Value,
                         numOfLessons: group.NumOfLessons ?? 0,
                         dayOfWeek: group.DayOfWeek,
-                        lessonHour: group.Hour.Value, 
+                        lessonHour: group.Hour.Value,
                         instructorId: group.InstructorId,
                         createdBy: "system"
                     );
@@ -58,6 +62,7 @@ namespace BLL.Services
                     throw new ArgumentException("Hour cannot be null when creating lessons for a group.");
                 }
             }
+
             else
             {
                 throw new ArgumentException("StartDate cannot be null when creating lessons for a group.");
@@ -126,6 +131,7 @@ namespace BLL.Services
                         Sector = c.Sector,
                         NumOfLessons = c.NumOfLessons,
                         LessonsCompleted = c.LessonsCompleted,
+                        IsActive = c.IsActive,
                         StartDate = c.StartDate,
                         InstructorName = instructor != null ? $"{instructor.FirstName} {instructor.LastName}" : string.Empty,
                         BranchName = dal.Branches.GetById(c.BranchId).Name,
@@ -166,6 +172,7 @@ namespace BLL.Services
                         InstructorId = group.InstructorId,
                         NumOfLessons = group.NumOfLessons,
                         LessonsCompleted = group.LessonsCompleted,
+                        IsActive = group.IsActive,
                         StartDate = group.StartDate
                     };
                 }
@@ -185,7 +192,8 @@ namespace BLL.Services
                     InstructorId = 0,
                     NumOfLessons = null,
                     LessonsCompleted = null,
-                    StartDate = null
+                    IsActive = null,
+                                        StartDate = null
                 };
             }
             catch (Exception ex)
@@ -205,7 +213,8 @@ namespace BLL.Services
                     InstructorId = 0,
                     NumOfLessons = null,
                     LessonsCompleted = null,
-                    StartDate = null
+                    StartDate = null,
+                    IsActive=null
                 };
             }
         }
@@ -236,7 +245,9 @@ namespace BLL.Services
                         InstructorId = group.InstructorId,
                         StartDate = group.StartDate,
                         NumOfLessons = group.NumOfLessons,
-                        LessonsCompleted = group.LessonsCompleted
+                        LessonsCompleted = group.LessonsCompleted,
+                        IsActive = group.IsActive
+
                     };
                     bls.Add(bl);
                 }
@@ -266,7 +277,9 @@ namespace BLL.Services
                 Sector = g.Sector,
                 StartDate = g.StartDate,
                 NumOfLessons = g.NumOfLessons,
-                LessonsCompleted = g.LessonsCompleted
+                LessonsCompleted = g.LessonsCompleted,
+                IsActive = g.IsActive
+
             }).ToList();
         }
 
@@ -296,7 +309,8 @@ namespace BLL.Services
                     InstructorId = group.InstructorId,
                     StartDate = group.StartDate,
                     NumOfLessons = group.NumOfLessons,
-                    LessonsCompleted = group.LessonsCompleted,
+                    IsActive = group.IsActive,
+                                        LessonsCompleted = group.LessonsCompleted,
                     BranchName = dal.Branches.GetById(group.BranchId).Name,
                     CourseName = dal.Courses.GetById(group.CourseId).CouresName
                 };
@@ -392,7 +406,8 @@ namespace BLL.Services
                 LessonsCompleted = group.LessonsCompleted,
                 MaxStudents = group.MaxStudents,
                 NumOfLessons = group.NumOfLessons,
-                Sector = group.Sector,
+                IsActive = group.IsActive,
+                                Sector = group.Sector,
                 StartDate = group.StartDate,
                 Schedule = $"{group.DayOfWeek} {group.Hour?.ToString("HH:mm")}",
                 InstructorName = instructor != null ? $"{instructor.FirstName} {instructor.LastName}" : string.Empty,
@@ -638,6 +653,7 @@ namespace BLL.Services
             existingGroup.InstructorId = group.InstructorId;
             existingGroup.StartDate = group.StartDate;
             existingGroup.NumOfLessons = group.NumOfLessons;
+            existingGroup.IsActive = group.IsActive;
             existingGroup.LessonsCompleted = group.LessonsCompleted;
 
             dal.Groups.Update(existingGroup);
@@ -700,6 +716,7 @@ namespace BLL.Services
                         NumOfLessons = g.NumOfLessons,
                         Sector = g.Sector,
                         StartDate = g.StartDate,
+                        IsActive = g.IsActive,
                         Schedule = $"{g.DayOfWeek} {g.Hour?.ToString("HH:mm")}",
                         InstructorName = instructor != null ? $"{instructor.FirstName} {instructor.LastName}" : string.Empty,
                         Students = students
@@ -767,6 +784,7 @@ namespace BLL.Services
                     NumOfLessons = group.NumOfLessons,
                     Sector = group.Sector,
                     StartDate = group.StartDate,
+                    IsActive = group.IsActive,
                     Schedule = $"{group.DayOfWeek} {group.Hour?.ToString("HH:mm")}",
                     InstructorName = instructor != null ? $"{instructor.FirstName} {instructor.LastName}" : string.Empty,
                     Students = students
@@ -850,12 +868,25 @@ namespace BLL.Services
                 StartDate = group.StartDate,
                 NumOfLessons = group.NumOfLessons,
                 LessonsCompleted = group.LessonsCompleted,
+                IsActive = group.IsActive,
                 Branch = group.Branch,
                 Course = group.Course,
                 Instructor = instructor,
                 Students = students,
                 Lessons = lessons
             };
+        }
+        /// <summary>
+        /// פונקציה שמחזירה מספר תלמידים פעילים בקבוצה
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public int GetActiveStudentsCountByGroupId(int groupId)
+        {
+            // שלוף את כל החיבורים בין תלמידים לקבוצה
+            var groupStudents = dal.GroupStudents.Get().Where(gs => gs.GroupId == groupId);
+
+            return groupStudents.Count(gs => gs.IsActive == true);
         }
 
 

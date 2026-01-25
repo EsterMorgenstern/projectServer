@@ -17,6 +17,7 @@ namespace BLL.Models
         public DateOnly? StartDate { get; set; }
         public int? NumOfLessons { get; set; }
         public int? LessonsCompleted { get; set; }
+        public bool? IsActive { get; set; }
         public Branch? Branch { get; set; }
         public Course? Course { get; set; }
         public Instructor? Instructor { get; set; }

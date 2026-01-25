@@ -15,6 +15,7 @@ namespace BLL.Models
         public DateOnly? StartDate { get; set; }
         public int? NumOfLessons { get; set; }
         public int? LessonsCompleted { get; set; }
+        public bool? IsActive { get; set; }
     }
     public class BLLGroupDetailsPerfect
     {
@@ -33,6 +34,8 @@ namespace BLL.Models
         public DateOnly? StartDate { get; set; }
         public int? NumOfLessons { get; set; }
         public int? LessonsCompleted { get; set; }
+        public bool? IsActive { get; set; }
+
         // שדות חדשים
         public string InstructorName { get; set; } = string.Empty;
         public string BranchCity { get; set; } = string.Empty;

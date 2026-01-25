@@ -24,5 +24,6 @@
         public DateOnly? StartDate { get; set; }
         public int? NumOfLessons { get; set; }
         public int? LessonsCompleted { get; set; }
+        public bool? IsActive { get; set; }
     }
 }

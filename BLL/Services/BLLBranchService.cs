@@ -17,7 +17,7 @@ namespace BLL.Services
         /// החזרת כל הסניפים
         /// </summary>
         /// <returns></returns>
-        public List<BLLBranch> Get()
+        public List<BLLBranchDetails> Get()
         {
             try
             {
@@ -25,23 +25,24 @@ namespace BLL.Services
                 if (branches == null || !branches.Any())
                 {
                     Console.WriteLine("No branches found.");
-                    return new List<BLLBranch>(); // מחזיר מערך ריק
+                    return new List<BLLBranchDetails>(); // מחזיר מערך ריק
                 }
 
-                return branches.Select(b => new BLLBranch()
+                return branches.Select(b => new BLLBranchDetails()
                 {
                     BranchId = b.BranchId,
                     CourseId = b.CourseId,
                     Name = b.Name,
                     Address = b.Address,
                     MaxGroupSize = b.MaxGroupSize,
-                    City = b.City
+                    City = b.City,
+                    ActiveStudentsCount = GetActiveStudentsCountByBranchId(b.BranchId)
                 }).ToList();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error fetching branches: {ex.Message}");
-                return new List<BLLBranch>(); // מחזיר מערך ריק במקרה של שגיאה
+                return new List<BLLBranchDetails>(); // מחזיר מערך ריק במקרה של שגיאה
             }
         }
         /// <summary>
@@ -165,6 +166,23 @@ namespace BLL.Services
                 throw new KeyNotFoundException($"Branch with id {branch.BranchId} not found.");
             }
         }
+        /// <summary>
+        /// תלמידים פעילים בקבוצה
+        /// </summary>
+        /// <param name="branchId"></param>
+        /// <returns></returns>
+        public int GetActiveStudentsCountByBranchId(int branchId)
+        {
+            var groups = dal.Groups.Get().Where(g => g.BranchId == branchId).ToList();
+            var groupService = new BLLGroupService(dal, null); 
+            int total = 0;
+            foreach (var group in groups)
+            {
+                total += groupService.GetActiveStudentsCountByGroupId(group.GroupId);
+            }
+            return total;
+        }
+
     }
 
 

@@ -16,7 +16,7 @@ namespace server.controllers
         }
 
         [HttpGet("GetAll")]
-        public List<BLLBranch> Get()
+        public List<BLLBranchDetails> Get()
         {
             return branches.Get();
         }
