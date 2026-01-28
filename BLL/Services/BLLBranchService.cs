@@ -36,7 +36,9 @@ namespace BLL.Services
                     Address = b.Address,
                     MaxGroupSize = b.MaxGroupSize,
                     City = b.City,
-                    ActiveStudentsCount = GetActiveStudentsCountByBranchId(b.BranchId)
+                    ActiveStudentsCount = GetActiveStudentsCountByBranchId(b.BranchId),
+                    ActiveGroupsCount = GetActiveGroupsCountByBranchId(b.BranchId)
+
                 }).ToList();
             }
             catch (Exception ex)
@@ -171,10 +173,10 @@ namespace BLL.Services
         /// </summary>
         /// <param name="branchId"></param>
         /// <returns></returns>
-        public int GetActiveStudentsCountByBranchId(int branchId)
+        private int GetActiveStudentsCountByBranchId(int branchId)
         {
             var groups = dal.Groups.Get().Where(g => g.BranchId == branchId).ToList();
-            var groupService = new BLLGroupService(dal, null); 
+            var groupService = new BLLGroupService(dal, null);
             int total = 0;
             foreach (var group in groups)
             {
@@ -182,7 +184,25 @@ namespace BLL.Services
             }
             return total;
         }
-
+        /// <summary>
+        /// קבוצות פעילות בסניף
+        /// </summary>
+        /// <param name="branchId"></param>
+        /// <returns></returns>
+        private int GetActiveGroupsCountByBranchId(int branchId)
+        {
+            var groups = dal.Groups.Get().Where(g => g.BranchId == branchId).ToList();
+            var groupService = new BLLGroupService(dal, null);
+            int total = 0;
+            foreach (var group in groups)
+            {
+                if (group.IsActive.HasValue && group.IsActive.Value)
+                {
+                    total++;
+                }
+            }
+            return total;
+        }
     }
 
 

@@ -29,7 +29,9 @@ namespace BLL.Services
                 MonthlyPrice = hf.MonthlyPrice,
                 RequiresReferral = hf.RequiresReferral,
                 RequiresCommitment = hf.RequiresCommitment,
-                IsActive = hf.IsActive
+                IsActive = hf.IsActive,
+                ValidUntilAge = hf.ValidUntilAge ?? 0, 
+                EligibilityDetails = hf.EligibilityDetails
             }).ToList();
         }
 
@@ -45,7 +47,9 @@ namespace BLL.Services
                 MonthlyPrice = healthFund.MonthlyPrice,
                 RequiresReferral = healthFund.RequiresReferral,
                 RequiresCommitment = healthFund.RequiresCommitment,
-                IsActive = healthFund.IsActive
+                IsActive = healthFund.IsActive,
+                ValidUntilAge=healthFund.ValidUntilAge,
+                EligibilityDetails=healthFund.EligibilityDetails
             };
             dal.HealthFunds.Create(hf);
         }
@@ -63,7 +67,9 @@ namespace BLL.Services
                 MonthlyPrice = hf.MonthlyPrice,
                 RequiresReferral = hf.RequiresReferral,
                 RequiresCommitment = hf.RequiresCommitment,
-                IsActive = hf.IsActive
+                IsActive = hf.IsActive,
+                ValidUntilAge = hf.ValidUntilAge ?? 0, 
+                EligibilityDetails = hf.EligibilityDetails
             };
         }
 
@@ -85,6 +91,8 @@ namespace BLL.Services
                 hf.RequiresReferral = healthFund.RequiresReferral;
                 hf.RequiresCommitment = healthFund.RequiresCommitment;
                 hf.IsActive = healthFund.IsActive;
+                hf.ValidUntilAge = healthFund.ValidUntilAge;
+                hf.EligibilityDetails = healthFund.EligibilityDetails;
 
                 dal.HealthFunds.Update(hf);
             }

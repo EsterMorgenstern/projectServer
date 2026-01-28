@@ -11,6 +11,8 @@
         public bool RequiresReferral { get; set; }
         public bool RequiresCommitment { get; set; }
         public bool IsActive { get; set; } = true;
+        public int ValidUntilAge { get; set; } 
+        public string? EligibilityDetails { get; set; } 
 
     }
 

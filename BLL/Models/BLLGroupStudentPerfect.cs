@@ -21,6 +21,9 @@ namespace BLL.Models
         public int? LessonsCompleted { get; set; }
         public string? AgeRange { get; set; }
         public int? MaxStudents { get; set; }
+        public string? HealthFundName { get; set; }
+        public string? HealthFundPlan { get; set; }
+
 
     }
     public class BLLGroupStudentSecondly

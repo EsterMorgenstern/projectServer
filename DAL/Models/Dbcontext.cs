@@ -293,6 +293,8 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.RequiresReferral).HasDefaultValue(false);
             entity.Property(e => e.RequiresCommitment).HasDefaultValue(false);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ValidUntilAge);
+            entity.Property(e => e.EligibilityDetails).HasMaxLength(100);
         });
 
         modelBuilder.Entity<StudentHealthFund>(entity =>
