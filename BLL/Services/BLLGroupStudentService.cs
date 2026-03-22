@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BLL.Api;
+﻿using BLL.Api;
 using BLL.Models;
 using DAL.Api;
 using DAL.Models;
@@ -11,15 +8,22 @@ namespace BLL.Services
     public class BLLGroupStudentService : IBLLGroupStudent
     {
         private readonly IDAL dal;
-        public BLLGroupStudentService(IDAL dal)
+        private readonly BLLAttendanceService attendanceService;
+
+        public BLLGroupStudentService(IDAL dal, BLLAttendanceService attendanceService)
         {
             this.dal = dal;
+            this.attendanceService = attendanceService;
         }
 
+        /// <summary>
+        /// יצירת חוג לתלמיד כולל יצירת רשומי נוכחות לפי הקבוצה
+        /// </summary>
+        /// <param name="groupStudent"></param>
         public void Create(BLLGroupStudent groupStudent)
         {
             GroupStudent g = new GroupStudent()
-            { 
+            {
                 GroupId = groupStudent.GroupId,
                 StudentId = groupStudent.StudentId,
                 IsActive = groupStudent.IsActive == true || dal.Students.GetById(groupStudent.StudentId).Status == "פעיל",
@@ -33,41 +37,24 @@ namespace BLL.Services
                 gl.MaxStudents = (gl.MaxStudents ?? 0) - 1;
                 dal.Groups.Update(gl);
             }
-            var branch =dal.Branches.Get().ToList().Find(x => x.BranchId == gl?.BranchId);
+            var branch = dal.Branches.Get().ToList().Find(x => x.BranchId == gl?.BranchId);
             if (branch != null)
             {
                 branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) + 1;
                 dal.Branches.Update(branch);
             }
             // הוספת שיעורים לנוכחות אם התלמיד פעיל ותאריך ההתחלה הוא בעבר
-            if (g.IsActive == true && g.EnrollmentDate < DateOnly.FromDateTime(DateTime.Now))
+            if (g.IsActive == true)
             {
-                var lessons = dal.Attendances.GetByGroupAndDateRange(
-                    groupStudent.GroupId,
-                    g.EnrollmentDate.Value,
-                    DateOnly.FromDateTime(DateTime.Now)
-                );
-
-                foreach (var lesson in lessons)
-                {
-                    var existingAttendance = dal.Attendances.GetAttendanceByGroupAndDate(groupStudent.GroupId, (DateOnly)lesson.Date)
-                        .FirstOrDefault(a => a.StudentId == groupStudent.StudentId);
-
-                    if (existingAttendance == null)
-                    {
-                        dal.Attendances.Create(new Attendance
-                        {
-                            GroupId = groupStudent.GroupId,
-                            StudentId = groupStudent.StudentId,
-                            Date = lesson.Date,
-                            WasPresent = true
-                        });
-                    }
-                }
+                attendanceService.CreateAttendanceForNewStudentInGroup(g.StudentId, g.GroupId, (DateOnly)g.EnrollmentDate);
             }
 
         }
-
+        /// <summary>
+        /// מחיקת חוג לתלמיד
+        /// </summary>
+        /// <param name="id"></param>
+        /// <exception cref="KeyNotFoundException"></exception>
         public void Delete(int id)
         {
             var groupStudent = dal.GroupStudents.GetById(id);
@@ -93,7 +80,7 @@ namespace BLL.Services
         }
 
         public void DeleteByGsId(int id)
-       
+
         {
             var groupStudent = GetByGsId(id);
             if (groupStudent == null)
@@ -112,11 +99,14 @@ namespace BLL.Services
             var branch = dal.Branches.Get().ToList().Find(x => x.BranchId == group?.BranchId);
             if (branch != null)
             {
-                branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) -1;
+                branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) - 1;
                 dal.Branches.Update(branch);
             }
         }
-
+        /// <summary>
+        /// החזרת כל חוגי התלמידים
+        /// </summary>
+        /// <returns></returns>
         public List<BLLGroupStudent> Get()
         {
             try
@@ -143,7 +133,12 @@ namespace BLL.Services
                 return new List<BLLGroupStudent>(); // מחזיר מערך ריק במקרה של שגיאה
             }
         }
-
+        /// <summary>
+        /// החזרת חוג תלמיד לפי ID של GroupStudentId
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
         public BLLGroupStudent GetById(int id)
         {
             var groupStudent = dal.GroupStudents.GetById(id);
@@ -161,9 +156,15 @@ namespace BLL.Services
                 IsActive = groupStudent.IsActive
             };
         }
+        /// <summary>
+        /// החזרת חוג תלמיד לפי ID של GroupStudentId (שיטה נוספת עם שימוש ב-Get() ו-SingleOrDefault)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
         public BLLGroupStudent GetByGsId(int id)
         {
-            var groupStudent = dal.GroupStudents.Get().SingleOrDefault(x=>x.GroupStudentId==id);
+            var groupStudent = dal.GroupStudents.Get().SingleOrDefault(x => x.GroupStudentId == id);
             if (groupStudent == null)
             {
                 throw new KeyNotFoundException($"GroupStudent with ID {id} not found.");
@@ -178,6 +179,11 @@ namespace BLL.Services
                 IsActive = groupStudent.IsActive
             };
         }
+        /// <summary>
+        /// החזרת כל חוגי התלמידים לפי ID של תלמיד
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public List<BLLGroupStudentPerfect> GetByStudentId(int id)
         {
             try
@@ -195,10 +201,10 @@ namespace BLL.Services
                     return new BLLGroupStudentPerfect
                     {
                         GroupStudentId = item.GroupStudentId,
-                        GroupId=item.GroupId,
+                        GroupId = item.GroupId,
                         StudentId = item.StudentId,
                         StudentName = $"{dal.Students.GetById(item.StudentId).FirstName} {dal.Students.GetById(item.StudentId).LastName}",
-                        Student=dal.Students.GetById(item.StudentId),
+                        Student = dal.Students.GetById(item.StudentId),
                         EnrollmentDate = item.EnrollmentDate,
                         IsActive = item.IsActive,
                         DayOfWeek = d.DayOfWeek,
@@ -220,7 +226,12 @@ namespace BLL.Services
                 return new List<BLLGroupStudentPerfect>(); // מחזיר מערך ריק במקרה של שגיאה
             }
         }
-
+        /// <summary>
+        /// החזרת כל חוגי התלמידים לפי שם פרטי ושם משפחה של תלמיד (שיטה חדשה עם שיפור ביצועים על ידי צמצום מספר הקריאות למסד הנתונים)
+        /// </summary>
+        /// <param name="firstName"></param>
+        /// <param name="lastName"></param>
+        /// <returns></returns>
         public List<BLLGroupStudentPerfect> GetByStudentName(string firstName, string lastName)
         {
             try
@@ -281,17 +292,17 @@ namespace BLL.Services
                         Student = student,
                         EnrollmentDate = gs.EnrollmentDate,
                         IsActive = gs.IsActive,
-                        DayOfWeek = group?.DayOfWeek??string.Empty,
+                        DayOfWeek = group?.DayOfWeek ?? string.Empty,
                         Hour = group?.Hour,
-                        GroupName = group?.GroupName?? string.Empty,
+                        GroupName = group?.GroupName ?? string.Empty,
                         BranchName = group != null ? dal.Branches.GetById(group.BranchId)?.Name : "",
                         InstructorName = group != null ? $"{dal.Instructors.GetById(group.InstructorId)?.FirstName} {dal.Instructors.GetById(group.InstructorId)?.LastName}" : "",
                         CourseName = group != null ? dal.Courses.GetById(group.CourseId)?.CouresName : "",
-                        AgeRange=group?.AgeRange??string.Empty,
-                        LessonsCompleted=group?.LessonsCompleted,
-                        MaxStudents=group?.MaxStudents,
-                        NumOfLessons=group?.NumOfLessons
-                   
+                        AgeRange = group?.AgeRange ?? string.Empty,
+                        LessonsCompleted = group?.LessonsCompleted,
+                        MaxStudents = group?.MaxStudents,
+                        NumOfLessons = group?.NumOfLessons
+
                     };
                 }).ToList();
             }
@@ -301,6 +312,12 @@ namespace BLL.Services
                 return new List<BLLGroupStudentPerfect>();
             }
         }
+        /// <summary>
+        /// החזרת כל המדריכים של קבוצה לפי ID של קבוצה (שיטה חדשה שמחזירה רשימה של מדריכים במקום מדריך אחד, למקרה שיש יותר ממדריך אחד לקבוצה)
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
         public List<BLLInstructor> GetInstructorsByGroupId(int groupId)
         {
             var group = dal.Groups.GetById(groupId);
@@ -316,8 +333,8 @@ namespace BLL.Services
                 FirstName = i.FirstName ??= "",
                 LastName = i.LastName ??= "",
                 Phone = i.Phone,
-                Email = i.Email??="",
-                City = i.City??="",
+                Email = i.Email ??= "",
+                City = i.City ??= "",
                 Sector = i.Sector ??= ""
             }).ToList();
         }
@@ -335,6 +352,11 @@ namespace BLL.Services
             }).ToList();
         }
 
+        /// <summary>
+        /// עדכון חוג לתלמיד כולל זיהוי מעבר מ-לא פעיל לפעיל וקריאה ליצירת רשומי נוכחות חדשים, וכן זיהוי שינוי בתאריך ההתחלה ועדכון נוכחויות בהתאם
+        /// </summary>
+        /// <param name="groupStudent"></param>
+        /// <exception cref="KeyNotFoundException"></exception>
         public void Update(BLLGroupStudentSecondly groupStudent)
         {
             var existingGroupStudent = dal.GroupStudents.GetById(groupStudent.GroupStudentId);
@@ -344,6 +366,7 @@ namespace BLL.Services
             }
 
             var oldEnrollmentDate = existingGroupStudent.EnrollmentDate;
+            var oldIsActive = existingGroupStudent.IsActive;
 
             existingGroupStudent.GroupId = dal.Groups.Get()
                 .Where(x => x.GroupName == groupStudent.GroupName)
@@ -355,46 +378,27 @@ namespace BLL.Services
 
             dal.GroupStudents.Update(existingGroupStudent);
 
-            // מחיקת נוכחויות וישנות ו-UnreportedDate אם תאריך ההתחלה השתנה
-            if (oldEnrollmentDate.HasValue && groupStudent.EnrollmentDate.HasValue &&
-                groupStudent.EnrollmentDate.Value > oldEnrollmentDate.Value)
+            // זיהוי מעבר מ-לא פעיל לפעיל
+            bool becameActive = (oldIsActive == false || oldIsActive == null) && groupStudent.IsActive == true;
+            bool enrollmentDateChanged = oldEnrollmentDate != groupStudent.EnrollmentDate;
+
+            if (becameActive)
             {
-                // שליפת כל רשומות הנוכחות של התלמיד בקבוצה עד התאריך החדש
-                var attendances = dal.Attendances.GetAttendanceByStudentAndDateRange(
+                attendanceService.CreateAttendanceForNewStudentInGroup(
                     groupStudent.StudentId,
-                    DateOnly.MinValue,
-                    groupStudent.EnrollmentDate.Value.AddDays(-1)
+                    existingGroupStudent.GroupId,
+                    groupStudent.EnrollmentDate ?? DateOnly.FromDateTime(DateTime.Now)
                 );
-
-                // שמור את התאריכים שנמחקו
-                var deletedDates = new List<DateOnly>();
-
-                foreach (var attendance in attendances.Where(a => a.GroupId == existingGroupStudent.GroupId))
-                {
-                    if (attendance.Date.HasValue)
-                    {
-                        deletedDates.Add(attendance.Date.Value);
-                    }
-                    dal.Attendances.Delete(attendance.AttendanceId);
-                }
-
-                // מחיקת UnreportedDate עבור אותם תאריכים
-                var studentHealthFunds = dal.StudentHealthFunds.GetAll().Result
-                    .Where(shf => shf.StudentId == groupStudent.StudentId)
-                    .ToList();
-
-                foreach (var shf in studentHealthFunds)
-                {
-                    var unreportedDates = dal.UnreportedDates.GetByStudentHealthFundId(shf.Id);
-                    foreach (var unreported in unreportedDates)
-                    {
-                        if (unreported.DateUnreported != null &&
-                            deletedDates.Contains(DateOnly.FromDateTime(unreported.DateUnreported)))
-                        {
-                            dal.UnreportedDates.Delete(unreported.Id);
-                        }
-                    }
-                }
+            }
+            // קריאה לעדכון נוכחויות רק אם תאריך ההתחלה שונה ולא היה מעבר ל-פעיל
+            else if (enrollmentDateChanged)
+            {
+                attendanceService.UpdateAttendancesForEnrollmentDateChange(
+                    groupStudent.StudentId,
+                    existingGroupStudent.GroupId,
+                    oldEnrollmentDate,
+                    groupStudent.EnrollmentDate
+                );
             }
         }
 

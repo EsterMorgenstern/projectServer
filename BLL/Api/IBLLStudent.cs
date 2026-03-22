@@ -9,5 +9,6 @@ namespace BLL.Api
         public BLLStudent GetById(int id);
         public Task Delete(int id);
         public void Update(BLLStudent student);
+        public List<BLLStudentWithNotesDto> GetStudentsWithoutActiveGroupWithNotes();
     }
 }

@@ -31,7 +31,7 @@ builder.Services.AddScoped<IBLL, BLLManager>();
 builder.Services.AddScoped<IBLLAttendance, BLLAttendanceService>();
 
 // Register hosted services
-builder.Services.AddHostedService<DailyAttendanceMarker>();
+//builder.Services.AddHostedService<DailyAttendanceMarker>();
 
 // Add controllers and other services
 builder.Services.AddControllers()

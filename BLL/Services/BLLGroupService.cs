@@ -86,11 +86,11 @@ namespace BLL.Services
             {
                 dal.Lessons.Delete(item.LessonId);
             }
-            var lessonCancel = dal.LessonCancellations.Get().Where(x => x.GroupId == id);
-            foreach (var item in lessonCancel)
-            {
-                dal.LessonCancellations.Delete(item.Id);
-            }
+            //var lessonCancel = dal.LessonCancellations.Get().Where(x => x.GroupId == id);
+            //foreach (var item in lessonCancel)
+            //{
+            //    dal.LessonCancellations.Delete(item.Id);
+            //}
             var attendances = dal.Attendances.GetAttendanceByGroup(id);
             foreach (var item in attendances)
             {
@@ -283,6 +283,76 @@ namespace BLL.Services
                 IsActive = g.IsActive
 
             }).ToList();
+        }
+       
+        /// <summary>
+        /// החזרת קבוצות ותלמידים ביום מסוים
+        /// </summary>
+        /// <param name="dayOfWeek"></param>
+        /// <returns></returns>
+        public List<BLLGroupWithStudentsDto> GetGroupsWithStudentsByDayOfWeek(string dayOfWeek)
+        {
+            if (string.IsNullOrWhiteSpace(dayOfWeek))
+                return new List<BLLGroupWithStudentsDto>();
+
+            // שליפה מרוכזת
+            var allGroups = dal.Groups.Get()
+                .Where(g => g.DayOfWeek == dayOfWeek && g.IsActive != false)
+                .ToList();
+
+            if (!allGroups.Any())
+                return new List<BLLGroupWithStudentsDto>();
+
+            var allStudents = dal.Students.Get();
+            var allCourses = dal.Courses.Get();
+            var allBranches = dal.Branches.Get();
+            var allInstructors = dal.Instructors.Get();
+            var allGroupStudents = dal.GroupStudents.Get();
+
+            var result = allGroups.Select(group =>
+            {
+                var students = allGroupStudents
+                    .Where(gs => gs.GroupId == group.GroupId && gs.IsActive == true)
+                    .Select(gs =>
+                    {
+                        var student = allStudents.FirstOrDefault(st => st.Id == gs.StudentId);
+                        return new StudentDto
+                        {
+                            StudentId = gs.StudentId,
+                            StudentName = student != null ? $"{student.FirstName} {student.LastName}" : string.Empty,
+                            Phone = student?.Phone,
+                            City = student?.City,
+                            HealthFund = student?.HealthFundForStudent != null
+                                ? $"{student.HealthFundForStudent.Name} ({student.HealthFundForStudent.FundType})"
+                                : string.Empty
+                        };
+                    })
+                    .ToList();
+
+                var course = allCourses.FirstOrDefault(c => c.CourseId == group.CourseId);
+                var branch = allBranches.FirstOrDefault(b => b.BranchId == group.BranchId);
+                var instructor = allInstructors.FirstOrDefault(i => i.Id == group.InstructorId);
+
+                return new BLLGroupWithStudentsDto
+                {
+                    GroupId = group.GroupId,
+                    GroupName = group.GroupName,
+                    CourseName = course?.CouresName,
+                    BranchName = branch?.Name,
+                    AgeRange = group.AgeRange,
+                    LessonsCompleted = group.LessonsCompleted,
+                    MaxStudents = group.MaxStudents,
+                    NumOfLessons = group.NumOfLessons,
+                    Sector = group.Sector,
+                    StartDate = group.StartDate,
+                    IsActive = group.IsActive,
+                    Schedule = $"{group.DayOfWeek} {group.Hour?.ToString("HH:mm")}",
+                    InstructorName = instructor != null ? $"{instructor.FirstName} {instructor.LastName}" : string.Empty,
+                    Students = students
+                };
+            }).ToList();
+
+            return result;
         }
 
         /// <summary>
@@ -635,17 +705,23 @@ namespace BLL.Services
 
 
         /// <summary>
-        /// עדכון פרטי קבוצה
+        /// עדכון פרטי קבוצה כולל יצירת שיעורים לקבוצה שנהיתה פעילה
         /// </summary>
         /// <param name="group"></param>
         /// <exception cref="KeyNotFoundException"></exception>
-        public void Update(BLLGroup group)
+        public async Task UpdateAsync(BLLGroup group)
         {
             Group existingGroup = dal.Groups.GetById(group.GroupId);
             if (existingGroup == null)
             {
                 throw new KeyNotFoundException($"Group with ID {group.GroupId} not found.");
             }
+
+            // שמור את הסטטוס הקודם
+            bool wasActive = existingGroup.IsActive ?? false;
+            bool willBeActive = group.IsActive ?? false;
+
+            // עדכון שדות
             existingGroup.GroupId = group.GroupId;
             existingGroup.CourseId = group.CourseId;
             existingGroup.BranchId = group.BranchId;
@@ -662,8 +738,34 @@ namespace BLL.Services
             existingGroup.LessonsCompleted = group.LessonsCompleted;
 
             dal.Groups.Update(existingGroup);
-        }
 
+            // אם הסטטוס השתנה מלא פעיל לפעיל, צור שיעורים
+            if (!wasActive && willBeActive)
+            {
+                // בדוק אם כבר קיימים שיעורים לקבוצה
+                var existingLessons = dal.Lessons.Get().Any(l => l.GroupId == group.GroupId);
+                if (!existingLessons)
+                {
+                    if (group.StartDate.HasValue && group.Hour.HasValue)
+                    {
+                        await lessonService.GenerateLessonsForGroup(
+                            groupId: group.GroupId,
+                            startDate: group.StartDate.Value,
+                            numOfLessons: group.NumOfLessons ?? 0,
+                            dayOfWeek: group.DayOfWeek,
+                            lessonHour: group.Hour.Value,
+                            instructorId: group.InstructorId,
+                            createdBy: "system"
+                        );
+                    }
+
+                    else
+                    {
+                        throw new ArgumentException("StartDate and Hour must have values when activating a group and generating lessons.");
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// החזרת כל הקבוצות עם התלמידים שלהם, ממוינות לפי שם החוג מתאים לייצוא לאקסל
@@ -844,7 +946,7 @@ namespace BLL.Services
             }
         }
         /// <summary>
-        /// פונקציה שמחזירה פרטים מלאים של קבוצה
+        /// פונקציה שמחזירה פרטים מלאים של קבוצה כולל שיעורים
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
@@ -857,6 +959,9 @@ namespace BLL.Services
             var students = group.GroupStudents.Select(gs => gs.Student).ToList();
             var lessons = group.Lessons?.ToList() ?? new List<Lesson>();
             var instructor = group.Instructor;
+
+            UpdateLessonStatusesByDate(lessons);
+
 
             return new BLLGroupDetailsDto
             {
@@ -894,7 +999,25 @@ namespace BLL.Services
             return groupStudents.Count(gs => gs.IsActive == true);
         }
 
-
+        /// <summary>
+        /// פונקצית עזר שמעדכנת את הסטטוסים של השיעורים לפי התאריך הנוכחי
+        /// </summary>
+        /// <param name="lessons"></param>
+        private void UpdateLessonStatusesByDate(List<Lesson> lessons)
+        {
+            var now = DateOnly.FromDateTime(DateTime.Now);
+            foreach (var lesson in lessons)
+            {
+                if (lesson.Status != "canceled" && lesson.Status != "completion")
+                {
+                    if (lesson.LessonDate < now)
+                        lesson.Status = "completed";
+                    else if (lesson.LessonDate > now)
+                        lesson.Status = "future";
+                    else lesson.Status = "today";
+                }
+            }
+        }
 
     }
 }

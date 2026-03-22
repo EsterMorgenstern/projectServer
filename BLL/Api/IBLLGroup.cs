@@ -9,10 +9,9 @@ namespace BLL.Api
         Task CreateAsync(BLLGroup group);
         BLLGroup GetById(int id);
         void Delete(int id);
-        void Update(BLLGroup group);
-        List<BLLGroup> GetGroupsByCourseId(int courseId);
+        Task UpdateAsync(BLLGroup group);        List<BLLGroup> GetGroupsByCourseId(int courseId);
         List<BLLGroupDetails> GetGroupsByDayOfWeek(string dayOfWeek);
-
+       List<BLLGroupWithStudentsDto> GetGroupsWithStudentsByDayOfWeek(string dayOfWeek);
         List<BLLGroupStudentPerfect> GetStudentsByGroupId(int groupId);
         List<BLLGroupDetailsPerfect> GetGroupsByInstructorId(int instructorId);
         BLLGroupDetailsPerfect FindBestGroupForStudent(int studentId);

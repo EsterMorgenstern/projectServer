@@ -22,7 +22,6 @@ namespace DAL
             Attendances = new DALAttendanceService(data);
             StudentNotes = new DALStudentNoteService(data);
             Users = new DALUserService(data);
-            LessonCancellations = new DALLessonCancellationsService(data);
             PaymentMethods = new DALPaymentMethodService(data);
             Payments = new DALPaymentService(data);
             PaymentGrow = new DALGrowPaymentService(httpClient); // העברת HttpClient ל-DALGrowPaymentService
@@ -42,7 +41,6 @@ namespace DAL
         public IDALAttendance Attendances { get; }
         public IDALStudentNote StudentNotes { get; }
         public IDALUser Users { get; }
-        public IDALLessonCancellations LessonCancellations { get; }
         public IDALPaymentMethod PaymentMethods { get; }
         public IDALPayment Payments { get; }
         public IDALGrowPayment PaymentGrow { get; }

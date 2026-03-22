@@ -48,15 +48,34 @@ public partial class dbcontext : DbContext
     {
         modelBuilder.Entity<Attendance>(entity =>
         {
-            entity.HasKey(e => e.AttendanceId).HasName("PK__Attendan__8B69261CFE17C02C");
+            entity.HasKey(e => e.AttendanceId).HasName("PK_Attendance_New");
             entity.ToTable("Attendance");
-            entity.HasOne(d => d.Group).WithMany(p => p.Attendances)
-                .HasForeignKey(d => d.GroupId)
-                .HasConstraintName("FK__Attendanc__Group__46E78A0C");
-            entity.HasOne(d => d.Student).WithMany(p => p.Attendances)
+
+            entity.Property(e => e.LessonId).IsRequired();
+            entity.Property(e => e.StudentId).IsRequired();
+            entity.Property(e => e.WasPresent).IsRequired();
+            entity.Property(e => e.StatusReport).IsRequired();
+            entity.Property(e => e.HealthFundReport);
+            entity.Property(e => e.DateReport);
+            entity.Property(e => e.UpdateDate).HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.UpdateBy);
+
+            entity.HasOne(d => d.Lesson)
+                .WithMany(p => p.Attendances)
+                .HasForeignKey(d => d.LessonId)
+                .HasConstraintName("FK_Attendance_Lesson");
+
+            entity.HasOne(d => d.Student)
+                .WithMany(p => p.Attendances)
                 .HasForeignKey(d => d.StudentId)
-                .HasConstraintName("FK__Attendanc__Stude__47DBAE45");
+                .HasConstraintName("FK_Attendance_Student");
+
+            entity.HasOne(d => d.HealthFundReportNavigation)
+                .WithMany(p => p.Attendances)
+                .HasForeignKey(d => d.HealthFundReport)
+                .HasConstraintName("FK_Attendance_HealthFund");
         });
+
 
         modelBuilder.Entity<Branch>(entity =>
         {
@@ -358,6 +377,11 @@ public partial class dbcontext : DbContext
                 .HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.CreatedBy)
                 .HasMaxLength(100);
+            entity.Property(e => e.CancellationReason);
+            entity.Property(e => e.CanceledAt)
+               .HasColumnType("datetime");
+            entity.Property(e => e.CanceledBy)
+               .HasMaxLength(40);
 
             // קשר לקבוצה
             entity.HasOne(e => e.Group)

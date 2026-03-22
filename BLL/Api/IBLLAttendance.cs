@@ -13,22 +13,11 @@ namespace BLL.Api
         void DeleteByGroupAndDate(int groupId, DateOnly date);
         void Delete(int attendanceId);
         void Update(BLLAttendance attendance);
-        bool SaveAttendanceForDate(int groupId, DateOnly date, List<BLLAttendanceRecord> attendanceRecords);
         Task<List<BLLAttendance>> GetAttendanceByStudent(int studentId);
-        List<BLLAttendance> GetAttendanceByStudentAndDateRange(int studentId, DateOnly startDate, DateOnly endDate);
-        BLLAttendanceStatistics GetAttendanceStatistics(int groupId);
-        BLLAttendanceStatistics GetAttendanceStatisticsByDateRange(int groupId, DateOnly startDate, DateOnly endDate);
-        Task<BLLStudentAttendanceSummary> GetStudentAttendanceSummary(int studentId, int? month = null, int? year = null);
-        Task<List<BLLStudentAttendanceHistory>> GetStudentAttendanceHistory(int studentId, int? month = null, int? year = null);
-        BLLMonthlyReport GetMonthlyReport(int month, int year, int? groupId = null);
-        BLLOverallStatistics GetOverallStatistics(int? month = null, int? year = null);
-        bool DeleteAttendanceByGroupAndDate(int groupId, DateOnly date);
-        bool IsAttendanceMarkedForGroup(int groupId, DateOnly date);
-        bool IsAttendanceMarkedForDay(DateOnly date);
-        Task AutoMarkDailyAttendance();
-        Task MarkAttendanceForDate(DateOnly date);
-        Task<bool> MarkHistoricalAttendance(DateOnly startDate, DateOnly? endDate = null);
-        DateOnly? GetFirstAttendanceDate();
+        void BatchUpdateAttendances(List<BLLAttendance> attendances);
+        List<BLLAttendance> GetStudentAttendanceHistory(int studentId, int? month = null, int? year = null);
+        BLLStudentAttendanceSummaryDto GetStudentAttendanceSummary(int studentId, int? month = null, int? year = null);
+        void CreateAttendanceForNewStudentInGroup(int studentId, int groupId, DateOnly enrollmentDate);
 
 
 

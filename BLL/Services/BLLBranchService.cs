@@ -126,11 +126,11 @@ namespace BLL.Services
                 {
                     dal.GroupStudents.Delete(item1);
                 }
-                var lessonCancel = dal.LessonCancellations.Get().Where(x => x.GroupId == item.GroupId);
-                foreach (var item2 in lessonCancel)
-                {
-                    dal.LessonCancellations.Delete(item2.Id);
-                }
+                //var lessonCancel = dal.LessonCancellations.Get().Where(x => x.GroupId == item.GroupId);
+                //foreach (var item2 in lessonCancel)
+                //{
+                //    dal.LessonCancellations.Delete(item2.Id);
+                //}
                 var attendances = dal.Attendances.GetAttendanceByGroup(item.GroupId);
                 foreach (var item3 in attendances)
                 {

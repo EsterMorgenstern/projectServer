@@ -48,5 +48,20 @@ namespace DAL.Services
             dbcontext.Lessons.Update(lesson);
             dbcontext.SaveChanges();
         }
+
+        public List<Lesson> GetLessonsByStatus(string status)
+        {
+            return dbcontext.Lessons.Where(l => l.Status == status).ToList();
+        }
+
+        public List<Lesson> GetCompletionLessons()
+        {
+            return dbcontext.Lessons.Where(l => l.Status == "completion").ToList();
+        }
+
+        public List<Lesson> GetCanceledLessons()
+        {
+            return dbcontext.Lessons.Where(l => l.Status == "canceled").ToList();
+        }
     }
 }

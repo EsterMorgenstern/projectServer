@@ -170,16 +170,21 @@ namespace BLL.Services
         public async Task Delete(int id)
         {
             var attendances=await dal.Attendances.GetAttendanceByStudent(id);
+           
             foreach (var item in attendances)
             {
                 dal.Attendances.Delete(item.AttendanceId);
             }
+           
             var notes = dal.StudentNotes.GetById(id);
+            if (notes != null) { 
             foreach (var item in notes)
             {
                 dal.StudentNotes.Delete(item.NoteId);
             }
+            }
             var groupStudents=dal.GroupStudents.GetByStudentId(id);
+            if (groupStudents != null) { 
             foreach (var item in groupStudents)
             {
                 dal.GroupStudents.Delete(item);
@@ -194,8 +199,9 @@ namespace BLL.Services
                     dal.Branches.Update(branch);
                 }
             }
+            }
 
-           
+
             dal.Students.Delete(id);
         }
 
@@ -222,5 +228,75 @@ namespace BLL.Services
 
             dal.Students.Update(m);
         }
+       
+        public List<BLLStudentWithNotesDto> GetStudentsWithoutActiveGroupWithNotes()
+        {
+            var allStudents = dal.Students.Get();
+            var allGroupStudents = dal.GroupStudents.Get();
+
+            var result = new List<BLLStudentWithNotesDto>();
+
+            foreach (var student in allStudents)
+            {
+                var groupLinks = allGroupStudents.Where(gs => gs.StudentId == student.Id).ToList();
+
+                bool hasNoGroups = !groupLinks.Any();
+                bool notActiveInAnyGroup = groupLinks.Any() && !groupLinks.Any(gs => gs.IsActive == true);
+
+                if (hasNoGroups || notActiveInAnyGroup)
+                {
+                    // שליפת הערות עבור התלמיד
+                    var notesDal = dal.StudentNotes.GetById(student.Id);
+                    var notes = notesDal?.Select(ToBLLStudentNote).ToList() ?? new List<BLLStudentNote>();
+
+                    var dto = ToBLLStudentWithNotesDto(student, notes);
+                    result.Add(dto);
+                }
+            }
+
+            return result;
+        }
+
+        // פונקציית עזר להמרה
+        private BLLStudentNote ToBLLStudentNote(StudentNote note)
+        {
+            return new BLLStudentNote
+            {
+                NoteId = note.NoteId,
+                StudentId = note.StudentId,
+                AuthorId = note.AuthorId,
+                NoteContent = note.NoteContent ?? "",
+                NoteType = note.NoteType ?? ""
+            };
+        }
+
+        private BLLStudentWithNotesDto ToBLLStudentWithNotesDto(Student p, List<BLLStudentNote> notes)
+        {
+            return new BLLStudentWithNotesDto
+            {
+                Id = p.Id,
+                FirstName = p.FirstName ?? "",
+                LastName = p.LastName ?? "",
+                Phone = p.Phone.ToString(),
+                SecondaryPhone = p.SecondaryPhone?.ToString() ?? "",
+                Age = p.Age,
+                City = p.City ?? "",
+                School = p.School ?? "",
+                Class = p.Class ?? "",
+                Sector = p.Sector ?? "",
+                LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
+                Status = p.Status ?? "",
+                Email = p.Email ?? "",
+                CreatedBy = p.CreatedBy ?? "",
+                IdentityCard = p.IdentityCard ?? "",
+                HealthFundId = p.HealthFundId,
+                HealthFundName = p.HealthFundForStudent != null ? p.HealthFundForStudent.Name : "",
+                HealthFundPlan = p.HealthFundForStudent != null ? p.HealthFundForStudent.FundType : "",
+                Notes = notes
+            };
+        }
+
+
+
     }
 }

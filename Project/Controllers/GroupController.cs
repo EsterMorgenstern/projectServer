@@ -1,7 +1,6 @@
 ﻿using BLL.Api;
 using BLL.Models;
 using BLL.Services;
-using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace server.controllers
@@ -36,6 +35,12 @@ namespace server.controllers
         public List<BLLGroupDetails> GetGroupsByDay(string dayOfWeek)
         {
             return groups.GetGroupsByDayOfWeek(dayOfWeek);
+        }
+
+        [HttpGet("GetGroupsWithStudentsByDay/{dayOfWeek}")]
+        public List<BLLGroupWithStudentsDto> GetGroupsWithStudentsByDay(string dayOfWeek)
+        {
+            return groups.GetGroupsWithStudentsByDayOfWeek(dayOfWeek);
         }
 
         [HttpGet("getGroupsByInstructorId/{id}")]
@@ -75,7 +80,7 @@ namespace server.controllers
         public List<BLLGroupWithStudentsDto> GetGroupsByBranch(int branchId)
         {
             return groups.GetGroupsWithStudentsByBranchId(branchId);
-           
+
         }
 
         [HttpPost("Add")]
@@ -86,7 +91,7 @@ namespace server.controllers
         [HttpPut("Update")]
         public void Update(BLLGroup group)
         {
-            groups.Update(group);
+            groups.UpdateAsync(group);
         }
         [HttpDelete("Delete")]
         public void Delete(int groupId)
@@ -110,8 +115,8 @@ namespace server.controllers
         [HttpGet("details/{groupId}")]
         public BLLGroupDetailsDto GetGroupDetails(int groupId)
         {
-           return groups.GetGroupDetails(groupId);
-           
+            return groups.GetGroupDetails(groupId);
+
         }
 
     }

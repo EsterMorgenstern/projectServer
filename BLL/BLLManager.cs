@@ -15,7 +15,6 @@ namespace BLL
         public IBLLGroupStudent GroupStudents { get; }
         public IBLLStudentNote Notes { get; }
         public IBLLUser Users { get; }
-        public IBLLLessonCancellations LessonCancellations { get; }
         public IBLLPaymentMethod PaymentMethods { get; }
         public IBLLPayment Payments { get; }
         public IBLLHealthFund HealthFunds { get; }
@@ -30,10 +29,9 @@ namespace BLL
             Groups = new BLLGroupService(dal, Lessons);
             Attendances = new BLLAttendanceService(dal);
             Branches = new BLLBranchService(dal);
-            GroupStudents = new BLLGroupStudentService(dal);
+            GroupStudents = new BLLGroupStudentService(dal, (BLLAttendanceService)Attendances);
             Notes = new BLLStudentNoteService(dal);
             Users = new BLLUserService(dal);
-            LessonCancellations = new BLLLessonCancellationsService(dal);
             PaymentMethods = new BLLPaymentMethodService(dal);
             Payments = new BLLPaymentService(dal);
             HealthFunds = new BLLHealthFundService(dal);

@@ -29,8 +29,6 @@ public partial class Group
     public int? LessonsCompleted { get; set; }
     public bool? IsActive { get; set; }
 
-    public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
-
     public virtual Branch Branch { get; set; } = null!;
 
     public virtual Course Course { get; set; } = null!;

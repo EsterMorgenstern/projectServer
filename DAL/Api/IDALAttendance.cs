@@ -15,5 +15,6 @@ namespace DAL.Api
         Task<List<Attendance>> GetAttendanceByStudent(int studentId);
         List<Attendance> GetAttendanceByStudentAndDateRange(int studentId, DateOnly startDate, DateOnly endDate);
         List<Attendance> GetAttendanceByGroup(int groupId);
+        void BatchUpdateAttendances(List<Attendance> attendances);
     }
 }

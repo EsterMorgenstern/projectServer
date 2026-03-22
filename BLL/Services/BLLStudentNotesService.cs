@@ -72,7 +72,11 @@ namespace BLL.Services
                 return new List<BLLStudentNote>(); // מחזיר מערך ריק במקרה של שגיאה
             }
         }
-
+        /// <summary>
+        /// שליפה לפי קוד התלמיד
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public List<BLLStudentNote> GetById(int id)
         {
             List<StudentNote> b = dal.StudentNotes.GetById(id);

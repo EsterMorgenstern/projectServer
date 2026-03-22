@@ -11,7 +11,6 @@
         IDALBranch Branches { get; }
         IDALStudentNote StudentNotes { get; }
         IDALUser Users { get; }
-        IDALLessonCancellations LessonCancellations { get; }
         IDALPaymentMethod PaymentMethods { get; }
         IDALPayment Payments { get; }
         IDALGrowPayment PaymentGrow { get; }

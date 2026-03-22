@@ -2,7 +2,7 @@
 {
     public class BLLAttendanceStatistics
     {
-        public int GroupId { get; set; }
+        public int LessonId { get; set; }
         public string GroupName { get; set; } = string.Empty;
         public int TotalStudents { get; set; }
         public int TotalLessons { get; set; }

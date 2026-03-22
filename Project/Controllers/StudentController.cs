@@ -41,9 +41,15 @@ namespace Server.Controllers
             students.Update(student);
         }
         [HttpDelete("Delete/{id}")]
-        public void Delete(int id)
+        public async void Delete(int id)
         {
-            students.Delete(id);
+           await students.Delete(id);
         }
+        [HttpGet("students-without-active-group-with-notes")]
+        public ActionResult<List<BLLStudentWithNotesDto>> GetStudentsWithoutActiveGroupWithNotes()
+        {
+           return students.GetStudentsWithoutActiveGroupWithNotes();
+        }
+
     }
 }

@@ -9,5 +9,8 @@ namespace DAL.Api
         void Create(Lesson lesson);
         void Update(Lesson lesson);
         void Delete(int id);
+        List<Lesson> GetLessonsByStatus(string status);
+        List<Lesson> GetCompletionLessons();
+        List<Lesson> GetCanceledLessons();
     }
 }
