@@ -49,7 +49,12 @@ public partial class dbcontext : DbContext
         modelBuilder.Entity<Attendance>(entity =>
         {
             entity.HasKey(e => e.AttendanceId).HasName("PK_Attendance_New");
+
             entity.ToTable("Attendance");
+
+            entity.Property(e => e.AttendanceId)
+                .HasColumnName("attendanceId")
+                .UseIdentityColumn();
 
             entity.Property(e => e.LessonId).IsRequired();
             entity.Property(e => e.StudentId).IsRequired();
@@ -63,20 +68,21 @@ public partial class dbcontext : DbContext
             entity.HasOne(d => d.Lesson)
                 .WithMany(p => p.Attendances)
                 .HasForeignKey(d => d.LessonId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_Attendance_Lesson");
 
             entity.HasOne(d => d.Student)
                 .WithMany(p => p.Attendances)
                 .HasForeignKey(d => d.StudentId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_Attendance_Student");
 
             entity.HasOne(d => d.HealthFundReportNavigation)
                 .WithMany(p => p.Attendances)
                 .HasForeignKey(d => d.HealthFundReport)
+                .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_Attendance_HealthFund");
         });
-
-
         modelBuilder.Entity<Branch>(entity =>
         {
             entity.HasKey(e => e.BranchId).HasName("PK__Branches__A1682FC52ADF22B3");

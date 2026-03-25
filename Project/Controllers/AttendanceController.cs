@@ -125,11 +125,11 @@ namespace server.controllers
         }
 
         [HttpGet("GetAttendanceByStudent/{studentId}")]
-        public IActionResult GetAttendanceByStudent(int studentId)
+        public async Task<IActionResult> GetAttendanceByStudent(int studentId)
         {
             try
             {
-                var attendance = attendances.GetAttendanceByStudent(studentId);
+                var attendance = await attendances.GetAttendanceByStudent(studentId);
                 return Ok(attendance);
             }
             catch (Exception ex)
@@ -145,8 +145,66 @@ namespace server.controllers
             return Ok();
         }
 
+        [HttpPost("create-missing-for-all-active")]
+        public IActionResult CreateMissingAttendancesForAllActiveStudents()
+        {
+            Console.WriteLine("========== START CreateMissingAttendancesForAllActiveStudents ==========");
+            Console.WriteLine($"Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}");
 
+            try
+            {
+                Console.WriteLine("Controller: calling attendances.CreateMissingAttendancesForAllActiveStudents()");
+                attendances.CreateMissingAttendancesForAllActiveStudents();
+                Console.WriteLine("Controller: SUCCESS - function finished without exception");
 
+                return Ok("רשומות נוכחות חסרות נוצרו בהצלחה לכל התלמידים הפעילים.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Controller: ERROR");
+                Console.WriteLine($"Message: {ex.Message}");
+                Console.WriteLine($"Type: {ex.GetType().FullName}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+
+                var inner = ex.InnerException;
+                int depth = 1;
+                while (inner != null)
+                {
+                    Console.WriteLine($"InnerException #{depth} Message: {inner.Message}");
+                    Console.WriteLine($"InnerException #{depth} Type: {inner.GetType().FullName}");
+                    Console.WriteLine($"InnerException #{depth} StackTrace: {inner.StackTrace}");
+                    inner = inner.InnerException;
+                    depth++;
+                }
+
+                return StatusCode(500, $"שגיאה ביצירת רשומות נוכחות: {ex.Message}");
+            }
+            finally
+            {
+                Console.WriteLine($"Time End: {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}");
+                Console.WriteLine("========== END CreateMissingAttendancesForAllActiveStudents ==========");
+            }
+        }
+
+        [HttpGet("student/{studentId:int}/history")]
+        public async Task<IActionResult> GetStudentAttendanceHistory(int studentId, [FromQuery] int? month = null, [FromQuery] int? year = null)
+        {
+            if (studentId <= 0)
+                return BadRequest("studentId must be greater than 0.");
+
+            var result = await attendances.GetStudentAttendanceHistoryAsync(studentId, month, year);
+            return Ok(new { result });
+        }
+
+        [HttpGet("student/{studentId:int}/summary")]
+        public async Task<IActionResult> GetStudentAttendanceSummary(int studentId, [FromQuery] int? month = null, [FromQuery] int? year = null)
+        {
+            if (studentId <= 0)
+                return BadRequest("studentId must be greater than 0.");
+
+            var result = await attendances.GetStudentAttendanceSummaryAsync(studentId, month, year);
+            return Ok(new { result });
+        }
 
 
         //[HttpGet("GetAttendanceStatistics/{groupId}")]
@@ -183,35 +241,6 @@ namespace server.controllers
         //}
 
 
-
-
-        //[HttpGet("student/{studentId}/summary")]
-        //public IActionResult GetStudentAttendanceSummary(int studentId, [FromQuery] int? month = null, [FromQuery] int? year = null)
-        //{
-        //    try
-        //    {
-        //        var summary = attendances.GetStudentAttendanceSummary(studentId, month, year);
-        //        return Ok(summary);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest($"שגיאה בקבלת סיכום נוכחות תלמיד: {ex.Message}");
-        //    }
-        //}
-
-        //[HttpGet("student/{studentId}/history")]
-        //public IActionResult GetStudentAttendanceHistory(int studentId, [FromQuery] int? month = null, [FromQuery] int? year = null)
-        //{
-        //    try
-        //    {
-        //        var history = attendances.GetStudentAttendanceHistory(studentId, month, year);
-        //        return Ok(history);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest($"שגיאה בקבלת היסטוריית נוכחות תלמיד: {ex.Message}");
-        //    }
-        //}
 
         //[HttpGet("reports/monthly")]
         //public IActionResult GetMonthlyReport([FromQuery] int month, [FromQuery] int year, [FromQuery] int? groupId = null)

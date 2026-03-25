@@ -1,5 +1,4 @@
-﻿using System;
-using BLL.Api;
+﻿using BLL.Api;
 using BLL.Models;
 using DAL.Api;
 using DAL.Models;
@@ -30,7 +29,7 @@ namespace BLL.Services
                 UpdateBy = attendance.UpdateBy
             };
         }
-       private Attendance ToAttendance(BLLAttendance bllAttendance)
+        private Attendance ToAttendance(BLLAttendance bllAttendance)
         {
             return new Attendance
             {
@@ -127,7 +126,7 @@ namespace BLL.Services
         /// </summary>
         /// <param name="studentId"></param>
         /// <param name="groupId"></param>
-        public void CreateAttendanceForNewStudentInGroup(int studentId, int groupId,DateOnly enrollmentDate)
+        public void CreateAttendanceForNewStudentInGroup(int studentId, int groupId, DateOnly enrollmentDate)
         {
             var student = dal.Students.GetById(studentId);
 
@@ -248,7 +247,7 @@ namespace BLL.Services
             {
                 attendances = attendances
                     .Where(a =>
-                        (a.DateReport.HasValue && a.DateReport.Value.Month == month.Value && a.DateReport.Value.Year == year.Value) 
+                        (a.DateReport.HasValue && a.DateReport.Value.Month == month.Value && a.DateReport.Value.Year == year.Value)
                     )
                     .ToList();
             }
@@ -275,19 +274,19 @@ namespace BLL.Services
                 {
                     AttendanceId = a.AttendanceId,
                     StudentId = a.StudentId,
-                    LessonId=a.LessonId,
-                    DateReport=a.DateReport,
-                    StatusReport=a.StatusReport,
-                    UpdateDate=a.UpdateDate,
-                    UpdateBy=a.UpdateBy,
-                    HealthFundReport=a.HealthFundReport,
+                    LessonId = a.LessonId,
+                    DateReport = a.DateReport,
+                    StatusReport = a.StatusReport,
+                    UpdateDate = a.UpdateDate,
+                    UpdateBy = a.UpdateBy,
+                    HealthFundReport = a.HealthFundReport,
                     WasPresent = a.WasPresent
                 }).ToList();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error fetching attendance records for student {studentId}: {ex.Message}");
-                return new List<BLLAttendance>(); 
+                return new List<BLLAttendance>();
             }
         }
 
@@ -366,7 +365,7 @@ namespace BLL.Services
                     }).ToList()
                 );
         }
-      
+
         /// <summary>
         /// מחיקת כל רשומות הנוכחות לקבוצה בתאריך מסוים
         /// </summary>
@@ -377,5 +376,206 @@ namespace BLL.Services
             dal.Attendances.DeleteByGroupAndDate(groupId, date);
         }
 
+        /// <summary>
+        /// יצירת רשומות נוכחות חסרות לכל התלמידים הפעילים בקבוצות שלהם
+        /// </summary>
+        public void CreateMissingAttendancesForAllActiveStudents()
+        {
+            var startedAt = DateTime.Now;
+            Console.WriteLine("---- BLL START CreateMissingAttendancesForAllActiveStudents ----");
+            Console.WriteLine($"StartedAt: {startedAt:yyyy-MM-dd HH:mm:ss.fff}");
+
+            try
+            {
+                Console.WriteLine("Step 1: loading students...");
+                var allStudents = dal.Students.Get().ToList();
+                Console.WriteLine($"Step 1 OK: students count = {allStudents.Count}");
+
+                Console.WriteLine("Step 2: loading active group-students...");
+                var allActiveGroupStudents = dal.GroupStudents.Get()
+                    .Where(gs => (bool)gs.IsActive)
+                    .ToList();
+                Console.WriteLine($"Step 2 OK: active group-students count = {allActiveGroupStudents.Count}");
+
+                Console.WriteLine("Step 3: building studentsWithActiveEnrollment set...");
+                var studentsWithActiveEnrollment = allActiveGroupStudents
+                    .Select(gs => gs.StudentId)
+                    .ToHashSet();
+                Console.WriteLine($"Step 3 OK: unique students with active enrollment = {studentsWithActiveEnrollment.Count}");
+
+                Console.WriteLine("Step 4: filtering relevant students...");
+                var relevantStudents = allStudents
+                    .Where(s =>
+                        (s.Status != null && s.Status.Trim() == "פעיל") ||
+                        studentsWithActiveEnrollment.Contains(s.Id))
+                    .ToList();
+                Console.WriteLine($"Step 4 OK: relevant students count = {relevantStudents.Count}");
+
+                if (!relevantStudents.Any())
+                {
+                    Console.WriteLine("No relevant students found. Exiting.");
+                    return;
+                }
+
+                var relevantStudentIds = relevantStudents.Select(s => s.Id).ToHashSet();
+
+                Console.WriteLine("Step 5: loading lessons...");
+                var allLessons = dal.Lessons.Get().ToList();
+                Console.WriteLine($"Step 5 OK: lessons count = {allLessons.Count}");
+
+                var lessonsByGroup = allLessons
+                    .GroupBy(l => l.GroupId)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(l => l.LessonId).ToHashSet()
+                    );
+                Console.WriteLine($"Step 5 OK: groups with lessons = {lessonsByGroup.Count}");
+
+                Console.WriteLine("Step 6: loading attendance for relevant students...");
+                List<dynamic> allRelevantAttendances = null;
+
+                try
+                {
+                    allRelevantAttendances = dal.Attendances.Get()
+                        .Where(a => relevantStudentIds.Contains(a.StudentId))
+                        .Select(a => new { a.StudentId, a.LessonId })
+                        .ToList<dynamic>();
+
+                    Console.WriteLine($"Step 6 OK: attendance rows loaded = {allRelevantAttendances.Count}");
+                }
+                catch (Exception exAttendanceLoad)
+                {
+                    Console.WriteLine("Step 6 FAILED while retrieving attendance records");
+                    Console.WriteLine($"Step 6 Error Message: {exAttendanceLoad.Message}");
+                    Console.WriteLine($"Step 6 Error Type: {exAttendanceLoad.GetType().FullName}");
+                    Console.WriteLine($"Step 6 StackTrace: {exAttendanceLoad.StackTrace}");
+                    throw;
+                }
+
+                Console.WriteLine("Step 7: building attendedLessonsByStudent map...");
+                var attendedLessonsByStudent = allRelevantAttendances
+                    .GroupBy(a => (int)a.StudentId)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(x => (int)x.LessonId).ToHashSet()
+                    );
+                Console.WriteLine($"Step 7 OK: students with attendance map entries = {attendedLessonsByStudent.Count}");
+
+                var enrollmentsToProcess = allActiveGroupStudents
+                    .Where(gs => relevantStudentIds.Contains(gs.StudentId))
+                    .ToList();
+                Console.WriteLine($"Step 8: enrollments to process = {enrollmentsToProcess.Count}");
+
+                int createdCalls = 0;
+                int skippedHasAttendance = 0;
+                int skippedNoLessons = 0;
+                int failedCreateCalls = 0;
+
+                Console.WriteLine("Step 9: processing enrollments...");
+                foreach (var enrollment in enrollmentsToProcess)
+                {
+                    int studentId = enrollment.StudentId;
+                    int groupId = enrollment.GroupId;
+
+                    if (!lessonsByGroup.TryGetValue(groupId, out var groupLessonIds) || !groupLessonIds.Any())
+                    {
+                        skippedNoLessons++;
+                        Console.WriteLine($"Skip: studentId={studentId}, groupId={groupId}, reason=No lessons in group");
+                        continue;
+                    }
+
+                    bool hasAttendanceInGroup =
+                        attendedLessonsByStudent.TryGetValue(studentId, out var studentLessons)
+                        && studentLessons.Any(lid => groupLessonIds.Contains(lid));
+
+                    if (hasAttendanceInGroup)
+                    {
+                        skippedHasAttendance++;
+                        Console.WriteLine($"Skip: studentId={studentId}, groupId={groupId}, reason=Already has attendance in group");
+                        continue;
+                    }
+
+                    try
+                    {
+                        DateOnly? fromDate = enrollment.EnrollmentDate;
+
+
+                        Console.WriteLine($"Create: studentId={studentId}, groupId={groupId}, fromDate={(fromDate.HasValue ? fromDate.Value.ToString() : "null")}");
+                        CreateAttendanceForNewStudentInGroup(studentId, groupId, (DateOnly)fromDate);
+                        createdCalls++;
+                    }
+                    catch (Exception exCreate)
+                    {
+                        failedCreateCalls++;
+                        Console.WriteLine($"Create FAILED: studentId={studentId}, groupId={groupId}");
+                        Console.WriteLine($"Create Error Message: {exCreate.Message}");
+                        Console.WriteLine($"Create Error Type: {exCreate.GetType().FullName}");
+                        Console.WriteLine($"Create StackTrace: {exCreate.StackTrace}");
+                    }
+                }
+
+                var finishedAt = DateTime.Now;
+                Console.WriteLine("Step 10: summary");
+                Console.WriteLine($"Created calls: {createdCalls}");
+                Console.WriteLine($"Skipped (already has attendance): {skippedHasAttendance}");
+                Console.WriteLine($"Skipped (no lessons in group): {skippedNoLessons}");
+                Console.WriteLine($"Failed create calls: {failedCreateCalls}");
+                Console.WriteLine($"Duration seconds: {(finishedAt - startedAt).TotalSeconds:F2}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("BLL FATAL ERROR");
+                Console.WriteLine($"Message: {ex.Message}");
+                Console.WriteLine($"Type: {ex.GetType().FullName}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                throw;
+            }
+            finally
+            {
+                Console.WriteLine($"EndedAt: {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}");
+                Console.WriteLine("---- BLL END CreateMissingAttendancesForAllActiveStudents ----");
+            }
+
+        }
+
+        /// <summary>
+        /// שליפת היסטוריית נוכחות של תלמיד עם אפשרות לסינון לפי חודש ושנה - גרסה אסינכרונית
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="month"></param>
+        /// <param name="year"></param>
+        /// <returns></returns>
+        public async Task<List<BLLAttendance>> GetStudentAttendanceHistoryAsync(int studentId, int? month = null, int? year = null)
+        {
+            var attendances = await dal.Attendances.GetStudentAttendanceHistoryAsync(studentId, month, year);
+            return attendances.Select(ToBLLAttendance).ToList();
+        }
+
+        /// <summary>
+        /// שליפת סיכום נוכחות של תלמיד עם אפשרות לסינון לפי חודש ושנה - גרסה אסינכרונית
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="month"></param>
+        /// <param name="year"></param>
+        /// <returns></returns>
+        public async Task<BLLStudentAttendanceSummaryDto> GetStudentAttendanceSummaryAsync(int studentId, int? month = null, int? year = null)
+        {
+            Console.WriteLine($"[BLL] GetStudentAttendanceSummaryAsync called. studentId={studentId}, month={month}, year={year}");
+            var (totalLessons, presentCount) = await dal.Attendances.GetStudentAttendanceSummaryDataAsync(studentId, month, year);
+
+            var absentCount = totalLessons - presentCount;
+            var attendanceRate = totalLessons == 0 ? 0 : (presentCount * 100.0) / totalLessons;
+
+            Console.WriteLine($"[BLL] Summary: TotalLessons={totalLessons}, PresentCount={presentCount}, AbsentCount={absentCount}, AttendanceRate={attendanceRate}");
+
+            return new BLLStudentAttendanceSummaryDto
+            {
+                StudentId = studentId,
+                TotalLessons = totalLessons,
+                PresentCount = presentCount,
+                AbsentCount = absentCount,
+                AttendanceRate = attendanceRate
+            };
+        }
     }
 }
