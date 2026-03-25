@@ -147,7 +147,7 @@ namespace BLL.Services
                     {
                         LessonId = lesson.LessonId,
                         StudentId = studentId,
-                        WasPresent = false, // ברירת מחדל – לא סומן
+                        WasPresent = true, 
                         StatusReport = 3,   // ממתין לדיווח לפי הצורך
                         UpdateDate = DateTime.Now,
                         UpdateBy = null,
