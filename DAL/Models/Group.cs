@@ -28,6 +28,8 @@ public partial class Group
 
     public int? LessonsCompleted { get; set; }
     public bool? IsActive { get; set; }
+    public string? Notes { get; set; }
+
 
     public virtual Branch Branch { get; set; } = null!;
 

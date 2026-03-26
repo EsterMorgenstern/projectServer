@@ -16,7 +16,9 @@ namespace BLL.Models
         public int? NumOfLessons { get; set; }
         public int? LessonsCompleted { get; set; }
         public bool? IsActive { get; set; }
-      
+        public string? Notes { get; set; }
+
+
     }
     public class BLLGroupDetailsPerfect
     {
@@ -36,6 +38,8 @@ namespace BLL.Models
         public int? NumOfLessons { get; set; }
         public int? LessonsCompleted { get; set; }
         public bool? IsActive { get; set; }
+        public string? Notes { get; set; }
+
 
         // שדות חדשים
         public string InstructorName { get; set; } = string.Empty;

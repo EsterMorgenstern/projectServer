@@ -18,6 +18,7 @@ namespace BLL.Models
         public int? NumOfLessons { get; set; }
         public int? LessonsCompleted { get; set; }
         public bool? IsActive { get; set; }
+        public string? Notes { get; set; }
         public Branch? Branch { get; set; }
         public Course? Course { get; set; }
         public Instructor? Instructor { get; set; }

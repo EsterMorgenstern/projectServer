@@ -11,6 +11,7 @@ namespace BLL.Models
         public required Student Student { get; set; }
         public DateOnly? EnrollmentDate { get; set; }
         public bool? IsActive { get; set; }
+        public string? Notes { get; set; }
         public string DayOfWeek { get; set; } = null!;
         public TimeOnly? Hour { get; set; }
         public string CourseName { get; set; } = string.Empty;
