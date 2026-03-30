@@ -16,6 +16,6 @@ namespace BLL.Models
 
         public DateOnly? EnrollmentDate { get; set; }
 
-        public bool? IsActive { get; set; }
+        public byte? IsActive { get; set; }
     }
 }

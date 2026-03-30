@@ -22,14 +22,15 @@ namespace BLL.Services
         /// <param name="group"></param>
         public async Task CreateAsync(BLLGroup group)
         {
+          
             Group g = new Group()
             {
                 GroupId = group.GroupId,
                 CourseId = group.CourseId,
                 BranchId = group.BranchId,
                 AgeRange = group.AgeRange,
-                DayOfWeek = group.DayOfWeek,
-                GroupName = group.GroupName,
+                DayOfWeek = group.DayOfWeek ?? "",
+                GroupName = GenerateGroupName(group),
                 Hour = group.Hour,
                 MaxStudents = group.MaxStudents,
                 Sector = group.Sector,
@@ -38,7 +39,7 @@ namespace BLL.Services
                 LessonsCompleted = group.LessonsCompleted,
                 StartDate = group.StartDate,
                 IsActive = group.IsActive,
-                Notes=group.Notes
+                Notes = group.Notes
             };
             int groupId = dal.Groups.Create(g);
             if (!(bool)group.IsActive)
@@ -53,7 +54,7 @@ namespace BLL.Services
                         groupId: groupId,
                         startDate: group.StartDate.Value,
                         numOfLessons: group.NumOfLessons ?? 0,
-                        dayOfWeek: group.DayOfWeek,
+                        dayOfWeek: group.DayOfWeek ?? "", // Ensure DayOfWeek is not null
                         lessonHour: group.Hour.Value,
                         instructorId: group.InstructorId,
                         createdBy: "system"
@@ -64,7 +65,6 @@ namespace BLL.Services
                     throw new ArgumentException("Hour cannot be null when creating lessons for a group.");
                 }
             }
-
             else
             {
                 throw new ArgumentException("StartDate cannot be null when creating lessons for a group.");
@@ -317,7 +317,7 @@ namespace BLL.Services
             var result = allGroups.Select(group =>
             {
                 var students = allGroupStudents
-                    .Where(gs => gs.GroupId == group.GroupId && gs.IsActive == true)
+                    .Where(gs => gs.GroupId == group.GroupId && gs.IsActive == 1)
                     .Select(gs =>
                     {
                         var student = allStudents.FirstOrDefault(st => st.Id == gs.StudentId);
@@ -736,7 +736,7 @@ namespace BLL.Services
             existingGroup.BranchId = group.BranchId;
             existingGroup.AgeRange = group.AgeRange;
             existingGroup.DayOfWeek = group.DayOfWeek;
-            existingGroup.GroupName = group.GroupName;
+            existingGroup.GroupName = GenerateGroupName(group);
             existingGroup.Hour = group.Hour;
             existingGroup.MaxStudents = group.MaxStudents;
             existingGroup.Sector = group.Sector;
@@ -1009,7 +1009,7 @@ namespace BLL.Services
             // שלוף את כל החיבורים בין תלמידים לקבוצה
             var groupStudents = dal.GroupStudents.Get().Where(gs => gs.GroupId == groupId);
 
-            return groupStudents.Count(gs => gs.IsActive == true);
+            return groupStudents.Count(gs => gs.IsActive == 1);
         }
 
         /// <summary>
@@ -1030,6 +1030,25 @@ namespace BLL.Services
                     else lesson.Status = "today";
                 }
             }
+        }
+        /// <summary>
+        /// יצירת שם קבוצה לפי השדות של הקבוצה
+        /// </summary>
+        /// <param name="group"></param>
+        /// <returns></returns>
+        private string GenerateGroupName(BLLGroup group)
+        {
+            var branch = dal.Branches.GetById(group.BranchId);
+            var instructor = dal.Instructors.GetById(group.InstructorId);
+
+            string branchName = branch?.Name ?? "";
+            string day = group.DayOfWeek ?? "";
+            string hour = group.Hour?.ToString("HH:mm") ?? "";
+            string instructorName = instructor != null ? $"{instructor.FirstName} {instructor.LastName}" : "";
+            string age = group.AgeRange ?? "";
+            string sector = group.Sector ?? "";
+
+            return $"{branchName} {day} {hour} {instructorName} {age} {sector}".Trim();
         }
 
     }

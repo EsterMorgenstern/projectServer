@@ -26,7 +26,7 @@ namespace BLL.Services
             {
                 GroupId = groupStudent.GroupId,
                 StudentId = groupStudent.StudentId,
-                IsActive = groupStudent.IsActive == true || dal.Students.GetById(groupStudent.StudentId).Status == "פעיל",
+                IsActive = (byte?)(groupStudent.IsActive == 1 || dal.Students.GetById(groupStudent.StudentId).Status == "פעיל" ? 1 : 0),
                 EnrollmentDate = groupStudent.EnrollmentDate ?? DateOnly.FromDateTime(DateTime.Now)
             };
             dal.GroupStudents.Create(g);
@@ -44,18 +44,18 @@ namespace BLL.Services
                 dal.Branches.Update(branch);
             }
             // הוספת שיעורים לנוכחות אם התלמיד פעיל ותאריך ההתחלה הוא בעבר
-            if (g.IsActive == true)
+            if (g.IsActive == 1)
             {
                 attendanceService.CreateAttendanceForNewStudentInGroup(g.StudentId, g.GroupId, (DateOnly)g.EnrollmentDate);
             }
 
         }
         /// <summary>
-        /// מחיקת חוג לתלמיד
+        /// הוצאת תלמיד מחוג-שינוי סטטוס ומחיקת נוכחות עתידית
         /// </summary>
         /// <param name="id"></param>
         /// <exception cref="KeyNotFoundException"></exception>
-        public void Delete(int id)
+        public async void Delete(int id)
         {
             var groupStudent = dal.GroupStudents.GetById(id);
             if (groupStudent == null)
@@ -63,7 +63,8 @@ namespace BLL.Services
                 throw new KeyNotFoundException($"GroupStudent with ID {id} not found.");
             }
 
-            dal.GroupStudents.Delete(groupStudent);
+            groupStudent.IsActive = 2;
+            dal.GroupStudents.Update(groupStudent);
 
             var group = dal.Groups.GetById(groupStudent.GroupId);
             if (group != null)
@@ -77,8 +78,18 @@ namespace BLL.Services
                 branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) - 1;
                 dal.Branches.Update(branch);
             }
-        }
+            var attendances = (await dal.Attendances.GetAttendanceByStudent(groupStudent.StudentId))
+             .Where(a=>a.DateReport >= DateOnly.FromDateTime(DateTime.Now))
+             .ToList();
 
+
+            foreach (var attendance in attendances)
+            {
+                dal.Attendances.Delete(attendance.AttendanceId);
+            }
+
+
+        }
         public void DeleteByGsId(int id)
 
         {
@@ -379,7 +390,7 @@ namespace BLL.Services
             dal.GroupStudents.Update(existingGroupStudent);
 
             // זיהוי מעבר מ-לא פעיל לפעיל
-            bool becameActive = (oldIsActive == false || oldIsActive == null) && groupStudent.IsActive == true;
+            bool becameActive = (oldIsActive == 2 || oldIsActive == 3 || oldIsActive == null) && groupStudent.IsActive == 1;
             bool enrollmentDateChanged = oldEnrollmentDate != groupStudent.EnrollmentDate;
 
             if (becameActive)

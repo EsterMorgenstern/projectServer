@@ -13,7 +13,7 @@ public partial class GroupStudent
 
     public DateOnly? EnrollmentDate { get; set; }
 
-    public bool? IsActive { get; set; }
+    public byte? IsActive { get; set; }  // פעיל עזב ליד 
 
     public virtual Group Group { get; set; } = null!;
 

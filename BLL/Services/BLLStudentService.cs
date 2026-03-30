@@ -166,7 +166,6 @@ namespace BLL.Services
             }
         }
 
-
         public async Task Delete(int id)
         {
             var attendances=await dal.Attendances.GetAttendanceByStudent(id);
@@ -241,7 +240,7 @@ namespace BLL.Services
                 var groupLinks = allGroupStudents.Where(gs => gs.StudentId == student.Id).ToList();
 
                 bool hasNoGroups = !groupLinks.Any();
-                bool notActiveInAnyGroup = groupLinks.Any() && !groupLinks.Any(gs => gs.IsActive == true);
+                bool notActiveInAnyGroup = groupLinks.Any() && !groupLinks.Any(gs => gs.IsActive == 1);
 
                 if (hasNoGroups || notActiveInAnyGroup)
                 {

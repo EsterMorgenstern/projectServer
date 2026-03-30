@@ -392,8 +392,12 @@ namespace BLL.Services
                 Console.WriteLine($"Step 1 OK: students count = {allStudents.Count}");
 
                 Console.WriteLine("Step 2: loading active group-students...");
+                // Fix for CS0029 and CS1662 errors
+                // The issue is that `IsActive` is of type `byte?` and cannot be directly used as a `bool`.
+                // We need to explicitly check if `IsActive` has a value and if that value is non-zero.
+
                 var allActiveGroupStudents = dal.GroupStudents.Get()
-                    .Where(gs => (bool)gs.IsActive)
+                    .Where(gs => gs.IsActive.HasValue && gs.IsActive.Value != 0)
                     .ToList();
                 Console.WriteLine($"Step 2 OK: active group-students count = {allActiveGroupStudents.Count}");
 

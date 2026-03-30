@@ -10,7 +10,7 @@ namespace BLL.Models
         public string StudentName { get; set; } =string.Empty;
         public required Student Student { get; set; }
         public DateOnly? EnrollmentDate { get; set; }
-        public bool? IsActive { get; set; }
+        public byte? IsActive { get; set; }
         public string? Notes { get; set; }
         public string DayOfWeek { get; set; } = null!;
         public TimeOnly? Hour { get; set; }
@@ -33,7 +33,7 @@ namespace BLL.Models
         public int StudentId { get; set; }
         public string? GroupName { get; set; }
         public DateOnly? EnrollmentDate { get; set; }
-        public bool? IsActive { get; set; }
+        public byte? IsActive { get; set; }
         public Student? Student { get; set; } // Make this property optional
     }
 

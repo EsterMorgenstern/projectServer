@@ -355,6 +355,9 @@ namespace BLL.Services
             lesson.CanceledBy = canceledBy;
 
             dal.Lessons.Update(lesson);
+
+            DeleteAttendancesForLessons(new[] { lessonId });
+
         }
 
         /// <summary>
@@ -386,6 +389,7 @@ namespace BLL.Services
                     lesson.CanceledBy = createdBy;
                     dal.Lessons.Update(lesson);
                 }
+                DeleteAttendancesForLessons(lessonsToCancelQuery.Select(l => l.LessonId));
 
                 Console.WriteLine($"ביטלו {lessonsToCancelQuery.Count} שיעורים ליום {date}");
             }
@@ -435,6 +439,8 @@ namespace BLL.Services
             lesson.CanceledBy = null;
 
             dal.Lessons.Update(lesson);
+
+            CreateAttendancesForActiveStudents(lesson.GroupId, lesson.LessonId, lesson.LessonDate);
         }
 
         /// <summary>
@@ -499,12 +505,12 @@ namespace BLL.Services
                     {
                         LessonId = completionLesson.LessonId,
                         StudentId = student.StudentId,
-                        WasPresent = false, // ברירת מחדל – לא סומן
+                        WasPresent = true, // ברירת מחדל –  סומן
                         StatusReport = 3,   // ממתין לדיווח לפי הצורך
                         UpdateDate = DateTime.Now,
-                        UpdateBy = null,   
+                        UpdateBy = null,
                         HealthFundReport = studentDetails.HealthFundId, // קופת החולים של התלמיד
-                        DateReport = null   
+                        DateReport = null
                     };
                     dal.Attendances.Create(attendance);
 
@@ -593,7 +599,7 @@ namespace BLL.Services
             if (lesson.LessonDate == today) return "today";
             return "future";
         }
-      
+
         /// <summary>
         /// קבלת שיעורים לתאריך מסוים
         /// </summary>
@@ -723,5 +729,56 @@ namespace BLL.Services
                 return new List<LessonCalendarItemDto>();
             }
         }
+
+        /// <summary>
+        /// מוחק את כל רשומות הנוכחות לכל התלמידים עבור שיעור מסוים (או מספר שיעורים)
+        /// </summary>
+        private void DeleteAttendancesForLessons(IEnumerable<int> lessonIds)
+        {
+            // שלוף את כל רשומות הנוכחות עבור השיעורים
+            var allAttendances = dal.Attendances.Get();
+            var attendancesToDelete = allAttendances.Where(a => lessonIds.Contains(a.LessonId)).ToList();
+
+            foreach (var attendance in attendancesToDelete)
+            {
+                dal.Attendances.Delete(attendance.AttendanceId);
+            }
+        }
+
+        /// <summary>
+        /// יצירת רשומות נוכחות לכל התלמידים הפעילים בקבוצה עבור שיעור מסוים
+        /// </summary>
+        private void CreateAttendancesForActiveStudents(int groupId, int lessonId, DateOnly lessonDate)
+        {
+            var groupStudents = dal.GroupStudents.GetById(groupId);
+            var activeGroupStudents = groupStudents != null
+                ? new List<GroupStudent> { groupStudents }.Where(gs => gs.IsActive.HasValue && gs.IsActive.Value == 1).ToList()
+                : new List<GroupStudent>();
+
+            foreach (var gs in activeGroupStudents)
+            {
+                // בדוק אם כבר קיימת נוכחות לתלמיד עבור השיעור
+                var existing = dal.Attendances.GetAttendanceByGroupAndDate(groupId, lessonDate)
+                    .FirstOrDefault(a => a.LessonId == lessonId && a.StudentId == gs.StudentId);
+
+                if (existing == null)
+                {
+                    var student = dal.Students.GetById(gs.StudentId);
+                    var attendance = new Attendance
+                    {
+                        LessonId = lessonId,
+                        StudentId = gs.StudentId,
+                        WasPresent = true,
+                        StatusReport = 3, // ממתין לדיווח
+                        UpdateDate = DateTime.Now,
+                        UpdateBy = null,
+                        HealthFundReport = student.HealthFundId,
+                        DateReport = lessonDate
+                    };
+                    dal.Attendances.Create(attendance);
+                }
+            }
+        }
+
     }
 }

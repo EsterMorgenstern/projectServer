@@ -68,12 +68,28 @@ namespace DAL.Services
                 throw new InvalidOperationException("An error occurred while retrieving attendance records.", ex);
             }
         }
+
         public List<Attendance> GetAttendanceByGroup(int groupId)
         {
-            throw new NotImplementedException();
+            if (groupId <= 0)
+                return new List<Attendance>();
+
+            // שלוף את כל מזהי השיעורים של הקבוצה
+            var lessonIds = dbcontext.Lessons
+                .Where(l => l.GroupId == groupId)
+                .Select(l => l.LessonId)
+                .ToList();
+
+            if (!lessonIds.Any())
+                return new List<Attendance>();
+
+            // שלוף את כל הנוכחויות עבור אותם שיעורים
+            return dbcontext.Attendances
+                .Where(a => lessonIds.Contains(a.LessonId))
+                .ToList();
         }
 
-        public List<Attendance> GetAttendanceByGroupAndDate(int groupId, DateOnly date)
+       public List<Attendance> GetAttendanceByGroupAndDate(int groupId, DateOnly date)
         {
             try
             {
