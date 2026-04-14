@@ -13,7 +13,6 @@ public partial class Student
     public string? Class { get; set; }
     public string? Sector { get; set; }
     public DateOnly? LastActivityDate { get; set; }
-    public string? Status { get; set; }
     public string? Email { get; set; }
     public string? CreatedBy { get; set; }
     public string? IdentityCard { get; set; }

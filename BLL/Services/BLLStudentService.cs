@@ -32,7 +32,6 @@ namespace BLL.Services
                 Class = student.Class,
                 Sector = student.Sector,
                 LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate),
-                Status=student.Status,
                 Email=student.Email,
                 CreatedBy=student.CreatedBy,
                 IdentityCard = student.IdentityCard,
@@ -71,7 +70,7 @@ namespace BLL.Services
                     Class = p.Class ?? "",
                     Sector = p.Sector ?? "",
                     LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
-                    Status=p.Status?? "",
+                    Status= GetStudentStatus(p.Id),
                     Email=p.Email ?? "",
                     CreatedBy=p.CreatedBy ?? "",
                     IdentityCard = p.IdentityCard ?? "",
@@ -109,7 +108,7 @@ namespace BLL.Services
                         Class = p.Class ?? "",
                         Sector = p.Sector ?? "",
                         LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
-                        Status=p.Status ?? "",
+                        Status=GetStudentStatus(p.Id),
                         Email=p.Email ?? "",
                         CreatedBy=p.CreatedBy??"",
                         IdentityCard = p.IdentityCard ?? "",
@@ -218,7 +217,6 @@ namespace BLL.Services
             m.Class = student.Class;
             m.Sector = student.Sector;
             m.LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate);
-            m.Status = student.Status;
             m.Email = student.Email;
             m.CreatedBy = student.CreatedBy;
             m.IdentityCard = student.IdentityCard;
@@ -269,7 +267,7 @@ namespace BLL.Services
             };
         }
 
-        private BLLStudentWithNotesDto ToBLLStudentWithNotesDto(Student p, List<BLLStudentNote> notes)
+        public  BLLStudentWithNotesDto ToBLLStudentWithNotesDto(Student p, List<BLLStudentNote> notes)
         {
             return new BLLStudentWithNotesDto
             {
@@ -284,7 +282,7 @@ namespace BLL.Services
                 Class = p.Class ?? "",
                 Sector = p.Sector ?? "",
                 LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
-                Status = p.Status ?? "",
+                Status = GetStudentStatus(p.Id),
                 Email = p.Email ?? "",
                 CreatedBy = p.CreatedBy ?? "",
                 IdentityCard = p.IdentityCard ?? "",
@@ -295,6 +293,28 @@ namespace BLL.Services
             };
         }
 
+        public string GetStudentStatus(int studentId)
+        {
+            var groupLinks = dal.GroupStudents.GetByStudentId(studentId);
+
+            if (groupLinks == null || !groupLinks.Any())
+                return "ליד"; // לא רשום באף קבוצה
+
+            // בדוק אם יש לפחות קבוצה אחת פעילה
+            if (groupLinks.Any(gs => gs.IsActive == 1))
+                return "פעיל";
+
+            // אם כל הקבוצות לא פעילות
+            if (groupLinks.All(gs => gs.IsActive == 0))
+                return "לא פעיל";
+
+            // אם יש קבוצה אחת לפחות עם סטטוס ליד
+            if (groupLinks.Any(gs => gs.IsActive == 2))
+                return "ליד";
+
+            // ברירת מחדל
+            return "לא ידוע";
+        }
 
 
     }

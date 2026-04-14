@@ -245,7 +245,6 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.SecondaryPhone).HasMaxLength(20);
             entity.Property(e => e.School).HasMaxLength(20);
             entity.Property(e => e.Sector).HasMaxLength(50);
-            entity.Property(e => e.Status).HasMaxLength(30);
             entity.Property(e => e.Email);
             entity.Property(e => e.CreatedBy);
             entity.Property(e => e.IdentityCard).HasMaxLength(20);

@@ -27,9 +27,9 @@ namespace BLL
             Instructors = new BLLInstructorService(dal);
             Courses = new BLLCourseService(dal);
             Groups = new BLLGroupService(dal, Lessons);
-            Attendances = new BLLAttendanceService(dal);
+            Attendances = new BLLAttendanceService(dal,(BLLStudentService)Students);
             Branches = new BLLBranchService(dal);
-            GroupStudents = new BLLGroupStudentService(dal, (BLLAttendanceService)Attendances);
+            GroupStudents = new BLLGroupStudentService(dal, (BLLAttendanceService)Attendances, (BLLStudentService)Students);
             Notes = new BLLStudentNoteService(dal);
             Users = new BLLUserService(dal);
             PaymentMethods = new BLLPaymentMethodService(dal);

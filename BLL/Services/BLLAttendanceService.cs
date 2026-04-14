@@ -8,10 +8,12 @@ namespace BLL.Services
     public class BLLAttendanceService : IBLLAttendance
     {
         private readonly IDAL dal;
+        private readonly BLLStudentService studentService;
 
-        public BLLAttendanceService(IDAL dal)
+        public BLLAttendanceService(IDAL dal, BLLStudentService studentService)
         {
-            this.dal = dal;
+            this.dal = dal; 
+            this.studentService = studentService;
         }
         #region פונקציות המרה 
         private BLLAttendance ToBLLAttendance(Attendance attendance)
@@ -410,10 +412,10 @@ namespace BLL.Services
                 Console.WriteLine("Step 4: filtering relevant students...");
                 var relevantStudents = allStudents
                     .Where(s =>
-                        (s.Status != null && s.Status.Trim() == "פעיל") ||
+                     studentService.GetStudentStatus(s.Id) =="פעיל" ||
                         studentsWithActiveEnrollment.Contains(s.Id))
                     .ToList();
-                Console.WriteLine($"Step 4 OK: relevant students count = {relevantStudents.Count}");
+                Console.WriteLine($"Step 4 OK: ");
 
                 if (!relevantStudents.Any())
                 {

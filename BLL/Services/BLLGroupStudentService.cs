@@ -9,11 +9,15 @@ namespace BLL.Services
     {
         private readonly IDAL dal;
         private readonly BLLAttendanceService attendanceService;
+        private readonly BLLStudentService studentService;
 
-        public BLLGroupStudentService(IDAL dal, BLLAttendanceService attendanceService)
+
+        public BLLGroupStudentService(IDAL dal, BLLAttendanceService attendanceService, BLLStudentService studentService)
         {
             this.dal = dal;
             this.attendanceService = attendanceService;
+            this.studentService = studentService;
+            this.studentService = studentService;
         }
 
         /// <summary>
@@ -26,7 +30,7 @@ namespace BLL.Services
             {
                 GroupId = groupStudent.GroupId,
                 StudentId = groupStudent.StudentId,
-                IsActive = (byte?)(groupStudent.IsActive == 1 || dal.Students.GetById(groupStudent.StudentId).Status == "פעיל" ? 1 : 0),
+                IsActive = (byte?)(groupStudent.IsActive == 1 || studentService.GetStudentStatus(groupStudent.StudentId) == "פעיל" ? 1 : 0),
                 EnrollmentDate = groupStudent.EnrollmentDate ?? DateOnly.FromDateTime(DateTime.Now)
             };
             dal.GroupStudents.Create(g);
