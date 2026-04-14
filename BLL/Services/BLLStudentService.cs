@@ -9,14 +9,12 @@ namespace BLL.Services
     public class BLLStudentService : IBLLStudent
     {
         private readonly IDAL dal;
+
         public BLLStudentService(IDAL dal)
         {
             this.dal = dal;
         }
-        /// <summary>
-        /// הוספת תלמיד
-        /// </summary>
-        /// <param name="item"></param>
+
         public void Create(BLLStudent student)
         {
             Student p = new Student()
@@ -32,19 +30,15 @@ namespace BLL.Services
                 Class = student.Class,
                 Sector = student.Sector,
                 LastActivityDate = DateOnly.FromDateTime(student.LastActivityDate),
-                Email=student.Email,
-                CreatedBy=student.CreatedBy,
+                Email = student.Email,
+                CreatedBy = student.CreatedBy,
                 IdentityCard = student.IdentityCard,
                 HealthFundId = student.HealthFundId,
-
             };
+
             dal.Students.Create(p);
         }
 
-        /// <summary>
-        /// get לתלמידים
-        /// </summary>
-        /// <returns>List  של התלמידים</returns>
         public List<BLLStudent> Get()
         {
             try
@@ -53,37 +47,54 @@ namespace BLL.Services
                 if (pList == null || !pList.Any())
                 {
                     Console.WriteLine("No students found.");
-                    return new List<BLLStudent>(); // מחזיר מערך ריק
+                    return new List<BLLStudent>();
                 }
 
+                // שליפה אחת בלבד של כל הקשרים
+                var allGroupLinks = dal.GroupStudents.Get();
+
+                // קיבוץ לפי StudentId
+                var groupLinksByStudent = allGroupLinks
+                    .GroupBy(gs => gs.StudentId)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
                 List<BLLStudent> list = new();
-                pList.ForEach(p => list.Add(new BLLStudent()
+
+                pList.ForEach(p =>
                 {
-                    Id = p.Id,
-                    FirstName = p.FirstName ?? "",
-                    LastName = p.LastName ?? "",
-                    Phone = p.Phone.ToString(),
-                    SecondaryPhone = p.SecondaryPhone?.ToString() ?? "",
-                    Age = p.Age,
-                    City = p.City ?? "",
-                    School = p.School ?? "",
-                    Class = p.Class ?? "",
-                    Sector = p.Sector ?? "",
-                    LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
-                    Status= GetStudentStatus(p.Id),
-                    Email=p.Email ?? "",
-                    CreatedBy=p.CreatedBy ?? "",
-                    IdentityCard = p.IdentityCard ?? "",
-                    HealthFundId = p.HealthFundId ,
-                    HealthFundName = p.HealthFundForStudent != null ? p.HealthFundForStudent.Name : "",
-                    HealthFundPlan = p.HealthFundForStudent != null ? p.HealthFundForStudent.FundType : ""
-                }));
+                    groupLinksByStudent.TryGetValue(p.Id, out var studentGroupLinks);
+
+                    list.Add(new BLLStudent()
+                    {
+                        Id = p.Id,
+                        FirstName = p.FirstName ?? "",
+                        LastName = p.LastName ?? "",
+                        Phone = p.Phone.ToString(),
+                        SecondaryPhone = p.SecondaryPhone?.ToString() ?? "",
+                        Age = p.Age,
+                        City = p.City ?? "",
+                        School = p.School ?? "",
+                        Class = p.Class ?? "",
+                        Sector = p.Sector ?? "",
+                        LastActivityDate = p.LastActivityDate != null
+                            ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue)
+                            : DateTime.MinValue,
+                        Status = GetStudentStatus(studentGroupLinks),
+                        Email = p.Email ?? "",
+                        CreatedBy = p.CreatedBy ?? "",
+                        IdentityCard = p.IdentityCard ?? "",
+                        HealthFundId = p.HealthFundId,
+                        HealthFundName = p.HealthFundForStudent != null ? p.HealthFundForStudent.Name : "",
+                        HealthFundPlan = p.HealthFundForStudent != null ? p.HealthFundForStudent.FundType : ""
+                    });
+                });
+
                 return list;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error fetching students: {ex.Message}");
-                return new List<BLLStudent>(); // מחזיר מערך ריק במקרה של שגיאה
+                return new List<BLLStudent>();
             }
         }
 
@@ -107,13 +118,14 @@ namespace BLL.Services
                         School = p.School ?? "",
                         Class = p.Class ?? "",
                         Sector = p.Sector ?? "",
-                        LastActivityDate = p.LastActivityDate != null ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue) : DateTime.MinValue,
-                        Status=GetStudentStatus(p.Id),
-                        Email=p.Email ?? "",
-                        CreatedBy=p.CreatedBy??"",
+                        LastActivityDate = p.LastActivityDate != null
+                            ? p.LastActivityDate.Value.ToDateTime(TimeOnly.MinValue)
+                            : DateTime.MinValue,
+                        Status = GetStudentStatus(p.Id),
+                        Email = p.Email ?? "",
+                        CreatedBy = p.CreatedBy ?? "",
                         IdentityCard = p.IdentityCard ?? "",
-                        HealthFundId = p.HealthFundId ,
-
+                        HealthFundId = p.HealthFundId,
                     };
                 }
 
@@ -124,19 +136,18 @@ namespace BLL.Services
                     FirstName = "",
                     LastName = "",
                     Phone = "",
-                    SecondaryPhone="",
+                    SecondaryPhone = "",
                     Age = 0,
                     City = "",
                     School = "",
                     Class = "",
                     Sector = "",
                     LastActivityDate = DateTime.MinValue,
-                    Status="",
-                    Email="",
-                    CreatedBy="",
+                    Status = "",
+                    Email = "",
+                    CreatedBy = "",
                     IdentityCard = "",
                     HealthFundId = 0,
-
                 };
             }
             catch (Exception ex)
@@ -155,50 +166,51 @@ namespace BLL.Services
                     Class = "",
                     Sector = "",
                     LastActivityDate = DateTime.MinValue,
-                    Status="",
-                    Email="",
-                    CreatedBy="",
+                    Status = "",
+                    Email = "",
+                    CreatedBy = "",
                     IdentityCard = "",
-                    HealthFundId =0,
-
+                    HealthFundId = 0,
                 };
             }
         }
 
         public async Task Delete(int id)
         {
-            var attendances=await dal.Attendances.GetAttendanceByStudent(id);
-           
+            var attendances = await dal.Attendances.GetAttendanceByStudent(id);
+
             foreach (var item in attendances)
             {
                 dal.Attendances.Delete(item.AttendanceId);
             }
-           
-            var notes = dal.StudentNotes.GetById(id);
-            if (notes != null) { 
-            foreach (var item in notes)
-            {
-                dal.StudentNotes.Delete(item.NoteId);
-            }
-            }
-            var groupStudents=dal.GroupStudents.GetByStudentId(id);
-            if (groupStudents != null) { 
-            foreach (var item in groupStudents)
-            {
-                dal.GroupStudents.Delete(item);
-                var group = dal.Groups.GetById(item.GroupId);
-                group.MaxStudents = (group.MaxStudents ?? 0) + 1;
-                dal.Groups.Update(group);
 
-                var branch = dal.Branches.Get().ToList().Find(x => x.BranchId == group?.BranchId);
-                if (branch != null)
+            var notes = dal.StudentNotes.GetById(id);
+            if (notes != null)
+            {
+                foreach (var item in notes)
                 {
-                    branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) - 1;
-                    dal.Branches.Update(branch);
+                    dal.StudentNotes.Delete(item.NoteId);
                 }
             }
-            }
 
+            var groupStudents = dal.GroupStudents.GetByStudentId(id);
+            if (groupStudents != null)
+            {
+                foreach (var item in groupStudents)
+                {
+                    dal.GroupStudents.Delete(item);
+                    var group = dal.Groups.GetById(item.GroupId);
+                    group.MaxStudents = (group.MaxStudents ?? 0) + 1;
+                    dal.Groups.Update(group);
+
+                    var branch = dal.Branches.Get().ToList().Find(x => x.BranchId == group?.BranchId);
+                    if (branch != null)
+                    {
+                        branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) - 1;
+                        dal.Branches.Update(branch);
+                    }
+                }
+            }
 
             dal.Students.Delete(id);
         }
@@ -209,9 +221,9 @@ namespace BLL.Services
             m.Id = student.Id;
             m.FirstName = student.FirstName;
             m.LastName = student.LastName;
-            m.Phone = student.Phone; 
+            m.Phone = student.Phone;
             m.SecondaryPhone = student.SecondaryPhone;
-            m.Age = student.Age; 
+            m.Age = student.Age;
             m.City = student.City;
             m.School = student.School;
             m.Class = student.Class;
@@ -222,10 +234,9 @@ namespace BLL.Services
             m.IdentityCard = student.IdentityCard;
             m.HealthFundId = student.HealthFundId;
 
-
             dal.Students.Update(m);
         }
-       
+
         public List<BLLStudentWithNotesDto> GetStudentsWithoutActiveGroupWithNotes()
         {
             var allStudents = dal.Students.Get();
@@ -242,7 +253,6 @@ namespace BLL.Services
 
                 if (hasNoGroups || notActiveInAnyGroup)
                 {
-                    // שליפת הערות עבור התלמיד
                     var notesDal = dal.StudentNotes.GetById(student.Id);
                     var notes = notesDal?.Select(ToBLLStudentNote).ToList() ?? new List<BLLStudentNote>();
 
@@ -254,7 +264,6 @@ namespace BLL.Services
             return result;
         }
 
-        // פונקציית עזר להמרה
         private BLLStudentNote ToBLLStudentNote(StudentNote note)
         {
             return new BLLStudentNote
@@ -267,7 +276,7 @@ namespace BLL.Services
             };
         }
 
-        public  BLLStudentWithNotesDto ToBLLStudentWithNotesDto(Student p, List<BLLStudentNote> notes)
+        public BLLStudentWithNotesDto ToBLLStudentWithNotesDto(Student p, List<BLLStudentNote> notes)
         {
             return new BLLStudentWithNotesDto
             {
@@ -295,27 +304,30 @@ namespace BLL.Services
 
         public string GetStudentStatus(int studentId)
         {
-            var groupLinks = dal.GroupStudents.GetByStudentId(studentId);
+            var groupLinks = dal.GroupStudents.GetByStudentId(studentId)?.ToList();
+            return GetStudentStatus(groupLinks);
+        }
 
+        /// <summary>
+        /// overload מהיר לחישוב על נתונים שכבר נטענו
+        /// </summary>
+        /// <param name="groupLinks"></param>
+        /// <returns></returns>
+        private string GetStudentStatus(List<GroupStudent>? groupLinks)
+        {
             if (groupLinks == null || !groupLinks.Any())
-                return "ליד"; // לא רשום באף קבוצה
+                return "ליד";
 
-            // בדוק אם יש לפחות קבוצה אחת פעילה
             if (groupLinks.Any(gs => gs.IsActive == 1))
                 return "פעיל";
 
-            // אם כל הקבוצות לא פעילות
-            if (groupLinks.All(gs => gs.IsActive == 0))
-                return "לא פעיל";
-
-            // אם יש קבוצה אחת לפחות עם סטטוס ליד
             if (groupLinks.Any(gs => gs.IsActive == 2))
                 return "ליד";
 
-            // ברירת מחדל
+            if (groupLinks.All(gs => gs.IsActive == 0))
+                return "לא פעיל";
+
             return "לא ידוע";
         }
-
-
     }
 }
