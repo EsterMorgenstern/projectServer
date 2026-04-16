@@ -16,8 +16,7 @@
         IDALGrowPayment PaymentGrow { get; }
         IDALHealthFund HealthFunds { get; }
         IDALStudentHealthFund StudentHealthFunds { get; }
-        IDALReportedDate ReportedDates { get; } 
-        IDALUnreportedDate UnreportedDates { get; }   
+        IDALHealthFundCommitment HealthFundCommitments { get; }
         IDALLesson Lessons { get; }
     }
 }

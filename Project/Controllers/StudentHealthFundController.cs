@@ -1,13 +1,12 @@
 ﻿using BLL.Api;
 using BLL.Models;
-using DAL.Api;
 using Microsoft.AspNetCore.Mvc;
 
 namespace server.controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentHealthFundController : ControllerBase // Change base class to ControllerBase
+    public class StudentHealthFundController : ControllerBase
     {
         private readonly IBLLStudentHealthFund studentHealthFunds;
 
@@ -17,64 +16,137 @@ namespace server.controllers
         }
 
         [HttpGet("GetAll")]
-        public List<BLLStudentHealthFundPerfect> Get()
+        public ActionResult<List<BLLStudentHealthFundPerfect>> Get()
         {
-            return studentHealthFunds.Get();
+            try
+            {
+                var result = studentHealthFunds.Get();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה בקבלת נתוני הגביה: {ex.Message}");
+            }
         }
 
-        [HttpGet("getById/{id}")]
-        public BLLStudentHealthFund GetById(int id)
+        [HttpGet("GetById/{id}")]
+        public ActionResult<BLLStudentHealthFund> GetById(int id)
         {
-            return studentHealthFunds.GetById(id);
+            try
+            {
+                var result = studentHealthFunds.GetById(id);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה בקבלת רשומת גביה: {ex.Message}");
+            }
         }
 
         [HttpPost("Add")]
-        public void Create(BLLStudentHealthFund studentHealthFund)
+        public async Task<IActionResult> Create([FromBody] BLLStudentHealthFund studentHealthFund)
         {
-            studentHealthFunds.Create(studentHealthFund);
+            try
+            {
+                await studentHealthFunds.Create(studentHealthFund);
+                return Ok(new { message = "רשומת גביה נוצרה בהצלחה" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה ביצירת רשומת גביה: {ex.Message}");
+            }
         }
 
-        [HttpPut("Update")]
-        public void Update(BLLStudentHealthFund studentHealthFund)
+        [HttpPut("Update/{id}")]
+        public IActionResult Update(int id, [FromBody] BLLStudentHealthFund studentHealthFund)
         {
-            studentHealthFunds.Update(studentHealthFund);
+            try
+            {
+                if (id != studentHealthFund.Id)
+                {
+                    return BadRequest("חוסר התאמה בין מזהה הרשומה לנתונים שנשלחו");
+                }
+
+                studentHealthFunds.Update(studentHealthFund);
+                return Ok(new { message = "רשומת גביה עודכנה בהצלחה" });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה בעדכון רשומת גביה: {ex.Message}");
+            }
         }
 
-        [HttpDelete("Delete")]
-        public void Delete(int studentHealthFundId)
+        [HttpDelete("Delete/{studentHealthFundId}")]
+        public IActionResult Delete(int studentHealthFundId)
         {
-            studentHealthFunds.Delete(studentHealthFundId);
-        }
-
-        [HttpPost("{id}/report-date")]
-        public void ReportDate(int id, [FromBody] DateTime date)
-        {
-            studentHealthFunds.AddReportedDate(id, date);
+            try
+            {
+                studentHealthFunds.Delete(studentHealthFundId);
+                return Ok(new { message = "רשומת גביה נמחקה בהצלחה" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה במחיקת רשומת גביה: {ex.Message}");
+            }
         }
 
         [HttpGet("{id}/reported-dates")]
-        public List<DateTime> GetReportedDates(int id)
+        public ActionResult<List<DateTime>> GetReportedDates(int id)
         {
-            return studentHealthFunds.GetReportedDates(id);
+            try
+            {
+                var result = studentHealthFunds.GetReportedDates(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה בקבלת תאריכים מדווחים: {ex.Message}");
+            }
         }
 
         [HttpGet("{id}/unreported-dates")]
-        public List<DateTime> GetUnreportedDates(int id)
+        public ActionResult<List<DateTime>> GetUnreportedDates(int id)
         {
-            return studentHealthFunds.GetUnreportedDates(id);
-        }
-        [HttpPost("{id}/ReportUnreportedDate")]
-        public void ReportUnreportedDate(int id, [FromBody] DateTime date)
-        {
-            studentHealthFunds.ReportUnreportedDate(id, date);
-        }
-        [HttpPost("ValidateAndFixUnreportedTreatments")]
-        public async Task<IActionResult> SyncUnreportedTreatments()
-        {
-            var result = await studentHealthFunds.ValidateAndFixUnreportedTreatments();
-            return Ok(result);
+            try
+            {
+                var result = studentHealthFunds.GetUnreportedDates(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה בקבלת תאריכים לא מדווחים: {ex.Message}");
+            }
         }
 
+        [HttpPost("{id}/ReportUnreportedDate")]
+        public async Task<IActionResult> ReportUnreportedDate(int id, [FromBody] DateTime date)
+        {
+            try
+            {
+                await studentHealthFunds.ReportUnreportedDate(id, date);
+                return Ok(new { message = "התאריך דווח בהצלחה" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה בדיווח התאריך: {ex.Message}");
+            }
+        }
 
         [HttpPost("UploadFile")]
         public async Task<IActionResult> UploadFile(IFormFile file, int studentHealthFundId, string fileType)
@@ -82,7 +154,7 @@ namespace server.controllers
             try
             {
                 if (file == null)
-                    return BadRequest("File not received");
+                    return BadRequest("לא התקבל קובץ");
 
                 var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles", studentHealthFundId.ToString());
                 Directory.CreateDirectory(folderPath);
@@ -96,14 +168,26 @@ namespace server.controllers
 
                 studentHealthFunds.UploadFile(studentHealthFundId, filePath, fileType);
 
-                return Ok(new { FilePath = filePath });
+                return Ok(new { filePath, message = "הקובץ הועלה בהצלחה" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Server Error: {ex.Message}");
+                return StatusCode(500, $"שגיאה בהעלאת הקובץ: {ex.Message}");
             }
         }
 
+        [HttpPost("ValidateAndFixUnreportedTreatments")]
+        public async Task<IActionResult> SyncUnreportedTreatments()
+        {
+            try
+            {
+                var result = await studentHealthFunds.ValidateAndFixUnreportedTreatments();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"שגיאה בסנכרון הנתונים: {ex.Message}");
+            }
+        }
     }
 }
-

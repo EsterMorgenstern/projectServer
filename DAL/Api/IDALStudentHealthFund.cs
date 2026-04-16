@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DAL.Models;
+﻿using DAL.Models;
 
 namespace DAL.Api
 {
-    public interface IDALStudentHealthFund:IDALCRUD<StudentHealthFund>
+    public interface IDALStudentHealthFund
     {
+        Task<List<StudentHealthFund>> GetAll();
         StudentHealthFund GetById(int id);
-        List<ReportedDate> GetReportedDates(int studentHealthFundId);
-        List<UnreportedDate> GetUnreportedDates(int studentHealthFundId);
+        Task<StudentHealthFund?> GetActiveByStudentId(int studentId);
+        Task Create(StudentHealthFund studentHealthFund);
+        Task Update(StudentHealthFund studentHealthFund);
+        Task Delete(int studentHealthFundId);
         void SaveFilePath(int studentHealthFundId, string filePath, string fileType);
-
-
     }
 }

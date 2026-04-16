@@ -1,6 +1,7 @@
 ﻿using BLL.Api;
 using BLL.Services;
 using DAL.Api;
+using DAL.Models;
 
 namespace BLL
 {
@@ -20,7 +21,7 @@ namespace BLL
         public IBLLHealthFund HealthFunds { get; }
         public IBLLStudentHealthFund StudentHealthFunds { get; }
         public IBLLLesson Lessons { get; }
-        public BLLManager(IDAL dal)
+        public BLLManager(IDAL dal,dbcontext db)
         {
             Lessons = new BLLLessonService(dal);
             Students = new BLLStudentService(dal);
@@ -35,7 +36,7 @@ namespace BLL
             PaymentMethods = new BLLPaymentMethodService(dal);
             Payments = new BLLPaymentService(dal);
             HealthFunds = new BLLHealthFundService(dal);
-            StudentHealthFunds = new BLLStudentHealthFundService(dal);
+            StudentHealthFunds = new BLLStudentHealthFundService(dal,db);
         }
     }
 }

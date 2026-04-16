@@ -33,7 +33,7 @@ namespace Server.Controllers
         [HttpPost("Add")]
         public void Create([FromBody] BLLStudent student)
         {
-            students.Create(student);
+            students.CreateAsync(student);
         }
         [HttpPut("Update")]
         public void Update(BLLStudent student)

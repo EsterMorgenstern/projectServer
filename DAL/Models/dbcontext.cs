@@ -31,6 +31,7 @@ public partial class dbcontext : DbContext
     public virtual DbSet<ReportedDate> ReportedDates { get; set; }
     public virtual DbSet<UnreportedDate> UnreportedDates { get; set; }
     public virtual DbSet<Lesson> Lessons { get; set; }
+    public virtual DbSet<HealthFundCommitment> HealthFundCommitments { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -326,8 +327,8 @@ public partial class dbcontext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.StartDate).HasDefaultValueSql("GETDATE()");
-            entity.Property(e => e.TreatmentsUsed).HasDefaultValue(0);
-            entity.Property(e => e.ReportedTreatments).HasDefaultValue(0);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.EndDate).IsRequired(false);
 
             entity.HasOne(d => d.Student)
                 .WithMany(p => p.StudentHealthFunds)
@@ -339,21 +340,29 @@ public partial class dbcontext : DbContext
                 .HasForeignKey(d => d.HealthFundId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
-        modelBuilder.Entity<ReportedDate>(entity =>
+
+        modelBuilder.Entity<HealthFundCommitment>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.DateReported).IsRequired();
+
+            entity.Property(e => e.CommitmentNumber)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.FilePath)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true);
+
+            entity.Property(e => e.UsedTreatments)
+                .HasDefaultValue(0);
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
             entity.HasOne(d => d.StudentHealthFund)
-                .WithMany(p => p.ReportedDates)
-                .HasForeignKey(d => d.StudentHealthFundId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-        modelBuilder.Entity<UnreportedDate>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.DateUnreported).IsRequired();
-            entity.HasOne(d => d.StudentHealthFund)
-                .WithMany(p => p.UnreportedDates)
+                .WithMany(p => p.Commitments)
                 .HasForeignKey(d => d.StudentHealthFundId)
                 .OnDelete(DeleteBehavior.Cascade);
         });

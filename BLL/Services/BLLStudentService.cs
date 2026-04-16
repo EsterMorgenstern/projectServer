@@ -15,7 +15,7 @@ namespace BLL.Services
             this.dal = dal;
         }
 
-        public void Create(BLLStudent student)
+        public async Task CreateAsync(BLLStudent student)
         {
             Student p = new Student()
             {
@@ -37,6 +37,26 @@ namespace BLL.Services
             };
 
             dal.Students.Create(p);
+
+            if (student.HealthFundId != 0)
+            {
+                var existingBilling = await dal.StudentHealthFunds.GetActiveByStudentId(student.Id);
+
+                if (existingBilling == null)
+                {
+                    await dal.StudentHealthFunds.Create(new StudentHealthFund
+                    {
+                        StudentId = student.Id,
+                        HealthFundId = student.HealthFundId,
+                        StartDate = DateTime.Now,
+                        IsActive = true,
+                        EndDate = null,
+                        Notes = null,
+                        ReferralFilePath = null,
+                        CommitmentFilePath = null
+                    });
+                }
+            }
         }
 
         public List<BLLStudent> Get()
@@ -329,5 +349,7 @@ namespace BLL.Services
 
             return "לא ידוע";
         }
+
+
     }
 }

@@ -5,7 +5,7 @@ namespace BLL.Api
     public interface IBLLStudent
     {
         List<BLLStudent> Get();
-        void Create(BLLStudent student);
+        Task CreateAsync(BLLStudent student);
         public BLLStudent GetById(int id);
         public Task Delete(int id);
         public void Update(BLLStudent student);

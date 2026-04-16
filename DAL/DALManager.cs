@@ -27,8 +27,7 @@ namespace DAL
             PaymentGrow = new DALGrowPaymentService(httpClient); // העברת HttpClient ל-DALGrowPaymentService
             HealthFunds = new DALHealthFundService(data);
             StudentHealthFunds = new DALStudentHealthFundService(data);
-            ReportedDates = new DALReportedDateService(data);
-            UnreportedDates = new DALUnreportedDateService(data);
+            HealthFundCommitments = new DALHealthFundCommitmentService(data);
             Lessons = new DALLessonService(data);
         }
 
@@ -46,8 +45,7 @@ namespace DAL
         public IDALGrowPayment PaymentGrow { get; }
         public IDALHealthFund HealthFunds { get; }
         public IDALStudentHealthFund StudentHealthFunds { get; }
-        public IDALReportedDate ReportedDates { get; }
-        public IDALUnreportedDate UnreportedDates { get; }
+        public IDALHealthFundCommitment HealthFundCommitments { get; }
         public IDALLesson Lessons { get; }
     }
 }

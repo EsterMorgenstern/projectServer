@@ -248,6 +248,13 @@ namespace BLL.Services
                     }
 
                     Console.WriteLine($"נוצרו {createdLessonsCount} שיעורים עבור קבוצה {groupId} (דולג על {iterations - createdLessonsCount} חגים)");
+                    // אחרי יצירת השיעורים:
+                    foreach (var lesson in dal.Lessons.Get().Where(l => l.GroupId == groupId))
+                    {
+                        CreateAttendancesForActiveStudents(groupId, lesson.LessonId, lesson.LessonDate);
+                    }
+
+
                 }
                 catch (Exception ex)
                 {
