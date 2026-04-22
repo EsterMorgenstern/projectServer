@@ -134,6 +134,7 @@ namespace BLL.Services
                     ReferralFilePath = shf.ReferralFilePath,
                     CommitmentFilePath = shf.CommitmentFilePath,
                     Notes = shf.Notes,
+                    StandingOrderDay=shf.StandingOrderDay,
 
                     Commitments = studentCommitments.Select(c => new BLLHealthFundCommitment
                     {
@@ -173,7 +174,8 @@ namespace BLL.Services
                 CommitmentFilePath = studentHealthFund.CommitmentFilePath,
                 Notes = studentHealthFund.Notes,
                 IsActive = true,
-                EndDate = null
+                EndDate = null,
+                StandingOrderDay=null
             };
 
             await dal.StudentHealthFunds.Create(shf);
@@ -191,7 +193,8 @@ namespace BLL.Services
                 StartDate = shf.StartDate,
                 ReferralFilePath = shf.ReferralFilePath,
                 CommitmentFilePath = shf.CommitmentFilePath,
-                Notes = shf.Notes
+                Notes = shf.Notes,
+                StandingOrderDay = shf.StandingOrderDay
             };
         }
 
@@ -215,6 +218,7 @@ namespace BLL.Services
             shf.ReferralFilePath = studentHealthFund.ReferralFilePath;
             shf.CommitmentFilePath = studentHealthFund.CommitmentFilePath;
             shf.Notes = studentHealthFund.Notes;
+            shf.StandingOrderDay = studentHealthFund.StandingOrderDay;
 
             dal.StudentHealthFunds.Update(shf).GetAwaiter().GetResult();
         }

@@ -9,6 +9,7 @@
         public string? ReferralFilePath { get; set; }
         public string? CommitmentFilePath { get; set; }
         public string? Notes { get; set; }
+        public byte? StandingOrderDay { get; set; }
     }
 
     public class BLLHealthFundCommitment
@@ -23,6 +24,7 @@
         public string? FilePath { get; set; }
         public string? Notes { get; set; }
         public bool IsActive { get; set; }
+        public byte? StandingOrderDay { get; set; }
     }
 
     public class BLLStudentHealthFundPerfect
@@ -45,6 +47,7 @@
         public string? ReferralFilePath { get; set; }
         public string? CommitmentFilePath { get; set; }
         public string? Notes { get; set; }
+        public byte? StandingOrderDay { get; set; }
 
         public List<BLLHealthFundCommitment>? Commitments { get; set; }
     }

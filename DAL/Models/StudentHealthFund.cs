@@ -13,7 +13,7 @@
 
         public bool IsActive { get; set; } = true;
         public DateTime? EndDate { get; set; }
-
+        public byte? StandingOrderDay { get; set; }
         public Student? Student { get; set; }
         public HealthFund? HealthFund { get; set; }
 

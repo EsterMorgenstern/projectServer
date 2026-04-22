@@ -730,6 +730,9 @@ namespace BLL.Services
             bool wasActive = existingGroup.IsActive ?? false;
             bool willBeActive = group.IsActive ?? false;
 
+            // שמור את קוד המדריך הקודם
+            int previousInstructorId = existingGroup.InstructorId;
+
             // עדכון שדות
             existingGroup.GroupId = group.GroupId;
             existingGroup.CourseId = group.CourseId;
@@ -748,6 +751,21 @@ namespace BLL.Services
             existingGroup.Notes = group.Notes;
 
             dal.Groups.Update(existingGroup);
+
+            // אם המדריך השתנה - עדכן את כל השיעורים העתידיים
+            if (previousInstructorId != group.InstructorId)
+            {
+                var today = DateOnly.FromDateTime(DateTime.Now);
+                var lessons = dal.Lessons.Get()
+                    .Where(l => l.GroupId == group.GroupId && l.LessonDate >= today)
+                    .ToList();
+
+                foreach (var lesson in lessons)
+                {
+                    lesson.InstructorId = group.InstructorId;
+                    dal.Lessons.Update(lesson);
+                }
+            }
 
             // אם הסטטוס השתנה מלא פעיל לפעיל, צור שיעורים
             if (!wasActive && willBeActive)
@@ -768,7 +786,6 @@ namespace BLL.Services
                             createdBy: "system"
                         );
                     }
-
                     else
                     {
                         throw new ArgumentException("StartDate and Hour must have values when activating a group and generating lessons.");
