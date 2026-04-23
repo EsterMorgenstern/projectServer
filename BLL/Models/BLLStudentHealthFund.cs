@@ -34,6 +34,7 @@
         public string? StudentName { get; set; }
         public int Age { get; set; }
         public string? City { get; set; }
+        public string? Email { get; set; }
         public int HealthFundId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime StartDateGroup { get; set; }

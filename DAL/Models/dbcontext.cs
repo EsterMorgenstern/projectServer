@@ -329,6 +329,7 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.StartDate).HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.EndDate).IsRequired(false);
+            entity.Property(e => e.StandingOrderDay).IsRequired(false);
 
             entity.HasOne(d => d.Student)
                 .WithMany(p => p.StudentHealthFunds)

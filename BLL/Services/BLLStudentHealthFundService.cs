@@ -121,6 +121,7 @@ namespace BLL.Services
                     StudentName = student.FirstName + " " + student.LastName,
                     Age = student.Age,
                     City = student.City,
+                    Email=student.Email,
                     StartDateGroup = startDateGroup == default ? DateTime.MinValue : startDateGroup,
                     HealthFundId = shf.HealthFundId,
                     StartDate = shf.StartDate,
