@@ -63,26 +63,30 @@ namespace BLL.Services
         {
             try
             {
-                var pList = dal.Students.Get();
-                if (pList == null || !pList.Any())
-                {
-                    Console.WriteLine("No students found.");
+                var students = dal.Students.Get();
+                if (students == null || !students.Any())
                     return new List<BLLStudent>();
-                }
 
-                // שליפה אחת בלבד של כל הקשרים
+                // שלוף את כל ההערות מסוג "מעקב רישום" בפעם אחת
+                var regNotes = dal.StudentNotes.GetByRegistrationTracking();
+
+                // קבץ לפי StudentId, קח את ההערה הראשונה (או null)
+                var regNoteByStudent = regNotes
+                    .GroupBy(n => n.StudentId)
+                    .ToDictionary(g => g.Key, g => g.OrderBy(n => n.CreatedDate).FirstOrDefault());
+
+                // שלוף את כל הקשרים לקבוצות
                 var allGroupLinks = dal.GroupStudents.Get();
-
-                // קיבוץ לפי StudentId
                 var groupLinksByStudent = allGroupLinks
                     .GroupBy(gs => gs.StudentId)
                     .ToDictionary(g => g.Key, g => g.ToList());
 
-                List<BLLStudent> list = new();
+                var list = new List<BLLStudent>();
 
-                pList.ForEach(p =>
+                foreach (var p in students)
                 {
                     groupLinksByStudent.TryGetValue(p.Id, out var studentGroupLinks);
+                    regNoteByStudent.TryGetValue(p.Id, out var regNote);
 
                     list.Add(new BLLStudent()
                     {
@@ -105,9 +109,10 @@ namespace BLL.Services
                         IdentityCard = p.IdentityCard ?? "",
                         HealthFundId = p.HealthFundId,
                         HealthFundName = p.HealthFundForStudent != null ? p.HealthFundForStudent.Name : "",
-                        HealthFundPlan = p.HealthFundForStudent != null ? p.HealthFundForStudent.FundType : ""
+                        HealthFundPlan = p.HealthFundForStudent != null ? p.HealthFundForStudent.FundType : "",
+                        RegistrationTrackingDate = regNote?.CreatedDate // אם אין, יהיה null
                     });
-                });
+                }
 
                 return list;
             }
@@ -117,6 +122,7 @@ namespace BLL.Services
                 return new List<BLLStudent>();
             }
         }
+
 
         [return: NotNullIfNotNull("id")]
         public BLLStudent GetById(int id)

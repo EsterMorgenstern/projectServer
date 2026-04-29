@@ -20,8 +20,7 @@
         public int HealthFundId { get; set; }
         public string HealthFundName { get; set; } = string.Empty;
         public string HealthFundPlan { get; set; } = string.Empty;
-        
-
+        public DateTime? RegistrationTrackingDate { get; set; }
 
     }
 }

@@ -24,9 +24,7 @@ namespace BLL.Models
 
         [Required]
         public string NoteType { get; set; } = string.Empty;
-
         public string? Priority { get; set; }
-
         public bool? IsPrivate { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
