@@ -30,8 +30,9 @@ namespace BLL.Services
             {
                 GroupId = groupStudent.GroupId,
                 StudentId = groupStudent.StudentId,
-                IsActive = (byte?)(groupStudent.IsActive == 1 || studentService.GetStudentStatus(groupStudent.StudentId) == "פעיל" ? 1 : 0),
-                EnrollmentDate = groupStudent.EnrollmentDate ?? DateOnly.FromDateTime(DateTime.Now)
+                IsActive = (byte?)(groupStudent.IsActive ?? (studentService.GetStudentStatus(groupStudent.StudentId) == "פעיל" ? 1 : 0)),
+                EnrollmentDate = groupStudent.EnrollmentDate ?? DateOnly.FromDateTime(DateTime.Now),
+                TrialDate=groupStudent.TrialDate ?? DateOnly.FromDateTime(DateTime.MinValue)
             };
             dal.GroupStudents.Create(g);
 
@@ -51,6 +52,10 @@ namespace BLL.Services
             if (g.IsActive == 1)
             {
                 attendanceService.CreateAttendanceForNewStudentInGroup(g.StudentId, g.GroupId, (DateOnly)g.EnrollmentDate);
+            }
+            else if (g.IsActive == 4 && g.TrialDate.HasValue && g.TrialDate.Value != DateOnly.MinValue)
+            {
+                attendanceService.CreateAttendanceForTrialLesson(g.StudentId, g.GroupId, g.TrialDate.Value);
             }
 
         }
@@ -139,6 +144,7 @@ namespace BLL.Services
                     GroupId = gs.GroupId,
                     StudentId = gs.StudentId,
                     EnrollmentDate = gs.EnrollmentDate,
+                    TrialDate= gs.TrialDate,
                     IsActive = gs.IsActive
                 }).ToList();
             }
@@ -168,6 +174,7 @@ namespace BLL.Services
                 GroupId = groupStudent.GroupId,
                 StudentId = groupStudent.StudentId,
                 EnrollmentDate = groupStudent.EnrollmentDate,
+                TrialDate = groupStudent.TrialDate,
                 IsActive = groupStudent.IsActive
             };
         }
@@ -191,6 +198,7 @@ namespace BLL.Services
                 GroupId = groupStudent.GroupId,
                 StudentId = groupStudent.StudentId,
                 EnrollmentDate = groupStudent.EnrollmentDate,
+                TrialDate = groupStudent.TrialDate,
                 IsActive = groupStudent.IsActive
             };
         }
@@ -221,6 +229,7 @@ namespace BLL.Services
                         StudentName = $"{dal.Students.GetById(item.StudentId).FirstName} {dal.Students.GetById(item.StudentId).LastName}",
                         Student = dal.Students.GetById(item.StudentId),
                         EnrollmentDate = item.EnrollmentDate,
+                        TrialDate = item.TrialDate,
                         IsActive = item.IsActive,
                         DayOfWeek = d.DayOfWeek,
                         Hour = d.Hour,
@@ -306,6 +315,7 @@ namespace BLL.Services
                         StudentName = $"{student.FirstName} {student.LastName}",
                         Student = student,
                         EnrollmentDate = gs.EnrollmentDate,
+                        TrialDate = gs.TrialDate,
                         IsActive = gs.IsActive,
                         DayOfWeek = group?.DayOfWeek ?? string.Empty,
                         Hour = group?.Hour,
@@ -353,7 +363,50 @@ namespace BLL.Services
                 Sector = i.Sector ??= ""
             }).ToList();
         }
+        /// <summary>
+        /// שליפה לפי סטטוס
+        /// </summary>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public List<BLLGroupStudentBasic> GetByStatus(string status)
+        {
+            int? statusInt = status?.ToLower() == "all" ? (int?)null
+                : int.TryParse(status, out int s) ? s : (int?)null;
 
+            var groupStudents = dal.GroupStudents.GetByStatus(statusInt);
+            if (!groupStudents.Any()) return new List<BLLGroupStudentBasic>();
+
+            var studentIds = groupStudents.Select(gs => gs.StudentId).Distinct().ToList();
+            var groupIds = groupStudents.Select(gs => gs.GroupId).Distinct().ToList();
+
+            var studentsMap = dal.Students.Get()
+                .Where(s => studentIds.Contains(s.Id))
+                .GroupBy(s => s.Id)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            var groupsMap = dal.Groups.Get()
+                .Where(g => groupIds.Contains(g.GroupId))
+                .GroupBy(g => g.GroupId)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            return groupStudents.Select(gs =>
+            {
+                studentsMap.TryGetValue(gs.StudentId, out var student);
+                groupsMap.TryGetValue(gs.GroupId, out var group);
+
+                return new BLLGroupStudentBasic
+                {
+                    GroupStudentId = gs.GroupStudentId,
+                    StudentId = gs.StudentId,
+                    StudentFirstName = student?.FirstName,
+                    StudentLastName = student?.LastName,
+                    GroupName = group?.GroupName ?? "",
+                    IsActive = gs.IsActive,
+                    EnrollmentDate = gs.EnrollmentDate,
+                    TrialDate = gs.TrialDate
+                };
+            }).ToList();
+        }
         public List<BLLGroupStudent> GetStudentsByGroupId(int groupId)
         {
             var groupStudents = dal.GroupStudents.Get().Where(gs => gs.GroupId == groupId).ToList();
@@ -363,6 +416,7 @@ namespace BLL.Services
                 GroupId = gs.GroupId,
                 StudentId = gs.StudentId,
                 EnrollmentDate = gs.EnrollmentDate,
+                TrialDate=gs.TrialDate,
                 IsActive = gs.IsActive
             }).ToList();
         }
@@ -389,13 +443,13 @@ namespace BLL.Services
                 .FirstOrDefault();
             existingGroupStudent.StudentId = groupStudent.StudentId;
             existingGroupStudent.EnrollmentDate = groupStudent.EnrollmentDate;
+            existingGroupStudent.TrialDate = groupStudent.TrialDate;
             existingGroupStudent.IsActive = groupStudent.IsActive;
 
             dal.GroupStudents.Update(existingGroupStudent);
 
             // זיהוי מעבר מ-לא פעיל לפעיל
-            bool becameActive = (oldIsActive == 2 || oldIsActive == 3 || oldIsActive == null) && groupStudent.IsActive == 1;
-            bool enrollmentDateChanged = oldEnrollmentDate != groupStudent.EnrollmentDate;
+            bool becameActive = (oldIsActive == 2 || oldIsActive == 3 || oldIsActive == 4 || oldIsActive == null) && groupStudent.IsActive == 1; bool enrollmentDateChanged = oldEnrollmentDate != groupStudent.EnrollmentDate;
 
             if (becameActive)
             {

@@ -545,6 +545,40 @@ namespace BLL.Services
         }
 
         /// <summary>
+        /// יצירת רשומת נוכחות לתלמיד ניסיון — עבור שיעור הניסיון בלבד
+        /// </summary>
+        public void CreateAttendanceForTrialLesson(int studentId, int groupId, DateOnly trialDate)
+        {
+            if (trialDate == DateOnly.MinValue) return;
+
+            var student = dal.Students.GetById(studentId);
+
+            var lesson = dal.Lessons.Get()
+                .Where(l => l.GroupId == groupId && l.LessonDate == trialDate)
+                .FirstOrDefault();
+
+            if (lesson == null) return;
+
+            var existing = dal.Attendances.GetAttendanceByGroupAndDate(groupId, trialDate)
+                .FirstOrDefault(a => a.LessonId == lesson.LessonId && a.StudentId == studentId);
+
+            if (existing == null)
+            {
+                dal.Attendances.Create(new Attendance
+                {
+                    LessonId = lesson.LessonId,
+                    StudentId = studentId,
+                    WasPresent = true,
+                    StatusReport = 3,
+                    UpdateDate = DateTime.Now,
+                    UpdateBy = null,
+                    HealthFundReport = student.HealthFundId,
+                    DateReport = null
+                });
+            }
+        }
+
+        /// <summary>
         /// שליפת היסטוריית נוכחות של תלמיד עם אפשרות לסינון לפי חודש ושנה - גרסה אסינכרונית
         /// </summary>
         /// <param name="studentId"></param>

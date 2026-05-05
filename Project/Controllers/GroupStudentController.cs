@@ -26,6 +26,11 @@ namespace server.controllers
         {
             return groupStudents.GetById(id);
         }
+        [HttpGet("GetByStatus/{status}")]
+        public List<BLLGroupStudentBasic> GetByStatus(string status)
+        {
+            return groupStudents.GetByStatus(status);
+        }
         [HttpGet("getByStudentId/{id}")]
         public List<BLLGroupStudentPerfect> GetByStudentId(int id)
         {

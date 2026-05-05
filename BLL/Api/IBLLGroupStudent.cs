@@ -12,6 +12,7 @@ namespace BLL.Api
         List<BLLGroupStudent> Get();
         void Create(BLLGroupStudent groupStudent);
         public BLLGroupStudent GetById(int id);
+        List<BLLGroupStudentBasic> GetByStatus(string status);
         public List<BLLGroupStudentPerfect> GetByStudentId(int id);
         public void Delete(int id);
         public void DeleteByGsId(int id);

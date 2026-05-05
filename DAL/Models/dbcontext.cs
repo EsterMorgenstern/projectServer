@@ -131,6 +131,7 @@ public partial class dbcontext : DbContext
         {
             entity.HasKey(e => e.GroupStudentId).HasName("PK__GroupStu__079A8A0E02514AB6");
             entity.Property(e => e.EnrollmentDate).HasColumnName("EnrollmentDate ");
+            entity.Property(e => e.TrialDate).HasColumnName("TrialDate ");
             entity.HasOne(d => d.Group).WithMany(p => p.GroupStudents)
                 .HasForeignKey(d => d.GroupId)
                 .OnDelete(DeleteBehavior.ClientSetNull)

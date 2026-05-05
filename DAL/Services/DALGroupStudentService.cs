@@ -67,6 +67,13 @@ namespace DAL.Services
             }
             return groupStudent;
         }
+        public List<GroupStudent> GetByStatus(int? status)
+        {
+            var query = dbcontext.GroupStudents.AsQueryable();
+            if (status.HasValue)
+                query = query.Where(gs => gs.IsActive == status.Value);
+            return query.ToList();
+        }
         public List<GroupStudent> GetByStudentId(int id)
         {
             return dbcontext.GroupStudents
