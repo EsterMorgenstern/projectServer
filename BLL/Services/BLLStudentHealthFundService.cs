@@ -145,9 +145,7 @@ namespace BLL.Services
                         CommitmentTreatments = c.CommitmentTreatments,
                         UsedTreatments = c.UsedTreatments,
                         StartDate = c.StartDate,
-                        EndDate = c.EndDate,
-                        FilePath = c.FilePath,
-                        Notes = c.Notes,
+                         Notes = c.Notes,
                         IsActive = c.IsActive
                     }).ToList()
                 });

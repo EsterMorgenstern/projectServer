@@ -203,13 +203,14 @@ namespace BLL.Services
 
         public async Task Delete(int id)
         {
+            // מחיקת נוכחויות
             var attendances = await dal.Attendances.GetAttendanceByStudent(id);
-
             foreach (var item in attendances)
             {
                 dal.Attendances.Delete(item.AttendanceId);
             }
 
+            // מחיקת הערות
             var notes = dal.StudentNotes.GetById(id);
             if (notes != null)
             {
@@ -219,6 +220,7 @@ namespace BLL.Services
                 }
             }
 
+            // מחיקת קשרי קבוצות
             var groupStudents = dal.GroupStudents.GetByStudentId(id);
             if (groupStudents != null)
             {
@@ -238,6 +240,24 @@ namespace BLL.Services
                 }
             }
 
+            // מחיקת ק חולים והתחייבויות
+            var studentHealthFund = await dal.StudentHealthFunds.GetActiveByStudentId(id);
+
+            if (studentHealthFund != null)
+            {
+                // מחיקת התחייבויות לכל קופת חולים
+                var commitments = dal.HealthFundCommitments.GetByStudentHealthFundId(studentHealthFund.Id);
+                if (commitments != null)
+                {
+                    foreach (var commitment in commitments)
+                    {
+                        await dal.HealthFundCommitments.Delete(commitment.Id);
+                    }
+                }
+                await dal.StudentHealthFunds.Delete(studentHealthFund.Id);
+            }
+
+            // מחיקת התלמיד עצמו
             dal.Students.Delete(id);
         }
 

@@ -351,11 +351,8 @@ public partial class dbcontext : DbContext
                 .IsRequired()
                 .HasMaxLength(100);
 
-            entity.Property(e => e.FilePath)
-                .HasMaxLength(500);
-
             entity.Property(e => e.IsActive)
-                .HasDefaultValue(true);
+      .HasDefaultValue(true);
 
             entity.Property(e => e.UsedTreatments)
                 .HasDefaultValue(0);

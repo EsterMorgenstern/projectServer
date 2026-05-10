@@ -58,13 +58,15 @@ namespace BLL.Services
                 GroupStudentId = g.GroupStudentId,
                 TrialDateNotFound = trialDateNotFound
             };
-        }        /// <summary>
-                 /// הוצאת תלמיד מחוג-שינוי סטטוס ומחיקת נוכחות עתידית
-                 /// </summary>
-                 /// <param name="id"></param>
-                 /// <exception cref="KeyNotFoundException"></exception>
+        }
+        /// <summary>
+        /// הוצאת תלמיד מחוג-שינוי סטטוס ומחיקת נוכחות עתידית
+        /// </summary>
+        /// <param name="id"></param>
+        /// <exception cref="KeyNotFoundException"></exception>
         public async void Delete(int id)
         {
+
             var groupStudent = dal.GroupStudents.GetById(id);
             if (groupStudent == null)
             {
@@ -93,6 +95,7 @@ namespace BLL.Services
                 .OrderBy(a => a.DateReport)
                 .ToList();
 
+
             // שמור את 4 הראשונות ומחק את השאר
             var attendancesToDelete = attendances.Skip(4).ToList();
 
@@ -100,19 +103,36 @@ namespace BLL.Services
             {
                 dal.Attendances.Delete(attendance.AttendanceId);
             }
+
         }
-
-        public void DeleteByGsId(int id)
-
+        /// <summary>
+        /// מחיקת תלמיד מחוג - מחיקה מלאה של הנוכחויות 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <exception cref="KeyNotFoundException"></exception>
+        public async void DeleteCompletely(int id)
         {
-            var groupStudent = GetByGsId(id);
+
+            var groupStudent = dal.GroupStudents.GetById(id);
             if (groupStudent == null)
             {
                 throw new KeyNotFoundException($"GroupStudent with ID {id} not found.");
             }
 
+            // מחיקת כל הנוכחויות של התלמיד בקורס הזה
+            var allAttendances = (await dal.Attendances.GetAttendanceByStudent(groupStudent.StudentId))
+                .Where(a => a.LessonId != 0 && dal.Lessons.GetById(a.LessonId)?.GroupId == groupStudent.GroupId)
+                .ToList();
+
+            foreach (var attendance in allAttendances)
+            {
+                dal.Attendances.Delete(attendance.AttendanceId);
+            }
+
+            // מחיקת הקשר תלמיד-קורס
             dal.GroupStudents.Delete(id);
 
+            // עדכון group ו-branch
             var group = dal.Groups.GetById(groupStudent.GroupId);
             if (group != null)
             {
@@ -125,7 +145,9 @@ namespace BLL.Services
                 branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) - 1;
                 dal.Branches.Update(branch);
             }
+
         }
+
         /// <summary>
         /// החזרת כל חוגי התלמידים
         /// </summary>

@@ -150,13 +150,14 @@ namespace BLL.Services
                         LessonId = lesson.LessonId,
                         StudentId = studentId,
                         WasPresent = true,
-                        StatusReport = 3,   // ממתין לדיווח לפי הצורך
+                        StatusReport = 3,
                         UpdateDate = DateTime.Now,
                         UpdateBy = null,
-                        HealthFundReport = student.HealthFundId, // קופת החולים של התלמיד
-                        DateReport = null
+                        HealthFundReport = student.HealthFundId,
+                        DateReport = lesson.LessonDate 
                     };
                     dal.Attendances.Create(attendance);
+
                 }
             }
         }

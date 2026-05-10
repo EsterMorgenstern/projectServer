@@ -62,5 +62,10 @@ namespace server.controllers
         {
             groupStudents.Delete(gsId);
         }
+        [HttpDelete("DeleteCompletely")]
+        public void DeleteCompletely(int gsId)
+        {
+            groupStudents.DeleteCompletely(gsId);
+        }
     }
 }
