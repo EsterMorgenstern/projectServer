@@ -21,7 +21,7 @@ namespace BLL.Api
         void CreateMissingAttendancesForAllActiveStudents();
         Task<List<BLLAttendance>> GetStudentAttendanceHistoryAsync(int studentId, int? month = null, int? year = null);
         Task<BLLStudentAttendanceSummaryDto> GetStudentAttendanceSummaryAsync(int studentId, int? month = null, int? year = null);
-
+        bool CreateAttendanceForTrialLesson(int studentId, int groupId, DateOnly trialDate);
 
 
     }

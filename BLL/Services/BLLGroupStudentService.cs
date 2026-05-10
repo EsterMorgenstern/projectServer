@@ -24,7 +24,7 @@ namespace BLL.Services
         /// יצירת חוג לתלמיד כולל יצירת רשומי נוכחות לפי הקבוצה
         /// </summary>
         /// <param name="groupStudent"></param>
-        public void Create(BLLGroupStudent groupStudent)
+        public CreateGroupStudentResult Create(BLLGroupStudent groupStudent)
         {
             GroupStudent g = new GroupStudent()
             {
@@ -32,38 +32,37 @@ namespace BLL.Services
                 StudentId = groupStudent.StudentId,
                 IsActive = (byte?)(groupStudent.IsActive ?? (studentService.GetStudentStatus(groupStudent.StudentId) == "פעיל" ? 1 : 0)),
                 EnrollmentDate = groupStudent.EnrollmentDate ?? DateOnly.FromDateTime(DateTime.Now),
-                TrialDate=groupStudent.TrialDate ?? DateOnly.FromDateTime(DateTime.MinValue)
+                TrialDate = groupStudent.TrialDate
             };
             dal.GroupStudents.Create(g);
 
             var gl = dal.Groups.Get().ToList().Find(x => x.GroupId == groupStudent.GroupId);
-            if (gl != null)
-            {
-                gl.MaxStudents = (gl.MaxStudents ?? 0) - 1;
-                dal.Groups.Update(gl);
-            }
+            if (gl != null) { gl.MaxStudents = (gl.MaxStudents ?? 0) - 1; dal.Groups.Update(gl); }
             var branch = dal.Branches.Get().ToList().Find(x => x.BranchId == gl?.BranchId);
-            if (branch != null)
-            {
-                branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) + 1;
-                dal.Branches.Update(branch);
-            }
-            // הוספת שיעורים לנוכחות אם התלמיד פעיל ותאריך ההתחלה הוא בעבר
+            if (branch != null) { branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) + 1; dal.Branches.Update(branch); }
+
+            bool trialDateNotFound = false;
             if (g.IsActive == 1)
             {
                 attendanceService.CreateAttendanceForNewStudentInGroup(g.StudentId, g.GroupId, (DateOnly)g.EnrollmentDate);
             }
             else if (g.IsActive == 4 && g.TrialDate.HasValue && g.TrialDate.Value != DateOnly.MinValue)
             {
-                attendanceService.CreateAttendanceForTrialLesson(g.StudentId, g.GroupId, g.TrialDate.Value);
+                bool created = attendanceService.CreateAttendanceForTrialLesson(g.StudentId, g.GroupId, g.TrialDate.Value);
+                trialDateNotFound = !created;
             }
 
-        }
-        /// <summary>
-        /// הוצאת תלמיד מחוג-שינוי סטטוס ומחיקת נוכחות עתידית
-        /// </summary>
-        /// <param name="id"></param>
-        /// <exception cref="KeyNotFoundException"></exception>
+            return new CreateGroupStudentResult
+            {
+                Success = true,
+                GroupStudentId = g.GroupStudentId,
+                TrialDateNotFound = trialDateNotFound
+            };
+        }        /// <summary>
+                 /// הוצאת תלמיד מחוג-שינוי סטטוס ומחיקת נוכחות עתידית
+                 /// </summary>
+                 /// <param name="id"></param>
+                 /// <exception cref="KeyNotFoundException"></exception>
         public async void Delete(int id)
         {
             var groupStudent = dal.GroupStudents.GetById(id);
@@ -87,18 +86,22 @@ namespace BLL.Services
                 branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) - 1;
                 dal.Branches.Update(branch);
             }
+
+            // שלוף את כל הנוכחויות העתידיות
             var attendances = (await dal.Attendances.GetAttendanceByStudent(groupStudent.StudentId))
-             .Where(a=>a.DateReport >= DateOnly.FromDateTime(DateTime.Now))
-             .ToList();
+                .Where(a => a.DateReport >= DateOnly.FromDateTime(DateTime.Now))
+                .OrderBy(a => a.DateReport)
+                .ToList();
 
+            // שמור את 4 הראשונות ומחק את השאר
+            var attendancesToDelete = attendances.Skip(4).ToList();
 
-            foreach (var attendance in attendances)
+            foreach (var attendance in attendancesToDelete)
             {
                 dal.Attendances.Delete(attendance.AttendanceId);
             }
-
-
         }
+
         public void DeleteByGsId(int id)
 
         {
@@ -144,7 +147,7 @@ namespace BLL.Services
                     GroupId = gs.GroupId,
                     StudentId = gs.StudentId,
                     EnrollmentDate = gs.EnrollmentDate,
-                    TrialDate= gs.TrialDate,
+                    TrialDate = gs.TrialDate,
                     IsActive = gs.IsActive
                 }).ToList();
             }
@@ -416,7 +419,7 @@ namespace BLL.Services
                 GroupId = gs.GroupId,
                 StudentId = gs.StudentId,
                 EnrollmentDate = gs.EnrollmentDate,
-                TrialDate=gs.TrialDate,
+                TrialDate = gs.TrialDate,
                 IsActive = gs.IsActive
             }).ToList();
         }
@@ -431,11 +434,15 @@ namespace BLL.Services
             var existingGroupStudent = dal.GroupStudents.GetById(groupStudent.GroupStudentId);
             if (existingGroupStudent == null)
             {
+                Console.WriteLine($"[Update] GroupStudent with ID {groupStudent.GroupStudentId} not found.");
                 throw new KeyNotFoundException($"GroupStudent with ID {groupStudent.GroupStudentId} not found.");
             }
 
             var oldEnrollmentDate = existingGroupStudent.EnrollmentDate;
             var oldIsActive = existingGroupStudent.IsActive;
+            var oldTrialDate = existingGroupStudent.TrialDate; // שמור את הערך הישן
+
+            Console.WriteLine($"[Update] Before update: GroupStudentId={groupStudent.GroupStudentId}, OldTrialDate={oldTrialDate}, NewTrialDate={groupStudent.TrialDate}, OldIsActive={oldIsActive}, NewIsActive={groupStudent.IsActive}");
 
             existingGroupStudent.GroupId = dal.Groups.Get()
                 .Where(x => x.GroupName == groupStudent.GroupName)
@@ -449,26 +456,46 @@ namespace BLL.Services
             dal.GroupStudents.Update(existingGroupStudent);
 
             // זיהוי מעבר מ-לא פעיל לפעיל
-            bool becameActive = (oldIsActive == 2 || oldIsActive == 3 || oldIsActive == 4 || oldIsActive == null) && groupStudent.IsActive == 1; bool enrollmentDateChanged = oldEnrollmentDate != groupStudent.EnrollmentDate;
+            bool becameActive = (oldIsActive == 2 || oldIsActive == 3 || oldIsActive == 4 || oldIsActive == null) && groupStudent.IsActive == 1;
+            bool enrollmentDateChanged = oldEnrollmentDate != groupStudent.EnrollmentDate;
+
+            Console.WriteLine($"[Update] becameActive={becameActive}, enrollmentDateChanged={enrollmentDateChanged}");
 
             if (becameActive)
             {
+                Console.WriteLine($"[Update] Creating attendance for new active student. StudentId={groupStudent.StudentId}, GroupId={existingGroupStudent.GroupId}, EnrollmentDate={groupStudent.EnrollmentDate}");
                 attendanceService.CreateAttendanceForNewStudentInGroup(
                     groupStudent.StudentId,
                     existingGroupStudent.GroupId,
                     groupStudent.EnrollmentDate ?? DateOnly.FromDateTime(DateTime.Now)
                 );
             }
-            // קריאה לעדכון נוכחויות רק אם תאריך ההתחלה שונה ולא היה מעבר ל-פעיל
-            else if (enrollmentDateChanged)
+            // יצירת נוכחות לשיעור ניסיון אם נוסף או שונה תאריך ניסיון
+            else if (
+                groupStudent.IsActive == 4 &&
+                groupStudent.TrialDate.HasValue &&
+                groupStudent.TrialDate.Value != DateOnly.MinValue &&
+                (!oldTrialDate.HasValue || oldTrialDate.Value != groupStudent.TrialDate.Value)
+            )
             {
-                attendanceService.UpdateAttendancesForEnrollmentDateChange(
+                Console.WriteLine($"[Update] Creating trial lesson attendance. StudentId={groupStudent.StudentId}, GroupId={existingGroupStudent.GroupId}, TrialDate={groupStudent.TrialDate}");
+                attendanceService.CreateAttendanceForTrialLesson(
                     groupStudent.StudentId,
                     existingGroupStudent.GroupId,
-                    oldEnrollmentDate,
-                    groupStudent.EnrollmentDate
+                    groupStudent.TrialDate.Value
                 );
             }
+            else
+            {
+                Console.WriteLine("[Update] No attendance created for trial lesson.");
+            }
+        }
+
+        public class CreateGroupStudentResult
+        {
+            public bool Success { get; set; }
+            public int GroupStudentId { get; set; }
+            public bool TrialDateNotFound { get; set; }
         }
 
     }

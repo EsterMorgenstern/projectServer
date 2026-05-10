@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BLL.Models;
+using static BLL.Services.BLLGroupStudentService;
 
 namespace BLL.Api
 {
     public interface IBLLGroupStudent
     {
         List<BLLGroupStudent> Get();
-        void Create(BLLGroupStudent groupStudent);
+        CreateGroupStudentResult Create(BLLGroupStudent groupStudent);
         public BLLGroupStudent GetById(int id);
         List<BLLGroupStudentBasic> GetByStatus(string status);
         public List<BLLGroupStudentPerfect> GetByStudentId(int id);

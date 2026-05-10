@@ -12,7 +12,7 @@ namespace BLL.Services
 
         public BLLAttendanceService(IDAL dal, BLLStudentService studentService)
         {
-            this.dal = dal; 
+            this.dal = dal;
             this.studentService = studentService;
         }
         #region פונקציות המרה 
@@ -149,7 +149,7 @@ namespace BLL.Services
                     {
                         LessonId = lesson.LessonId,
                         StudentId = studentId,
-                        WasPresent = true, 
+                        WasPresent = true,
                         StatusReport = 3,   // ממתין לדיווח לפי הצורך
                         UpdateDate = DateTime.Now,
                         UpdateBy = null,
@@ -412,7 +412,7 @@ namespace BLL.Services
                 Console.WriteLine("Step 4: filtering relevant students...");
                 var relevantStudents = allStudents
                     .Where(s =>
-                     studentService.GetStudentStatus(s.Id) =="פעיל" ||
+                     studentService.GetStudentStatus(s.Id) == "פעיל" ||
                         studentsWithActiveEnrollment.Contains(s.Id))
                     .ToList();
                 Console.WriteLine($"Step 4 OK: ");
@@ -547,9 +547,9 @@ namespace BLL.Services
         /// <summary>
         /// יצירת רשומת נוכחות לתלמיד ניסיון — עבור שיעור הניסיון בלבד
         /// </summary>
-        public void CreateAttendanceForTrialLesson(int studentId, int groupId, DateOnly trialDate)
+        public bool CreateAttendanceForTrialLesson(int studentId, int groupId, DateOnly trialDate)
         {
-            if (trialDate == DateOnly.MinValue) return;
+            if (trialDate == DateOnly.MinValue) return false;
 
             var student = dal.Students.GetById(studentId);
 
@@ -557,7 +557,7 @@ namespace BLL.Services
                 .Where(l => l.GroupId == groupId && l.LessonDate == trialDate)
                 .FirstOrDefault();
 
-            if (lesson == null) return;
+            if (lesson == null) return false;  // ← תאריך לא קיים ברשימת השיעורים
 
             var existing = dal.Attendances.GetAttendanceByGroupAndDate(groupId, trialDate)
                 .FirstOrDefault(a => a.LessonId == lesson.LessonId && a.StudentId == studentId);
@@ -576,8 +576,8 @@ namespace BLL.Services
                     DateReport = null
                 });
             }
+            return true;
         }
-
         /// <summary>
         /// שליפת היסטוריית נוכחות של תלמיד עם אפשרות לסינון לפי חודש ושנה - גרסה אסינכרונית
         /// </summary>
