@@ -119,6 +119,7 @@ namespace BLL.Services
                     Id = shf.Id,
                     StudentId = shf.StudentId,
                     StudentName = student.FirstName + " " + student.LastName,
+                    OfficialFirstName = student.OfficialFirstName ?? student.FirstName,
                     Age = student.Age,
                     City = student.City,
                     Email=student.Email,
@@ -135,7 +136,8 @@ namespace BLL.Services
                     ReferralFilePath = shf.ReferralFilePath,
                     CommitmentFilePath = shf.CommitmentFilePath,
                     Notes = shf.Notes,
-                    StandingOrderDay=shf.StandingOrderDay,
+                    StandingOrderDay = shf.StandingOrderDay,
+                    StandingOrderHandledMonth = shf.StandingOrderHandledMonth ?? 0,
 
                     Commitments = studentCommitments.Select(c => new BLLHealthFundCommitment
                     {
@@ -218,6 +220,8 @@ namespace BLL.Services
             shf.CommitmentFilePath = studentHealthFund.CommitmentFilePath;
             shf.Notes = studentHealthFund.Notes;
             shf.StandingOrderDay = studentHealthFund.StandingOrderDay;
+            shf.StandingOrderDay = studentHealthFund.StandingOrderDay;
+            shf.StandingOrderHandledMonth = studentHealthFund.StandingOrderHandledMonth;
 
             dal.StudentHealthFunds.Update(shf).GetAwaiter().GetResult();
         }

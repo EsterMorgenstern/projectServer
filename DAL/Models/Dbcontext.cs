@@ -243,6 +243,7 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.FirstName).HasMaxLength(20);
             entity.Property(e => e.Class).HasMaxLength(10);
             entity.Property(e => e.LastName);
+            entity.Property(e => e.OfficialFirstName);
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.SecondaryPhone).HasMaxLength(20);
             entity.Property(e => e.School).HasMaxLength(20);
@@ -331,6 +332,7 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.EndDate).IsRequired(false);
             entity.Property(e => e.StandingOrderDay).IsRequired(false);
+            entity.Property(e => e.StandingOrderHandledMonth).IsRequired(false);
 
             entity.HasOne(d => d.Student)
                 .WithMany(p => p.StudentHealthFunds)

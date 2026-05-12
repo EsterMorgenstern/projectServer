@@ -43,12 +43,38 @@ namespace server.controllers
         {
             return groupStudents.GetByStudentName(firstName, lastName);
         }
-
+            
         [HttpPost("Add")]
-        public IActionResult Add([FromBody] BLLGroupStudent groupStudent)
+        public IActionResult Create([FromBody] BLLGroupStudent model)
         {
-            var result = groupStudents.Create(groupStudent);
-            return Ok(result);
+            if (model == null)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    errorCode = "ValidationError",
+                    message = "Body חסר או לא תקין"
+                });
+            }
+
+            var result = groupStudents.Create(model);
+
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+
+            if (result.ErrorCode == "AlreadyExists")
+            {
+                return Conflict(result); // 409
+            }
+
+            if (result.ErrorCode == "ValidationError")
+            {
+                return BadRequest(result); // 400
+            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError, result);
         }
 
         [HttpPut("Update")]

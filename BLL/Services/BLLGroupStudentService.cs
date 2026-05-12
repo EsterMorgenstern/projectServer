@@ -2,6 +2,8 @@
 using BLL.Models;
 using DAL.Api;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace BLL.Services
 {
@@ -24,47 +26,136 @@ namespace BLL.Services
         /// יצירת חוג לתלמיד כולל יצירת רשומי נוכחות לפי הקבוצה
         /// </summary>
         /// <param name="groupStudent"></param>
-        public CreateGroupStudentResult Create(BLLGroupStudent groupStudent)
-        {
-            GroupStudent g = new GroupStudent()
-            {
-                GroupId = groupStudent.GroupId,
-                StudentId = groupStudent.StudentId,
-                IsActive = (byte?)(groupStudent.IsActive ?? (studentService.GetStudentStatus(groupStudent.StudentId) == "פעיל" ? 1 : 0)),
-                EnrollmentDate = groupStudent.EnrollmentDate ?? DateOnly.FromDateTime(DateTime.Now),
-                TrialDate = groupStudent.TrialDate
-            };
-            dal.GroupStudents.Create(g);
 
-            var gl = dal.Groups.Get().ToList().Find(x => x.GroupId == groupStudent.GroupId);
-            if (gl != null) { gl.MaxStudents = (gl.MaxStudents ?? 0) - 1; dal.Groups.Update(gl); }
-            var branch = dal.Branches.Get().ToList().Find(x => x.BranchId == gl?.BranchId);
-            if (branch != null) { branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) + 1; dal.Branches.Update(branch); }
+
+public CreateGroupStudentResult Create(BLLGroupStudent groupStudent)
+    {
+        if (groupStudent == null)
+        {
+            return new CreateGroupStudentResult
+            {
+                Success = false,
+                ErrorCode = "ValidationError",
+                Message = "נתוני הרשמה חסרים"
+            };
+        }
+
+        if (groupStudent.StudentId <= 0 || groupStudent.GroupId <= 0)
+        {
+            return new CreateGroupStudentResult
+            {
+                Success = false,
+                ErrorCode = "ValidationError",
+                Message = "StudentId או GroupId לא תקינים"
+            };
+        }
+
+        // בדיקה מוקדמת (ידידותית למשתמש)
+        var existing = dal.GroupStudents
+            .Get()
+            .FirstOrDefault(x => x.GroupId == groupStudent.GroupId && x.StudentId == groupStudent.StudentId);
+
+        if (existing != null)
+        {
+            return new CreateGroupStudentResult
+            {
+                Success = false,
+                GroupStudentId = existing.GroupStudentId,
+                ErrorCode = "AlreadyExists",
+                Message = "התלמיד כבר רשום לקבוצה הזאת"
+            };
+        }
+
+        var entity = new GroupStudent
+        {
+            GroupId = groupStudent.GroupId,
+            StudentId = groupStudent.StudentId,
+            IsActive = (byte?)(groupStudent.IsActive ??
+                       (studentService.GetStudentStatus(groupStudent.StudentId) == "פעיל" ? 1 : 0)),
+            EnrollmentDate = groupStudent.EnrollmentDate ?? DateOnly.FromDateTime(DateTime.Now),
+            TrialDate = groupStudent.TrialDate
+        };
+
+        try
+        {
+            dal.GroupStudents.Create(entity);
+
+            var group = dal.Groups.Get().FirstOrDefault(x => x.GroupId == groupStudent.GroupId);
+            if (group != null)
+            {
+                group.MaxStudents = (group.MaxStudents ?? 0) - 1;
+                dal.Groups.Update(group);
+            }
+
+            var branch = dal.Branches.Get().FirstOrDefault(x => x.BranchId == group?.BranchId);
+            if (branch != null)
+            {
+                branch.MaxGroupSize = (branch.MaxGroupSize ?? 0) + 1;
+                dal.Branches.Update(branch);
+            }
 
             bool trialDateNotFound = false;
-            if (g.IsActive == 1)
+            if (entity.IsActive == 1)
             {
-                attendanceService.CreateAttendanceForNewStudentInGroup(g.StudentId, g.GroupId, (DateOnly)g.EnrollmentDate);
+                attendanceService.CreateAttendanceForNewStudentInGroup(
+                    entity.StudentId,
+                    entity.GroupId,
+                    (DateOnly)entity.EnrollmentDate
+                );
             }
-            else if (g.IsActive == 4 && g.TrialDate.HasValue && g.TrialDate.Value != DateOnly.MinValue)
+            else if (entity.IsActive == 4 && entity.TrialDate.HasValue && entity.TrialDate.Value != DateOnly.MinValue)
             {
-                bool created = attendanceService.CreateAttendanceForTrialLesson(g.StudentId, g.GroupId, g.TrialDate.Value);
+                bool created = attendanceService.CreateAttendanceForTrialLesson(
+                    entity.StudentId,
+                    entity.GroupId,
+                    entity.TrialDate.Value
+                );
                 trialDateNotFound = !created;
             }
 
             return new CreateGroupStudentResult
             {
                 Success = true,
-                GroupStudentId = g.GroupStudentId,
-                TrialDateNotFound = trialDateNotFound
+                GroupStudentId = entity.GroupStudentId,
+                TrialDateNotFound = trialDateNotFound,
+                Message = "נרשם בהצלחה"
             };
         }
-        /// <summary>
-        /// הוצאת תלמיד מחוג-שינוי סטטוס ומחיקת נוכחות עתידית
-        /// </summary>
-        /// <param name="id"></param>
-        /// <exception cref="KeyNotFoundException"></exception>
-        public async void Delete(int id)
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+        {
+            // הגנה במקרה race condition (2 בקשות בו זמנית)
+            return new CreateGroupStudentResult
+            {
+                Success = false,
+                ErrorCode = "AlreadyExists",
+                Message = "התלמיד כבר רשום לקבוצה הזאת"
+            };
+        }
+        catch (Exception)
+        {
+            return new CreateGroupStudentResult
+            {
+                Success = false,
+                ErrorCode = "ServerError",
+                Message = "אירעה שגיאה ביצירת הרשמה לקבוצה"
+            };
+        }
+    }
+
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex)
+    {
+        if (ex.InnerException is SqlException sqlEx)
+        {
+            // 2601,2627 = Unique index / constraint violation
+            return sqlEx.Number == 2601 || sqlEx.Number == 2627;
+        }
+        return false;
+    }        /// <summary>
+             /// הוצאת תלמיד מחוג-שינוי סטטוס ומחיקת נוכחות עתידית
+             /// </summary>
+             /// <param name="id"></param>
+             /// <exception cref="KeyNotFoundException"></exception>
+    public async void Delete(int id)
         {
 
             var groupStudent = dal.GroupStudents.GetById(id);
@@ -516,8 +607,10 @@ namespace BLL.Services
         public class CreateGroupStudentResult
         {
             public bool Success { get; set; }
-            public int GroupStudentId { get; set; }
+            public int? GroupStudentId { get; set; }
             public bool TrialDateNotFound { get; set; }
+            public string Message { get; set; } = "";
+            public string? ErrorCode { get; set; } // "AlreadyExists", "ValidationError", "ServerError"
         }
 
     }

@@ -21,6 +21,7 @@ namespace BLL.Services
             {
                 Id = student.Id,
                 FirstName = student.FirstName,
+                OfficialFirstName = string.IsNullOrWhiteSpace(student.OfficialFirstName) ? student.FirstName : student.OfficialFirstName,
                 LastName = student.LastName,
                 Age = student.Age,
                 City = student.City,
@@ -92,6 +93,7 @@ namespace BLL.Services
                     {
                         Id = p.Id,
                         FirstName = p.FirstName ?? "",
+                        OfficialFirstName = p.OfficialFirstName ?? p.FirstName ?? "",
                         LastName = p.LastName ?? "",
                         Phone = p.Phone.ToString(),
                         SecondaryPhone = p.SecondaryPhone?.ToString() ?? "",
@@ -136,6 +138,7 @@ namespace BLL.Services
                     {
                         Id = p.Id,
                         FirstName = p.FirstName ?? "",
+                        OfficialFirstName = p.OfficialFirstName ?? p.FirstName ?? "",
                         LastName = p.LastName ?? "",
                         Phone = p.Phone.ToString(),
                         SecondaryPhone = p.SecondaryPhone?.ToString() ?? "",
@@ -160,6 +163,7 @@ namespace BLL.Services
                 {
                     Id = id,
                     FirstName = "",
+                    OfficialFirstName = "",
                     LastName = "",
                     Phone = "",
                     SecondaryPhone = "",
@@ -183,6 +187,7 @@ namespace BLL.Services
                 {
                     Id = id,
                     FirstName = "",
+                    OfficialFirstName = "",
                     LastName = "",
                     Phone = "",
                     SecondaryPhone = "",
@@ -266,6 +271,7 @@ namespace BLL.Services
             var m = dal.Students.GetById(student.Id);
             m.Id = student.Id;
             m.FirstName = student.FirstName;
+            m.OfficialFirstName = string.IsNullOrWhiteSpace(student.OfficialFirstName) ? student.FirstName : student.OfficialFirstName;
             m.LastName = student.LastName;
             m.Phone = student.Phone;
             m.SecondaryPhone = student.SecondaryPhone;

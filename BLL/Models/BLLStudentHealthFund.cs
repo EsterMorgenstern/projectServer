@@ -10,6 +10,7 @@
         public string? CommitmentFilePath { get; set; }
         public string? Notes { get; set; }
         public byte? StandingOrderDay { get; set; }
+        public int StandingOrderHandledMonth { get; set; }
     }
 
     public class BLLHealthFundCommitment
@@ -25,6 +26,7 @@
         public string? Notes { get; set; }
         public bool IsActive { get; set; }
         public byte? StandingOrderDay { get; set; }
+        public int StandingOrderHandledMonth { get; set; }
     }
 
     public class BLLStudentHealthFundPerfect
@@ -32,6 +34,7 @@
         public int Id { get; set; }
         public int StudentId { get; set; }
         public string? StudentName { get; set; }
+        public string? OfficialFirstName { get; set; }
         public int Age { get; set; }
         public string? City { get; set; }
         public string? Email { get; set; }
@@ -49,6 +52,7 @@
         public string? CommitmentFilePath { get; set; }
         public string? Notes { get; set; }
         public byte? StandingOrderDay { get; set; }
+        public int StandingOrderHandledMonth { get; set; }
 
         public List<BLLHealthFundCommitment>? Commitments { get; set; }
     }
