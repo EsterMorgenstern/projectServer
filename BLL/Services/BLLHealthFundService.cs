@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using BLL.Api;
 using BLL.Models;
 using DAL.Api;
@@ -30,7 +28,7 @@ namespace BLL.Services
                 RequiresReferral = hf.RequiresReferral,
                 RequiresCommitment = hf.RequiresCommitment,
                 IsActive = hf.IsActive,
-                ValidUntilAge = hf.ValidUntilAge ?? 0, 
+                ValidUntilAge = hf.ValidUntilAge ?? 0,
                 EligibilityDetails = hf.EligibilityDetails
             }).ToList();
         }
@@ -48,8 +46,8 @@ namespace BLL.Services
                 RequiresReferral = healthFund.RequiresReferral,
                 RequiresCommitment = healthFund.RequiresCommitment,
                 IsActive = healthFund.IsActive,
-                ValidUntilAge=healthFund.ValidUntilAge,
-                EligibilityDetails=healthFund.EligibilityDetails
+                ValidUntilAge = healthFund.ValidUntilAge,
+                EligibilityDetails = healthFund.EligibilityDetails
             };
             dal.HealthFunds.Create(hf);
         }
@@ -68,7 +66,7 @@ namespace BLL.Services
                 RequiresReferral = hf.RequiresReferral,
                 RequiresCommitment = hf.RequiresCommitment,
                 IsActive = hf.IsActive,
-                ValidUntilAge = hf.ValidUntilAge ?? 0, 
+                ValidUntilAge = hf.ValidUntilAge ?? 0,
                 EligibilityDetails = hf.EligibilityDetails
             };
         }

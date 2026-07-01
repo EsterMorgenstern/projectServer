@@ -27,6 +27,7 @@
         public bool? IsActive { get; set; }
         public int? ActiveStudents { get; set; }
         public string?  Notes { get; set; }
+        public int? KolKasherGroupNumber { get; set; }
 
     }
 }

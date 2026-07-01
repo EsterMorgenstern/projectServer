@@ -13,6 +13,7 @@ namespace BLL.Models
         public DateOnly? TrialDate { get; set; }
         public byte? IsActive { get; set; }
         public string? Notes { get; set; }
+        public int? KolKasherGroupNumber { get; set; }
         public string DayOfWeek { get; set; } = null!;
         public TimeOnly? Hour { get; set; }
         public string CourseName { get; set; } = string.Empty;

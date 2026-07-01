@@ -17,6 +17,8 @@ namespace BLL.Models
         public int? LessonsCompleted { get; set; }
         public bool? IsActive { get; set; }
         public string? Notes { get; set; }
+        public int? KolKasherGroupNumber { get; set; }
+        public int? NoKolKasherGroupNumber { get; set; }
 
 
     }
@@ -39,7 +41,7 @@ namespace BLL.Models
         public int? LessonsCompleted { get; set; }
         public bool? IsActive { get; set; }
         public string? Notes { get; set; }
-
+        public int? KolKasherGroupNumber { get; set; }
 
         // שדות חדשים
         public string InstructorName { get; set; } = string.Empty;

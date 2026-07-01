@@ -112,6 +112,7 @@ public partial class dbcontext : DbContext
             entity.Property(e => e.GroupName);
             entity.Property(e => e.IsActive);
             entity.Property(e => e.Notes);
+            entity.Property(e => e.KolKasherGroupNumber);
             entity.Property(e => e.Sector).HasMaxLength(20);
             entity.HasOne(d => d.Branch).WithMany(p => p.Groups)
                 .HasForeignKey(d => d.BranchId)

@@ -122,7 +122,7 @@ namespace BLL.Services
                     OfficialFirstName = student.OfficialFirstName ?? student.FirstName,
                     Age = student.Age,
                     City = student.City,
-                    Email=student.Email,
+                    Email = student.Email,
                     StartDateGroup = startDateGroup == default ? DateTime.MinValue : startDateGroup,
                     HealthFundId = shf.HealthFundId,
                     StartDate = shf.StartDate,
@@ -147,7 +147,7 @@ namespace BLL.Services
                         CommitmentTreatments = c.CommitmentTreatments,
                         UsedTreatments = c.UsedTreatments,
                         StartDate = c.StartDate,
-                         Notes = c.Notes,
+                        Notes = c.Notes,
                         IsActive = c.IsActive
                     }).ToList()
                 });
@@ -176,12 +176,11 @@ namespace BLL.Services
                 Notes = studentHealthFund.Notes,
                 IsActive = true,
                 EndDate = null,
-                StandingOrderDay=null
+                StandingOrderDay = null
             };
 
             await dal.StudentHealthFunds.Create(shf);
         }
-
         public BLLStudentHealthFund GetById(int id)
         {
             var shf = dal.StudentHealthFunds.GetById(id);
@@ -198,12 +197,10 @@ namespace BLL.Services
                 StandingOrderDay = shf.StandingOrderDay
             };
         }
-
         public void Delete(int id)
         {
             dal.StudentHealthFunds.Delete(id).GetAwaiter().GetResult();
         }
-
         public void Update(BLLStudentHealthFund studentHealthFund)
         {
             var shf = dal.StudentHealthFunds.GetById(studentHealthFund.Id);
@@ -225,7 +222,6 @@ namespace BLL.Services
 
             dal.StudentHealthFunds.Update(shf).GetAwaiter().GetResult();
         }
-
         public List<DateTime> GetReportedDates(int studentHealthFundId)
         {
             var shf = dal.StudentHealthFunds.GetById(studentHealthFundId);
@@ -252,7 +248,7 @@ namespace BLL.Services
                 if (lesson == null)
                     continue;
 
-                lessonDates.Add(lesson.LessonDate.ToDateTime(TimeOnly.MinValue)); 
+                lessonDates.Add(lesson.LessonDate.ToDateTime(TimeOnly.MinValue));
             }
 
             return lessonDates
@@ -260,7 +256,6 @@ namespace BLL.Services
                 .OrderBy(d => d)
                 .ToList();
         }
-
         public List<DateTime> GetUnreportedDates(int studentHealthFundId)
         {
             var shf = dal.StudentHealthFunds.GetById(studentHealthFundId);
@@ -295,12 +290,10 @@ namespace BLL.Services
                 .OrderBy(d => d)
                 .ToList();
         }
-
         public void AddReportedDate(int studentHealthFundId, DateTime date)
         {
             ReportUnreportedDate(studentHealthFundId, date).GetAwaiter().GetResult();
         }
-
         public async Task ReportUnreportedDate(int studentHealthFundId, DateTime date)
         {
             var shf = dal.StudentHealthFunds.GetById(studentHealthFundId);
@@ -369,12 +362,10 @@ namespace BLL.Services
                 }));
             }
         }
-
         public void UploadFile(int studentHealthFundId, string filePath, string fileType)
         {
             dal.StudentHealthFunds.SaveFilePath(studentHealthFundId, filePath, fileType);
         }
-
         public async Task<UnreportedTreatmentsSyncResult> ValidateAndFixUnreportedTreatments()
         {
             return await Task.FromResult(new UnreportedTreatmentsSyncResult

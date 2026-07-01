@@ -154,7 +154,7 @@ namespace BLL.Services
                         UpdateDate = DateTime.Now,
                         UpdateBy = null,
                         HealthFundReport = student.HealthFundId,
-                        DateReport = lesson.LessonDate 
+                        DateReport = lesson.LessonDate
                     };
                     dal.Attendances.Create(attendance);
 
@@ -303,8 +303,13 @@ namespace BLL.Services
             dal.Attendances.BatchUpdateAttendances(dalAttendances);
         }
 
-
-
+        /// <summary>
+        ///  סיכום נוכחויות תלמיד לפי חודש ושנה - אופציונלי
+        /// </summary>
+        /// <param name="studentId"></param>
+        /// <param name="month"></param>
+        /// <param name="year"></param>
+        /// <returns></returns>
         public BLLStudentAttendanceSummaryDto GetStudentAttendanceSummary(int studentId, int? month = null, int? year = null)
         {
             // שליפת כל הנוכחויות של התלמיד
@@ -335,9 +340,12 @@ namespace BLL.Services
             };
         }
 
-
-
-
+        /// <summary>
+        /// שליפת נוכחויות לקבוצה בתאריך מסוים
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="date"></param>
+        /// <returns></returns>
         public List<BLLAttendanceRecord> GetAttendanceByGroupAndDate(int groupId, DateOnly date)
         {
             // שליפת כל רשומות הנוכחות לקבוצה בתאריך המסוים
@@ -351,6 +359,13 @@ namespace BLL.Services
             }).ToList();
         }
 
+        /// <summary>
+        /// שליפת כל רשומות הנוכחות לקבוצה בטווח תאריכים
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="startDate"></param>
+        /// <param name="endDate"></param>
+        /// <returns></returns>
         public Dictionary<DateOnly, List<BLLAttendanceRecord>> GetAttendanceByGroupAndDateRange(int groupId, DateOnly startDate, DateOnly endDate)
         {
             // שליפת כל רשומות הנוכחות לקבוצה בטווח תאריכים

@@ -33,12 +33,10 @@ namespace BLL.Services
             };
             dal.StudentNotes.Create(s);
         }
-
         public void Delete(int id)
         {
             dal.StudentNotes.Delete(id);
         }
-
         public List<BLLStudentNote> Get()
         {
             try
@@ -72,6 +70,7 @@ namespace BLL.Services
                 return new List<BLLStudentNote>(); // מחזיר מערך ריק במקרה של שגיאה
             }
         }
+
         /// <summary>
         /// שליפה לפי קוד התלמיד
         /// </summary>
@@ -102,6 +101,12 @@ namespace BLL.Services
             }
             return blc;
         }
+
+        /// <summary>
+        /// שליפה לפי קוד משתמש
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public List<BLLStudentNote> GetByUserId(int userId)
         {
             List<StudentNote> b = dal.StudentNotes.GetByUserId(userId);
@@ -127,6 +132,7 @@ namespace BLL.Services
             }
             return blc;
         }
+
         public List<BLLStudentNote> GetByRegistrationTracking()
         {
             List<StudentNote> b = dal.StudentNotes.GetByRegistrationTracking();
